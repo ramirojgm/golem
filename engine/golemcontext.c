@@ -1,0 +1,222 @@
+/*
+	Copyright (C) 2016 Ramiro Jose Garcia Moraga
+
+	This file is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 2 of the License, or
+	(at your option) any later version.
+
+	This file is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "golem.h"
+
+typedef struct _GolemContextPrivate GolemContextPrivate;
+typedef struct _GolemContextVariable GolemContextVariable;
+
+struct _GolemContextPrivate
+{
+  GolemContext * parent;
+  GObject * instance;
+  GList * variables;
+
+};
+
+struct _GolemContextVariable{
+  gchar * name;
+  GType type;
+  GValue value;
+};
+
+G_DEFINE_TYPE_WITH_PRIVATE(GolemContext,golem_context,G_TYPE_OBJECT)
+
+static void
+golem_context_variable_free(GolemContextVariable * variable)
+{
+  g_free(variable->name);
+  g_value_unset(&(variable->value));
+  g_free(variable);
+}
+
+static void
+golem_context_dispose(GObject * object)
+{
+  GolemContextPrivate * priv;
+  priv = golem_context_get_instance_private(GOLEM_CONTEXT(object));
+  g_clear_object(&(priv->instance));
+  g_list_free_full(priv->variables,(GDestroyNotify)golem_context_variable_free);
+  G_OBJECT_CLASS(golem_context_parent_class)->dispose(object);
+}
+
+static void
+golem_context_init(GolemContext * self)
+{
+  GolemContextPrivate * priv;
+  priv = golem_context_get_instance_private(self);
+  priv->parent = NULL;
+  priv->instance = NULL;
+  priv->variables = NULL;
+}
+
+static void
+golem_context_class_init(GolemContextClass * klass)
+{
+  G_OBJECT_CLASS(klass)->dispose = golem_context_dispose;
+}
+
+
+gboolean
+golem_context_set(GolemContext * context,const gchar * name,GValue * value,GError ** error)
+{
+  if(!context)
+    return FALSE;
+  GolemContextPrivate * priv;
+  priv = golem_context_get_instance_private(context);
+
+  for(GList * iter = g_list_first(priv->variables);iter;iter = g_list_next(iter))
+    {
+      GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
+      if(g_strcmp0(name,variable->name) == 0)
+	{
+	  if(variable->value.g_type == value->g_type)
+	    {
+	      g_value_unset(&(variable->value));
+	      g_value_copy(&(variable->value),value);
+	      return TRUE;
+	    }
+	  else if(g_value_type_transformable(value->g_type,variable->type))
+	    {
+	      g_value_unset(&(variable->value));
+	      g_value_init(&(variable->value),variable->type);
+	      g_value_transform(value, &(variable->value));
+	      return TRUE;
+	    }
+	  else
+	    {
+	      //TODO: throw error can't transform
+	      return FALSE;
+	    }
+	}
+    }
+
+  if(priv->instance)
+    {
+      GObjectClass * klass = G_OBJECT_GET_CLASS(priv->instance);
+      GParamSpec * property = g_object_class_find_property(klass,name);
+      if(property)
+	{
+	  if(value->g_type == property->value_type)
+	    {
+	      g_object_set_property(priv->instance,name,value);
+	      return TRUE;
+	    }
+	  else if(g_value_type_transformable(value->g_type,property->value_type))
+	    {
+	      GValue property_value = G_VALUE_INIT;
+	      g_value_init(&property_value,property->value_type);
+	      g_value_transform(value,&property_value);
+	      g_object_set_property(priv->instance,name,&property_value);
+	      g_value_unset(&property_value);
+	      return TRUE;
+	    }
+	  else
+	    {
+	      //TODO: throw error can't transform
+	      return FALSE;
+	    }
+	}
+    }
+
+  if(priv->parent)
+    {
+      return golem_context_set(priv->parent,name,value,error);
+    }
+  else
+    {
+      //TODO: throw error not found
+      return FALSE;
+    }
+}
+
+gboolean
+golem_context_declare(GolemContext * context,const gchar * name,GType type,GError ** error)
+{
+  GolemContextPrivate * priv;
+  GolemContextVariable * variable;
+
+  priv = golem_context_get_instance_private(context);
+  for(GList * iter = g_list_first(priv->variables);iter;iter = g_list_next(iter))
+    {
+      GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
+      if(g_strcmp0(name,variable->name) == 0)
+	{
+	  //TODO: throw error the variable already exists
+	  return FALSE;
+	}
+    }
+
+  variable = g_new0(GolemContextVariable,1);
+  variable->name = g_strdup(name);
+  variable->type = type;
+  g_value_init(&(variable->value),type);
+  priv->variables = g_list_append(priv->variables,variable);
+  return TRUE;
+}
+
+gboolean
+golem_context_get(GolemContext * context,const gchar * name, GValue * value,GError ** error)
+{
+  GolemContextPrivate * priv;
+  GolemContextVariable * variable;
+
+  priv = golem_context_get_instance_private(context);
+  for(GList * iter = g_list_first(priv->variables);iter;iter = g_list_next(iter))
+    {
+      GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
+      if(g_strcmp0(name,variable->name) == 0)
+	{
+	  g_value_unset(value);
+	  g_value_init(value,variable->type);
+	  g_value_copy(value,&(variable->value));
+	  return TRUE;
+	}
+    }
+
+  if(priv->instance)
+      {
+        GObjectClass * klass = G_OBJECT_GET_CLASS(priv->instance);
+        GParamSpec * property = g_object_class_find_property(klass,name);
+        if(property)
+	  {
+	    g_value_unset(value);
+	    g_value_init(value,property->value_type);
+	    g_object_get_property(priv->instance,name,value);
+	    return TRUE;
+	  }
+      }
+
+    if(priv->parent)
+      {
+        return golem_context_get(priv->parent,name,value,error);
+      }
+    else
+      {
+        //TODO: throw error not found
+        return FALSE;
+      }
+}
+
+GolemContext *
+golem_context_new(GolemContext * parent)
+{
+  GolemContext * self = GOLEM_CONTEXT(g_object_new(GOLEM_TYPE_CONTEXT,NULL));
+  GolemContextPrivate * priv = golem_context_get_instance_private(self);
+  priv->parent = GOLEM_CONTEXT(g_object_ref(parent));
+  return self;
+}
