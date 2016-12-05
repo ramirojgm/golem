@@ -1,0 +1,13 @@
+#sharedobject libsqlite3.so;
+
+extern void g_print(string format);
+
+class GtkWidget 
+{
+
+}
+
+class TsubameWindow : GtkApplicationWindow {
+
+	
+}
