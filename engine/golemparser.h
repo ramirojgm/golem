@@ -36,6 +36,8 @@ GolemParser * 	golem_parser_new();
 
 gboolean	golem_parser_parse(GolemParser * parser,const gchar * str,gssize length);
 
+gboolean	golem_parser_skip(GolemParser * parser);
+
 gboolean	golem_parser_next_word_has_prefix(GolemParser * parser,const gchar * prefix);
 
 gboolean	golem_parser_next_word_has_suffix(GolemParser * parser,const gchar * suffix);

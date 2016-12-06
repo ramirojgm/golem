@@ -20,7 +20,6 @@
 
 struct _GolemBuilderExternPrivate
 {
-  gchar * name;
   GolemFuncMetaData * meta_data;
 };
 
@@ -34,15 +33,20 @@ golem_builder_extern_execute(GolemSentence * sentence,GolemContext * context,GEr
   GModule * global_module = g_module_open(NULL,G_MODULE_BIND_LAZY);
   gpointer address = NULL;
   gboolean done = TRUE;
-  if(g_module_symbol(global_module,self->priv->name,&address))
+  if(g_module_symbol(global_module,golem_func_meta_data_get_name(self->priv->meta_data),&address))
     {
-      GValue func_value;
+      GValue func_value = G_VALUE_INIT;
       g_value_init(&func_value,GOLEM_TYPE_FUNC);
       g_value_take_object(&func_value,golem_func_new(self->priv->meta_data,address));
-      golem_context_declare(context,self->priv->name,GOLEM_TYPE_FUNC,error);
-      golem_context_set(context,self->priv->name,&func_value,error);
+      golem_context_declare(context,golem_func_meta_data_get_name(self->priv->meta_data),GOLEM_TYPE_FUNC,error);
+      golem_context_set(context,golem_func_meta_data_get_name(self->priv->meta_data),&func_value,error);
       g_value_unset(&func_value);
+      g_print("Function");
       done = TRUE;
+    }
+  else
+    {
+      //TODO: throw error not exists function
     }
 
   return done;
@@ -52,12 +56,42 @@ static void
 golem_builder_extern_init(GolemBuilderExtern * self)
 {
   self->priv = golem_builder_extern_get_instance_private(self);
-  self->priv->name = NULL;
   self->priv->meta_data = NULL;
 }
 
 static void
 golem_builder_extern_class_init(GolemBuilderExternClass * klass)
 {
+  GOLEM_SENTENCE_CLASS(klass)->execute = golem_builder_extern_execute;
+}
 
+gboolean
+golem_builder_extern_check(GolemParser * parser)
+{
+ return golem_parser_is_next_word(parser,"extern");
+}
+
+GolemBuilderExtern *
+golem_builder_extern_parse(GolemParser * parser,GError ** error)
+{
+  GolemBuilderExtern * self = GOLEM_BUILDER_EXTERN(g_object_new(GOLEM_TYPE_BUILDER_EXTERN,NULL));
+  GolemBuilderExternPrivate * priv = golem_builder_extern_get_instance_private(self);
+
+  if(golem_parser_next_word_check(parser,"extern"))
+    {
+      GolemFuncMetaData * meta_data = golem_func_meta_data_parse(parser,error);
+      priv->meta_data = meta_data;
+      if(!golem_parser_next_word_check(parser,";"))
+	{
+	  //TODO: throw error expected ';'
+	  g_clear_object(&self);
+	}
+    }
+  else
+    {
+      //TODO: throw error expected 'extern'
+      g_clear_object(&self);
+    }
+  g_print("parsed");
+  return self;
 }

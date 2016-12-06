@@ -91,20 +91,104 @@ golem_func_meta_data_new()
   GolemFuncMetaData * self = g_new0(GolemFuncMetaData,1);
   self->params = NULL;
   self->return_type = G_TYPE_NONE;
+  self->return_type_name = NULL;
+  self->is_resolved = TRUE;
+  self->name = NULL;
   return self;
 }
 
 GolemFuncMetaData *
-golem_func_meta_data_parse(GolemParser * parser,gchar ** object_name,gchar ** function_name,GError ** error)
+golem_func_meta_data_parse(GolemParser * parser,GError ** error)
 {
+  GolemFuncMetaData * meta_data = golem_func_meta_data_new();
+  gboolean done = TRUE;
+  meta_data->is_resolved = FALSE;
   if(golem_parser_check_is_named(parser))
     {
+      meta_data->return_type_name = golem_parser_next_word(parser,NULL,TRUE);
+      if(golem_parser_check_is_named(parser))
+	{
+	  meta_data->name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+	  if(golem_parser_next_word_check(parser,"("))
+	    {
+	      while(!golem_parser_next_word_check(parser,")"))
+		{
+		  const gchar * type_name, *name;
+		  gboolean is_reference = FALSE;
+		  gboolean is_array = FALSE;
+		  if(golem_parser_check_is_named(parser))
+		    {
+		      type_name = golem_parser_next_word(parser,NULL,TRUE);
+		      if(golem_parser_next_word_check(parser,"&"))
+			{
+			  is_reference = TRUE;
+			}
+		      if(golem_parser_check_is_named(parser))
+			{
+			  name = golem_parser_next_word(parser,NULL,TRUE);
+			  if(golem_parser_next_word_check(parser,"["))
+			    {
+			      if(golem_parser_next_word_check(parser,"]"))
+				{
+				  is_array = TRUE;
+				}
+			      else
+				{
+				  done = FALSE;
+				  //TODO: throw error expected ']'
+				}
+			    }
+			  if(done)
+			    {
+			      GolemFuncParam * param = g_new0(GolemFuncParam,1);
+			      param->catch_exception = FALSE;
+			      param->is_array = is_array;
+			      param->is_reference = is_reference;
+			      param->name = g_strdup(name);
+			      param->type_name = g_strdup(type_name);
+			      param->type = G_TYPE_NONE;
+			      meta_data->params = g_list_append(meta_data->params,param);
+			      if(!golem_parser_next_word_check(parser,",") && !golem_parser_is_next_word(parser,")"))
+				{
+				  done = FALSE;
+				  //TODO:throw error expected ',' or ')'
+				}
+			    }
+			}
+		      else
+			{
+			  done = FALSE;
+			  //TODO: throw error expected name of parameter
+			}
+		    }
+		  else
+		    {
+		      done = FALSE;
+		      //TODO: throw error expected type of parameter
+		    }
 
+		  if(!done)
+		    break;
+		}
+	    }
+	  else
+	    {
+	      done = FALSE;
+	      //TODO: throw error expected (
+	    }
+	}
     }
   else
     {
-
+      done = FALSE;
+      //TODO: throw error expected the function name
     }
+  if(!done)
+    {
+      g_print("FREE FOR ERROR");
+      //TODO: free the meta_data and set to NULL
+    }
+  return meta_data;
 }
 
 void
@@ -141,4 +225,10 @@ golem_func_meta_data_catch_exception(GolemFuncMetaData * meta_data)
   param->is_reference = TRUE;
   param->catch_exception = TRUE;
   meta_data->params = g_list_append(meta_data->params,param);
+}
+
+const gchar *
+golem_func_meta_data_get_name(GolemFuncMetaData * meta_data)
+{
+  return meta_data->name;
 }

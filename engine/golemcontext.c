@@ -87,6 +87,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	  if(variable->value.g_type == value->g_type)
 	    {
 	      g_value_unset(&(variable->value));
+	      g_value_init(&(variable->value),value->g_type);
 	      g_value_copy(&(variable->value),value);
 	      return TRUE;
 	    }
@@ -164,6 +165,7 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
   variable = g_new0(GolemContextVariable,1);
   variable->name = g_strdup(name);
   variable->type = type;
+  g_value_unset(&(variable->value));
   g_value_init(&(variable->value),type);
   priv->variables = g_list_append(priv->variables,variable);
   return TRUE;

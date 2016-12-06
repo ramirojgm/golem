@@ -31,7 +31,6 @@ main(gint argc,gchar * argv[])
   gchar * script_file_content = NULL;
   GError * parser_error = NULL;
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
-  g_print("script content (%s)",script_file_content);
   golem_compile_string(context,script_file_content,-1,&parser_error);
   g_free(script_file_content);
   g_object_unref(context);

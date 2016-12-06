@@ -36,13 +36,17 @@ struct _GolemFuncParam
 {
   gchar * name;
   GType   type;
-  gboolean is_reference;
-  gboolean is_array;
-  gboolean catch_exception;
+  const gchar * type_name;
+  gboolean is_reference: 1;
+  gboolean is_array : 1;
+  gboolean catch_exception: 1;
 };
 
 struct _GolemFuncMetaData
 {
+  gboolean is_resolved: 1;
+  gchar * name;
+  const gchar * return_type_name;
   GType return_type;
   GList * params;
 };
@@ -57,15 +61,20 @@ gpointer golem_func_get_address(GolemFunc * func);
 
 GolemFuncMetaData *	golem_func_meta_data_new();
 
-GolemFuncMetaData *	golem_func_meta_data_parse(GolemParser * parser,gchar ** object_name,gchar ** function_name,GError ** error);
+GolemFuncMetaData *	golem_func_meta_data_parse(GolemParser * parser,GError ** error);
 
 void			golem_func_meta_data_set_return_type(GolemFuncMetaData * meta_data,GType return_type);
 
 GType			golem_func_meta_data_get_return_type(GolemFuncMetaData * meta_data);
 
-void			golem_func_meta_data_add_param(GolemFuncMetaData * meta_data,const gchar * name,GType type,gboolean is_reference);
+void			golem_func_meta_data_set_name(GolemFuncMetaData * meta_data,const gchar * name);
+
+const gchar *		golem_func_meta_data_get_name(GolemFuncMetaData * meta_data);
+
+void			golem_func_meta_data_add_param(GolemFuncMetaData * meta_data,const gchar * name,GType type,gboolean is_reference,gboolean is_array);
 
 void			golem_func_meta_data_catch_exception(GolemFuncMetaData * meta_data);
 
+void			golem_func_meta_data_resolve(GolemFuncMetaData * meta_data);
 
 #endif /* GOLEMFUNC_H_ */

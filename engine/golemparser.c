@@ -40,7 +40,7 @@ struct _GolemParserWord
 G_DEFINE_TYPE_WITH_PRIVATE(GolemParser,golem_parser,G_TYPE_OBJECT)
 
 static const gchar * golem_parser_spaces[] = {"\n","\r","\t"," ",NULL};
-static const gchar * golem_parser_spliters[] = {"<=",">=","==","!=","&&","||","+","-","*","/","%","!","<",">","=","\\","@","#","$",",",".",";",":","[","]","(",")","{","}","\t","\r","\n"," ",NULL};
+static const gchar * golem_parser_spliters[] = {"<=",">=","==","!=","&&","||","+","-","*","/","%","!","<",">","=","\\","@","#","$",",",".",";",":","[","]","(",")","{","}",NULL};
 
 static void
 golem_parser_word_free(GolemParserWord * word)
@@ -53,13 +53,12 @@ static void
 golem_parser_finalize(GObject * instance)
 {
   GolemParserPrivate * priv;
-
   priv = golem_parser_get_instance_private(GOLEM_PARSER(instance));
 
   g_queue_free(priv->saved_point);
   g_list_free_full(priv->words,(GDestroyNotify)golem_parser_word_free);
 
-  G_OBJECT_GET_CLASS(instance)->finalize(instance);
+  //G_OBJECT_GET_CLASS(instance)->finalize(instance);
 }
 
 
@@ -90,7 +89,6 @@ gint
 golem_parser_index_of(const gchar * str,const gchar ** word_set)
 {
   gint word_index = 0;
-
   for(;*word_set;word_set++)
     {
       if(g_str_has_prefix(str,*word_set))
@@ -99,37 +97,40 @@ golem_parser_index_of(const gchar * str,const gchar ** word_set)
 	}
       word_index ++;
     }
-
-  return 0;
+  return -1;
 }
 
 static const gchar*
 golem_parser_skip_space(const gchar * str,const gchar * end)
 {
+  const gchar * iter = str;
   gboolean in_comment = FALSE;
-  for(;str < end;str++)
+  for(;iter < end;iter++)
     {
       if (in_comment)
 	{
-	  if (*str == '\n')
+	  if ((*iter == '\n')||(*iter == '\r'))
 	    in_comment = FALSE;
 	}
       else
 	{
-	  if (golem_parser_index_of(str, golem_parser_spaces) == 0)
+	  if (golem_parser_index_of(iter, golem_parser_spaces) == -1)
 	    {
-	      if (*str == '#')
-		in_comment = TRUE;
+	      if (*iter == '#')
+		{
+		  in_comment = TRUE;
+		}
 	      else
-		break;
+		{
+		  break;
+		}
 	    }
 	}
     }
-
   if(str > end)
     return end;
   else
-    return str;
+    return iter;
 }
 
 static gint
@@ -145,8 +146,7 @@ golem_parser_parse_next_word(const gchar * str,gsize * length,const gchar * end)
   gboolean in_escape;
   gchar literal;
   const gchar * start = str;
-
-  if(spliter != 0)
+  if(spliter != -1)
     {
       *length = g_utf8_strlen(golem_parser_spliters[spliter],-1);
       return start;
@@ -181,7 +181,7 @@ golem_parser_parse_next_word(const gchar * str,gsize * length,const gchar * end)
     }
   else
     {
-      while((str < end) && (golem_parser_index_of(str,golem_parser_spaces) == 0 ) && (golem_parser_index_of(str,golem_parser_spliters) == 0))
+      while((str < end) && (golem_parser_index_of(str,golem_parser_spaces) == -1) && (golem_parser_index_of(str,golem_parser_spliters) == -1))
 	str ++;
       if( start != str)
 	{
@@ -217,7 +217,6 @@ golem_parser_parse(GolemParser * parser,const gchar * str,gssize length)
   while(cur != end)
     {
       cur = golem_parser_skip_space(cur,end);
-      //g_print("skip to: %s\n",cur);
       cur = golem_parser_parse_next_word(cur,&word_length,end);
       if((cur < end) && (length > 0))
 	{
@@ -228,7 +227,6 @@ golem_parser_parse(GolemParser * parser,const gchar * str,gssize length)
 	  word->length = word_length;
 	  priv->words = g_list_append(priv->words,word);
 	  cur += word_length;
-	  //g_print("loaded: %s\n",word->content);
 	}
       else
 	break;
@@ -312,6 +310,25 @@ golem_parser_next_word_has_suffix(GolemParser * parser,const gchar * suffix)
      }
 }
 
+gboolean
+golem_parser_skip(GolemParser * parser)
+{
+  GolemParserPrivate * priv;
+  GolemParserWord * word;
+
+  priv = golem_parser_get_instance_private(parser);
+
+  if(priv->cur_word)
+    {
+      priv->cur_word = g_list_next(priv->cur_word);
+      return FALSE;
+    }
+  else
+    {
+      return TRUE;
+    }
+}
+
 const gchar *
 golem_parser_next_word(GolemParser * parser,gsize * length,gboolean move)
 {
@@ -348,7 +365,7 @@ golem_parser_next_word_check(GolemParser * parser,const gchar * str)
   if(priv->cur_word)
     {
       word = (GolemParserWord *)(priv->cur_word->data);
-      if(g_strcmp0(word->content,str))
+      if(g_strcmp0(word->content,str) == 0)
 	{
 	  priv->cur_word = g_list_next(priv->cur_word);
 	  return TRUE;
@@ -448,7 +465,7 @@ golem_parser_check_is_named(GolemParser * parser)
 	  return FALSE;
         for(const gchar * c = word;*c != 0;c++)
   	{
-  	  if(!isalnum(*c))
+  	  if(!isalnum(*c) && *c != '_')
   	    return FALSE;
   	}
         return TRUE;

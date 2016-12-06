@@ -80,10 +80,13 @@ golem_sentence_execute(GolemSentence * self,GolemContext * context,GError ** err
 }
 
 
-GolemSentence * golem_sentence_parse(GolemParser * parser,GError ** error)
+GolemSentence *
+golem_sentence_parse(GolemParser * parser,GError ** error)
 {
   if(golem_builder_class_check(parser))
-    return GOLEM_SENTENCE(golem_builder_class_parse(parser,error));
+      return GOLEM_SENTENCE(golem_builder_class_parse(parser,error));
+  else if(golem_builder_extern_check(parser))
+    return GOLEM_SENTENCE(golem_builder_extern_parse(parser,error));
   else if(golem_block_check(parser))
     return GOLEM_SENTENCE(golem_block_parse(parser,error));
   return NULL;
