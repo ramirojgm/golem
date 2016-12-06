@@ -22,7 +22,7 @@
 G_DECLARE_DERIVABLE_TYPE(GolemFunc,golem_func,GOLEM,FUNC,GObject)
 
 typedef struct _GolemFuncMetaData GolemFuncMetaData;
-typedef enum _GolemFuncType GolemFuncType;
+typedef struct _GolemFuncParam GolemFuncParam;
 
 struct _GolemFuncClass{
   GObjectClass parent_class;
@@ -32,7 +32,7 @@ struct _GolemFuncClass{
   gpointer (*get_address)(GolemFunc * func);
 };
 
-struct _GolemParam
+struct _GolemFuncParam
 {
   gchar * name;
   GType   type;

@@ -36,3 +36,4 @@
 gboolean	golem_compile_string(GolemContext * context,const gchar * script,gssize length,GError ** error);
 
 #endif /* GOLEM_H_ */
+

@@ -83,3 +83,62 @@ golem_func_get_address(GolemFunc * func)
   GolemFuncClass * klass = GOLEM_FUNC_GET_CLASS(func);
   return klass->get_address(func);
 }
+
+
+GolemFuncMetaData *
+golem_func_meta_data_new()
+{
+  GolemFuncMetaData * self = g_new0(GolemFuncMetaData,1);
+  self->params = NULL;
+  self->return_type = G_TYPE_NONE;
+  return self;
+}
+
+GolemFuncMetaData *
+golem_func_meta_data_parse(GolemParser * parser,gchar ** object_name,gchar ** function_name,GError ** error)
+{
+  if(golem_parser_check_is_named(parser))
+    {
+
+    }
+  else
+    {
+
+    }
+}
+
+void
+golem_func_meta_data_set_return_type(GolemFuncMetaData * meta_data,GType return_type)
+{
+  meta_data->return_type = return_type;
+}
+
+GType
+golem_func_meta_data_get_return_type(GolemFuncMetaData * meta_data)
+{
+  return meta_data->return_type;
+}
+
+void
+golem_func_meta_data_add_param(GolemFuncMetaData * meta_data,const gchar * name,GType type,gboolean is_reference,gboolean is_array)
+{
+  GolemFuncParam * param = g_new0(GolemFuncParam,1);
+  param->name = g_strdup(name);
+  param->type = type;
+  param->is_array = is_array;
+  param->is_reference = is_reference;
+  param->catch_exception = FALSE;
+  meta_data->params = g_list_append(meta_data->params,param);
+}
+
+void
+golem_func_meta_data_catch_exception(GolemFuncMetaData * meta_data)
+{
+  GolemFuncParam * param = g_new0(GolemFuncParam,1);
+  param->name = NULL;
+  param->type = G_TYPE_ERROR;
+  param->is_array = FALSE;
+  param->is_reference = TRUE;
+  param->catch_exception = TRUE;
+  meta_data->params = g_list_append(meta_data->params,param);
+}

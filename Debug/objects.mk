@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lglib-2.0 -lgmodule-2.0 -lgobject-2.0
+LIBS := -lgmodule-2.0 -lglib-2.0 -lgmodule-2.0 -lgobject-2.0
 
