@@ -30,9 +30,18 @@ main(gint argc,gchar * argv[])
 
   gchar * script_file_content = NULL;
   GError * parser_error = NULL;
+
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
-  golem_compile_string(context,script_file_content,-1,&parser_error);
+  GolemCompiled * compilation = golem_compiled_new();
+  golem_compiled_add_string(compilation,script_file_content,-1,NULL);
   g_free(script_file_content);
+
+  golem_compiled_run(compilation,context,NULL);
+  GValue func_value = G_VALUE_INIT;
+  golem_context_get(context,"g_print",&func_value,NULL);
+  gint (* func)(gchar * str,...) = golem_func_get_address(GOLEM_FUNC(g_value_get_object(&func_value)));
+
+  func("Hola Mundo\n");
   g_object_unref(context);
   return 0;
 }

@@ -88,7 +88,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	    {
 	      g_value_unset(&(variable->value));
 	      g_value_init(&(variable->value),value->g_type);
-	      g_value_copy(&(variable->value),value);
+	      g_value_copy(value,&(variable->value));
 	      return TRUE;
 	    }
 	  else if(g_value_type_transformable(value->g_type,variable->type))
@@ -100,7 +100,11 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	    }
 	  else
 	    {
-	      //TODO: throw error can't transform
+	      golem_throw(error,
+			  GOLEM_INVALID_CAST_ERROR,
+			  "invalid cast from type \"%s\" to type \"%s\"",
+			  g_type_name(value->g_type),
+			  g_type_name(variable->value.g_type));
 	      return FALSE;
 	    }
 	}
@@ -128,7 +132,11 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	    }
 	  else
 	    {
-	      //TODO: throw error can't transform
+	      golem_throw(error,
+			  GOLEM_INVALID_CAST_ERROR,
+			  "invalid cast from type \"%s\" to type \"%s\"",
+			  g_type_name(value->g_type),
+			  g_type_name(property->value_type));
 	      return FALSE;
 	    }
 	}
@@ -140,7 +148,11 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
     }
   else
     {
-      //TODO: throw error not found
+      golem_throw(error,
+      		    GOLEM_NOT_EXISTS_ERROR,
+      		    "the variable \"%s\" not exists",
+      		    name
+      );
       return FALSE;
     }
 }
@@ -157,7 +169,11 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
       GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
       if(g_strcmp0(name,variable->name) == 0)
 	{
-	  //TODO: throw error the variable already exists
+	  golem_throw(error,
+		      GOLEM_ALREADY_EXISTS_ERROR,
+		      "the variable \"%s\" already exists",
+		      name
+	  );
 	  return FALSE;
 	}
     }
@@ -180,12 +196,12 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
   priv = golem_context_get_instance_private(context);
   for(GList * iter = g_list_first(priv->variables);iter;iter = g_list_next(iter))
     {
-      GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
+      variable = (GolemContextVariable *)(iter->data);
       if(g_strcmp0(name,variable->name) == 0)
 	{
 	  g_value_unset(value);
 	  g_value_init(value,variable->type);
-	  g_value_copy(value,&(variable->value));
+	  g_value_copy(&(variable->value),value);
 	  return TRUE;
 	}
     }
@@ -209,7 +225,11 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
       }
     else
       {
-        //TODO: throw error not found
+	golem_throw(error,
+		    GOLEM_NOT_EXISTS_ERROR,
+		    "the variable \"%s\" not exists",
+		    name
+	);
         return FALSE;
       }
 }

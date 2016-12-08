@@ -135,7 +135,7 @@ golem_func_meta_data_parse(GolemParser * parser,GError ** error)
 			      else
 				{
 				  done = FALSE;
-				  //TODO: throw error expected ']'
+				  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \"]\"");
 				}
 			    }
 			  if(done)
@@ -151,20 +151,20 @@ golem_func_meta_data_parse(GolemParser * parser,GError ** error)
 			      if(!golem_parser_next_word_check(parser,",") && !golem_parser_is_next_word(parser,")"))
 				{
 				  done = FALSE;
-				  //TODO:throw error expected ',' or ')'
+				  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \",\" or \")\"");
 				}
 			    }
 			}
 		      else
 			{
 			  done = FALSE;
-			  //TODO: throw error expected name of parameter
+			  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the name of the parameter was expected");
 			}
 		    }
 		  else
 		    {
 		      done = FALSE;
-		      //TODO: throw error expected type of parameter
+		      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the type of the parameter was expected");
 		    }
 
 		  if(!done)
@@ -174,18 +174,19 @@ golem_func_meta_data_parse(GolemParser * parser,GError ** error)
 	  else
 	    {
 	      done = FALSE;
-	      //TODO: throw error expected (
+	      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \"(\"");
 	    }
 	}
     }
   else
     {
       done = FALSE;
-      //TODO: throw error expected the function name
+      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the name of the function was expected");
     }
   if(!done)
     {
       g_print("FREE FOR ERROR");
+
       //TODO: free the meta_data and set to NULL
     }
   return meta_data;

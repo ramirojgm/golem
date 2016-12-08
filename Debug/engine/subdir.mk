@@ -9,12 +9,13 @@ C_SRCS += \
 ../engine/golembuilderclass.c \
 ../engine/golembuilderextern.c \
 ../engine/golemclass.c \
+../engine/golemcompiled.c \
 ../engine/golemcontext.c \
 ../engine/golemdebugobject.c \
 ../engine/golemfunc.c \
+../engine/golemjit.c \
 ../engine/golemparser.c \
-../engine/golemsentence.c \
-../engine/golemvm.c 
+../engine/golemsentence.c 
 
 OBJS += \
 ./engine/golem.o \
@@ -22,12 +23,13 @@ OBJS += \
 ./engine/golembuilderclass.o \
 ./engine/golembuilderextern.o \
 ./engine/golemclass.o \
+./engine/golemcompiled.o \
 ./engine/golemcontext.o \
 ./engine/golemdebugobject.o \
 ./engine/golemfunc.o \
+./engine/golemjit.o \
 ./engine/golemparser.o \
-./engine/golemsentence.o \
-./engine/golemvm.o 
+./engine/golemsentence.o 
 
 C_DEPS += \
 ./engine/golem.d \
@@ -35,19 +37,20 @@ C_DEPS += \
 ./engine/golembuilderclass.d \
 ./engine/golembuilderextern.d \
 ./engine/golemclass.d \
+./engine/golemcompiled.d \
 ./engine/golemcontext.d \
 ./engine/golemdebugobject.d \
 ./engine/golemfunc.d \
+./engine/golemjit.d \
 ./engine/golemparser.d \
-./engine/golemsentence.d \
-./engine/golemvm.d 
+./engine/golemsentence.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	gcc -std=c11 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -std=c11 -I/usr/lib/i386-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

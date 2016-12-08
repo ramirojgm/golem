@@ -18,38 +18,33 @@
 
 #include "golem.h"
 
-gboolean
-golem_compile_string(GolemContext * context,const gchar * script,gssize length,GError ** error)
+GQuark
+golem_error_quark(void)
 {
-  GolemSentence * sentence;
-  gboolean done = TRUE;
-  GolemParser * parser = golem_parser_new();
-  golem_parser_parse(parser,script,length);
-  GList * sentences = NULL;
-  while(!golem_parser_is_end(parser))
-    {
-      sentence = golem_sentence_parse(parser,error);
-      if(sentence)
-	{
-	  sentences = g_list_append(sentences,sentence);
-	}
-      else
-	{
-	  g_list_free_full(sentences,g_object_unref);
-	  sentences = NULL;
-	  break;
-	}
-    }
-  for(GList * iter = g_list_first(sentences);iter;iter = g_list_next(iter))
-    {
-      sentence = GOLEM_SENTENCE(iter->data);
-      done = golem_sentence_execute(sentence,context,error);
-      if(!done)
-	break;
-    }
-  g_list_free_full(sentences,g_object_unref);
-  sentences = NULL;
-  g_object_unref(parser);
-  return done;
+  return g_quark_from_static_string("golem-error-quark");
 }
 
+void
+golem_throw(GError ** error,enum GolemError code,const gchar * format,...)
+{
+  va_list va;
+  va_start(va,format);
+  GError * err = g_error_new_valist(GOLEM_ERROR,code,format,va);
+  va_end(va);
+  golem_throw_error(error,err);
+}
+
+void
+golem_throw_error(GError ** error,GError * err)
+{
+  if(error)
+    {
+      *error = err;
+    }
+  else
+    {
+      g_printerr("%s **: %s\n",g_quark_to_string(err->domain), err->message);
+      g_error_free(err);
+      raise(SIGTRAP);
+    }
+}

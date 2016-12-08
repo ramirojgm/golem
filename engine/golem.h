@@ -27,13 +27,33 @@
 #include "golemcontext.h"
 #include "golemsentence.h"
 #include "golemblock.h"
+#include "golemjit.h"
 #include "golemfunc.h"
 #include "golemclass.h"
 #include "golembuilderclass.h"
 #include "golembuilderextern.h"
+#include "golemcompiled.h"
 
+#define GOLEM_ERROR	(golem_error_quark())
 
-gboolean	golem_compile_string(GolemContext * context,const gchar * script,gssize length,GError ** error);
+typedef struct _GolemCompiled GolemCompiled;
+typedef enum GolemError GolemError;
+
+enum GolemError
+{
+  GOLEM_NOT_IMPLEMENTED_ERROR,
+  GOLEM_SYNTAXIS_ERROR,
+  GOLEM_INVALID_CAST_ERROR,
+  GOLEM_NOT_EXISTS_ERROR,
+  GOLEM_ALREADY_EXISTS_ERROR,
+};
+
+GQuark		golem_error_quark(void);
+
+void		golem_throw_error(GError ** error,GError * err);
+
+void		golem_throw(GError ** error,GolemError code,const gchar * format,...);
+
 
 #endif /* GOLEM_H_ */
 

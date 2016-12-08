@@ -1,4 +1,4 @@
-engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
+engine/golemjit.o: ../engine/golemjit.c ../engine/golem.h \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h \
@@ -81,9 +81,14 @@ engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
  /usr/include/glib-2.0/gobject/gtypeplugin.h \
  /usr/include/glib-2.0/gobject/gvaluearray.h \
  /usr/include/glib-2.0/gobject/gvaluetypes.h \
- /usr/include/glib-2.0/gobject/gobject-autocleanups.h
+ /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
+ ../engine/golemdebugobject.h ../engine/golemparser.h \
+ ../engine/golemcontext.h ../engine/golemsentence.h \
+ ../engine/golemblock.h ../engine/golemjit.h ../engine/golemfunc.h \
+ ../engine/golemclass.h ../engine/golembuilderclass.h \
+ ../engine/golembuilderextern.h ../engine/golemcompiled.h
 
-../engine/golemparser.h:
+../engine/golem.h:
 
 /usr/include/glib-2.0/glib.h:
 
@@ -276,3 +281,25 @@ engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
 /usr/include/glib-2.0/gobject/gvaluetypes.h:
 
 /usr/include/glib-2.0/gobject/gobject-autocleanups.h:
+
+../engine/golemdebugobject.h:
+
+../engine/golemparser.h:
+
+../engine/golemcontext.h:
+
+../engine/golemsentence.h:
+
+../engine/golemblock.h:
+
+../engine/golemjit.h:
+
+../engine/golemfunc.h:
+
+../engine/golemclass.h:
+
+../engine/golembuilderclass.h:
+
+../engine/golembuilderextern.h:
+
+../engine/golemcompiled.h:

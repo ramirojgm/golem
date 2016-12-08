@@ -41,14 +41,16 @@ golem_builder_extern_execute(GolemSentence * sentence,GolemContext * context,GEr
       golem_context_declare(context,golem_func_meta_data_get_name(self->priv->meta_data),GOLEM_TYPE_FUNC,error);
       golem_context_set(context,golem_func_meta_data_get_name(self->priv->meta_data),&func_value,error);
       g_value_unset(&func_value);
-      g_print("Function");
       done = TRUE;
     }
   else
     {
-      //TODO: throw error not exists function
+      golem_throw(error,
+		  GOLEM_NOT_EXISTS_ERROR,
+		  "the function \"%s\" not exists",
+		  self->priv->meta_data->name
+      );
     }
-
   return done;
 }
 
@@ -92,6 +94,5 @@ golem_builder_extern_parse(GolemParser * parser,GError ** error)
       //TODO: throw error expected 'extern'
       g_clear_object(&self);
     }
-  g_print("parsed");
   return self;
 }

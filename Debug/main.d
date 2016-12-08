@@ -1,6 +1,5 @@
-engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
- /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
- /usr/include/glib-2.0/glib/gtypes.h \
+main.o: ../main.c /usr/include/glib-2.0/glib.h \
+ /usr/include/glib-2.0/glib/galloca.h /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
  /usr/include/glib-2.0/glib/gversionmacros.h \
@@ -62,7 +61,7 @@ engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
  /usr/include/glib-2.0/glib/deprecated/gmain.h \
  /usr/include/glib-2.0/glib/deprecated/grel.h \
  /usr/include/glib-2.0/glib/deprecated/gthread.h \
- /usr/include/glib-2.0/glib/glib-autocleanups.h \
+ /usr/include/glib-2.0/glib/glib-autocleanups.h ../engine/golem.h \
  /usr/include/glib-2.0/glib-object.h \
  /usr/include/glib-2.0/gobject/gbinding.h \
  /usr/include/glib-2.0/gobject/gobject.h \
@@ -81,9 +80,12 @@ engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
  /usr/include/glib-2.0/gobject/gtypeplugin.h \
  /usr/include/glib-2.0/gobject/gvaluearray.h \
  /usr/include/glib-2.0/gobject/gvaluetypes.h \
- /usr/include/glib-2.0/gobject/gobject-autocleanups.h
-
-../engine/golemparser.h:
+ /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
+ ../engine/golemdebugobject.h ../engine/golemparser.h \
+ ../engine/golemcontext.h ../engine/golemsentence.h \
+ ../engine/golemblock.h ../engine/golemjit.h ../engine/golemfunc.h \
+ ../engine/golemclass.h ../engine/golembuilderclass.h \
+ ../engine/golembuilderextern.h ../engine/golemcompiled.h
 
 /usr/include/glib-2.0/glib.h:
 
@@ -239,6 +241,8 @@ engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
 
 /usr/include/glib-2.0/glib/glib-autocleanups.h:
 
+../engine/golem.h:
+
 /usr/include/glib-2.0/glib-object.h:
 
 /usr/include/glib-2.0/gobject/gbinding.h:
@@ -276,3 +280,25 @@ engine/golemparser.o: ../engine/golemparser.c ../engine/golemparser.h \
 /usr/include/glib-2.0/gobject/gvaluetypes.h:
 
 /usr/include/glib-2.0/gobject/gobject-autocleanups.h:
+
+../engine/golemdebugobject.h:
+
+../engine/golemparser.h:
+
+../engine/golemcontext.h:
+
+../engine/golemsentence.h:
+
+../engine/golemblock.h:
+
+../engine/golemjit.h:
+
+../engine/golemfunc.h:
+
+../engine/golemclass.h:
+
+../engine/golembuilderclass.h:
+
+../engine/golembuilderextern.h:
+
+../engine/golemcompiled.h:

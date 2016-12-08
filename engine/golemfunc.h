@@ -49,6 +49,7 @@ struct _GolemFuncMetaData
   const gchar * return_type_name;
   GType return_type;
   GList * params;
+
 };
 
 GType	golem_func_get_type(void);
