@@ -12,6 +12,7 @@ C_SRCS += \
 ../engine/golemcompiled.c \
 ../engine/golemcontext.c \
 ../engine/golemdebugobject.c \
+../engine/golemexpresion.c \
 ../engine/golemfunc.c \
 ../engine/golemjit.c \
 ../engine/golemparser.c \
@@ -26,6 +27,7 @@ OBJS += \
 ./engine/golemcompiled.o \
 ./engine/golemcontext.o \
 ./engine/golemdebugobject.o \
+./engine/golemexpresion.o \
 ./engine/golemfunc.o \
 ./engine/golemjit.o \
 ./engine/golemparser.o \
@@ -40,6 +42,7 @@ C_DEPS += \
 ./engine/golemcompiled.d \
 ./engine/golemcontext.d \
 ./engine/golemdebugobject.d \
+./engine/golemexpresion.d \
 ./engine/golemfunc.d \
 ./engine/golemjit.d \
 ./engine/golemparser.d \

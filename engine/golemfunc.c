@@ -32,10 +32,205 @@ gboolean
 _golem_func_invoke_real(GolemFunc * func,GValue ** args,GValue * result,GError ** error)
 {
   GolemFuncPrivate * priv = golem_func_get_instance_private(func);
-  gpointer func_mem = g_malloc(1024);
-
+  GolemFuncMetaData * meta_data = priv->meta_data;
+  GError * catch = NULL;
+  gboolean done = TRUE;
+  gpointer func_mem = g_new0(guint8,2048);
+  goffset offset = 0;
+  guint i_args = 0;
+  gsize n_args = g_strv_length(*args);
+  for(GList * iter = g_list_first(meta_data->params);iter;iter = g_list_next(iter))
+    {
+      GolemFuncParam * param = (GolemFuncParam*)iter->data;
+      if(param->catch_exception)
+	{
+	  *((GError***)(func_mem + offset)) = &catch;
+	  offset += sizeof(gpointer);
+	}
+      else
+	{
+	  if(i_args >= n_args)
+	    break;
+	  if(param->is_reference)
+	    {
+	      *((gpointer*)func_mem + offset) = g_value_peek_pointer(args[i_args]);
+	      offset += sizeof(gpointer);
+	    }
+	  else if((args[i_args]->g_type == param->type)||(g_type_is_a(args[i_args]->g_type,param->type)))
+	    {
+	      switch(g_type_fundamental(param->type))
+		{
+		case G_TYPE_BOOLEAN:
+		  *((gboolean*)(func_mem + offset)) = g_value_get_boolean(args[i_args]);
+		  offset += sizeof(gboolean);
+		  break;
+		case G_TYPE_ENUM:
+		  *((gint*)(func_mem + offset)) = g_value_get_enum(args[i_args]);
+		  offset += sizeof(gint);
+		  break;
+		case G_TYPE_FLAGS:
+		  *((guint*)(func_mem + offset)) = g_value_get_flags(args[i_args]);
+		  offset += sizeof(guint);
+		  break;
+		case G_TYPE_CHAR:
+		  *((gchar*)(func_mem + offset)) = g_value_get_boolean(args[i_args]);
+		  offset += sizeof(gchar);
+		  break;
+		case G_TYPE_UCHAR:
+		  *((guchar*)(func_mem + offset)) = g_value_get_boolean(args[i_args]);
+		  offset += sizeof(guchar);
+		  break;
+		case G_TYPE_INT:
+		  *((gint*)(func_mem + offset)) = g_value_get_int(args[i_args]);
+		  offset += sizeof(gint);
+		  break;
+		case G_TYPE_LONG:
+		  *((glong*)(func_mem + offset)) = g_value_get_long(args[i_args]);
+		  offset += sizeof(glong);
+		  break;
+		case G_TYPE_INT64:
+		  *((gint64*)(func_mem + offset)) = g_value_get_int64(args[i_args]);
+		  offset += sizeof(gint64);
+		  break;
+		case G_TYPE_UINT:
+		  *((guint*)(func_mem + offset)) = g_value_get_int(args[i_args]);
+		  offset += sizeof(guint);
+		  break;
+		case G_TYPE_ULONG:
+		  *((gulong*)(func_mem + offset)) = g_value_get_ulong(args[i_args]);
+		  offset += sizeof(gulong);
+		  break;
+		case G_TYPE_UINT64:
+		  *((guint64*)(func_mem + offset)) = g_value_get_uint64(args[i_args]);
+		  offset += sizeof(guint64);
+		  break;
+		case G_TYPE_FLOAT:
+		  *((gfloat*)(func_mem + offset)) = g_value_get_float(args[i_args]);
+		  offset += sizeof(gfloat);
+		  break;
+		case G_TYPE_DOUBLE:
+		  *((gdouble*)(func_mem + offset)) = g_value_get_double(args[i_args]);
+		  offset += sizeof(gdouble);
+		  break;
+		case G_TYPE_POINTER:
+		  *((gpointer*)(func_mem + offset)) = g_value_get_pointer(args[i_args]);
+		  offset += sizeof(gdouble);
+		  break;
+		case G_TYPE_STRING:
+		  *((const gchar**)(func_mem + offset)) = g_value_get_string(args[i_args]);
+		  offset += sizeof(gchar*);
+		  break;
+		case G_TYPE_BOXED:
+		  *((gpointer*)(func_mem + offset)) = g_value_get_boxed(args[i_args]);
+		  offset += sizeof(gpointer);
+		  break;
+		case G_TYPE_OBJECT:
+		  if(param->type == GOLEM_TYPE_FUNC)
+		    {
+		      *((gpointer*)(func_mem + offset)) = golem_func_get_address(GOLEM_FUNC(g_value_get_object(args[i_args])));
+		      offset += sizeof(gpointer);
+		    }
+		  else
+		    {
+		      *((GObject**)(func_mem + offset)) = g_value_get_object(args[i_args]);
+		      offset += sizeof(GObject*);
+		    }
+		  break;
+		}
+	    }
+	  else
+	    {
+	      //TODO: invalid cast error
+	    }
+	  i_args ++;
+	}
+    }
+  for(;i_args < n_args;i_args++)
+    {
+      switch(g_type_fundamental(args[i_args]->g_type))
+	{
+	case G_TYPE_BOOLEAN:
+	  *((gboolean*)(func_mem + offset)) = g_value_get_boolean(args[i_args]);
+	  offset += sizeof(gboolean);
+	  break;
+	case G_TYPE_ENUM:
+	  *((gint*)(func_mem + offset)) = g_value_get_enum(args[i_args]);
+	  offset += sizeof(gint);
+	  break;
+	case G_TYPE_FLAGS:
+	  *((guint*)(func_mem + offset)) = g_value_get_flags(args[i_args]);
+	  offset += sizeof(guint);
+	  break;
+	case G_TYPE_CHAR:
+	  *((gchar*)(func_mem + offset)) = g_value_get_boolean(args[i_args]);
+	  offset += sizeof(gchar);
+	  break;
+	case G_TYPE_UCHAR:
+	  *((guchar*)(func_mem + offset)) = g_value_get_boolean(args[i_args]);
+	  offset += sizeof(guchar);
+	  break;
+	case G_TYPE_INT:
+	  *((gint*)(func_mem + offset)) = g_value_get_int(args[i_args]);
+	  offset += sizeof(gint);
+	  break;
+	case G_TYPE_LONG:
+	  *((glong*)(func_mem + offset)) = g_value_get_long(args[i_args]);
+	  offset += sizeof(glong);
+	  break;
+	case G_TYPE_INT64:
+	  *((gint64*)(func_mem + offset)) = g_value_get_int64(args[i_args]);
+	  offset += sizeof(gint64);
+	  break;
+	case G_TYPE_UINT:
+	  *((guint*)(func_mem + offset)) = g_value_get_int(args[i_args]);
+	  offset += sizeof(guint);
+	  break;
+	case G_TYPE_ULONG:
+	  *((gulong*)(func_mem + offset)) = g_value_get_ulong(args[i_args]);
+	  offset += sizeof(gulong);
+	  break;
+	case G_TYPE_UINT64:
+	  *((guint64*)(func_mem + offset)) = g_value_get_uint64(args[i_args]);
+	  offset += sizeof(guint64);
+	  break;
+	case G_TYPE_FLOAT:
+	  *((gfloat*)(func_mem + offset)) = g_value_get_float(args[i_args]);
+	  offset += sizeof(gfloat);
+	  break;
+	case G_TYPE_DOUBLE:
+	  *((gdouble*)(func_mem + offset)) = g_value_get_double(args[i_args]);
+	  offset += sizeof(gdouble);
+	  break;
+	case G_TYPE_POINTER:
+	  *((gpointer*)(func_mem + offset)) = g_value_get_pointer(args[i_args]);
+	  offset += sizeof(gpointer);
+	  break;
+	case G_TYPE_STRING:
+	  *((const gchar**)(func_mem + offset)) = g_value_get_string(args[i_args]);
+	  offset += sizeof(gchar*);
+	  break;
+	case G_TYPE_BOXED:
+	  *((gpointer*)(func_mem + offset)) = g_value_get_boxed(args[i_args]);
+	  offset += sizeof(gpointer);
+	  break;
+	case G_TYPE_OBJECT:
+	  if(args[i_args]->g_type == GOLEM_TYPE_FUNC)
+	    {
+	      *((gpointer*)(func_mem + offset)) = golem_func_get_address(GOLEM_FUNC(g_value_get_object(args[i_args])));
+	      offset += sizeof(gpointer);
+	    }
+	  else
+	    {
+	      *((GObject**)(func_mem + offset)) = g_value_get_object(args[i_args]);
+	      offset += sizeof(GObject*);
+	    }
+	  break;
+	}
+    }
+  void (*invoke)(GolemArgs arg) = priv->address;
+  invoke(*((GolemArgs*)func_mem));
   g_free(func_mem);
-  return TRUE;
+  return done;
 }
 
 gpointer
@@ -232,4 +427,34 @@ const gchar *
 golem_func_meta_data_get_name(GolemFuncMetaData * meta_data)
 {
   return meta_data->name;
+}
+
+gboolean
+golem_func_meta_data_resolve(GolemFuncMetaData * meta_data,GError ** error)
+{
+  gboolean done = TRUE;
+  if(!meta_data->is_resolved)
+    {
+      meta_data->return_type = golem_resolve_type_name(meta_data->return_type_name);
+      if(meta_data->return_type_name)
+	{
+	  for(GList * iter = g_list_first(meta_data->params);iter;iter = g_list_next(iter))
+	    {
+	      GolemFuncParam * param = (GolemFuncParam *)iter->data;
+	      param->type = golem_resolve_type_name(param->type_name);
+	      if(!param->type)
+		{
+		  //TODO: throw unknown type
+		  done = FALSE;
+		  break;
+		}
+	    }
+	}
+      else
+	{
+	  //TODO: throw error unknown type
+	  done = FALSE;
+	}
+    }
+  return done;
 }

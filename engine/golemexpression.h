@@ -15,8 +15,25 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMJIT_H_
-#define GOLEMJIT_H_
+#ifndef GOLEMEXPRESSION_H_
+#define GOLEMEXPRESSION_H_
 
+#define GOLEM_TYPE_EXPRESSION	(golem_expression_get_type())
+G_DECLARE_DERIVABLE_TYPE(GolemExpression,golem_expression,GOLEM,EXPRESSION,GolemSentence)
 
-#endif /* GOLEMJIT_H_ */
+struct _GolemExpressionClass
+{
+  GolemSentenceClass parent_class;
+  gboolean (*evalue)(GolemExpression * expression,GolemContext * context,GValue * result);
+
+};
+
+GType			golem_expression_get_type(void);
+
+gboolean		golem_expression_check(GolemParser * parser);
+
+GolemExpression * 	golem_expression_parse(GolemParser * parser,GError ** error);
+
+gboolean	 	golem_expression_evalue(GolemContext * context,GValue * result,GError ** error);
+
+#endif /* GOLEMEXPRESSION_H_ */

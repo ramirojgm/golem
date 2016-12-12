@@ -26,6 +26,7 @@
 #include "golemparser.h"
 #include "golemcontext.h"
 #include "golemsentence.h"
+#include "golemexpression.h"
 #include "golemblock.h"
 #include "golemjit.h"
 #include "golemfunc.h"
@@ -54,6 +55,9 @@ void		golem_throw_error(GError ** error,GError * err);
 
 void		golem_throw(GError ** error,GolemError code,const gchar * format,...);
 
+GType		golem_resolve_type_name(const gchar * name);
+
+const gchar *	golem_type_get_prefix(const gchar * name);
 
 #endif /* GOLEM_H_ */
 

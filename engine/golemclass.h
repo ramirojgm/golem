@@ -63,7 +63,7 @@ void		golem_class_implement(GolemClass * klass,const gchar * interface_name);
 
 void		golem_class_add_private(GolemClass * klass,const gchar * name,GType type);
 
-void		golem_class_add_property(GolemClass * klass,const gchar * name,GType type);
+void		golem_class_add_property(GolemClass * klass,const gchar * name,GType type,GValue * default_value);
 
 void		golem_class_add_func(GolemClass * klass,const gchar * name,GolemFuncMetaData * meta_data);
 

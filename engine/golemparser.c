@@ -410,12 +410,6 @@ golem_parser_get_line(GolemParser * parser)
 
 }
 
-gint
-golem_parser_get_column(GolemParser * parser)
-{
-
-}
-
 gboolean
 golem_parser_check_is_number(GolemParser * parser)
 {

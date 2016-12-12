@@ -84,9 +84,10 @@ engine/golemcontext.o: ../engine/golemcontext.c ../engine/golem.h \
  /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
  ../engine/golemdebugobject.h ../engine/golemparser.h \
  ../engine/golemcontext.h ../engine/golemsentence.h \
- ../engine/golemblock.h ../engine/golemjit.h ../engine/golemfunc.h \
- ../engine/golemclass.h ../engine/golembuilderclass.h \
- ../engine/golembuilderextern.h ../engine/golemcompiled.h
+ ../engine/golemexpression.h ../engine/golemblock.h ../engine/golemjit.h \
+ ../engine/golemfunc.h ../engine/golemclass.h \
+ ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
+ ../engine/golemcompiled.h
 
 ../engine/golem.h:
 
@@ -289,6 +290,8 @@ engine/golemcontext.o: ../engine/golemcontext.c ../engine/golem.h \
 ../engine/golemcontext.h:
 
 ../engine/golemsentence.h:
+
+../engine/golemexpression.h:
 
 ../engine/golemblock.h:
 

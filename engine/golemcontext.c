@@ -239,6 +239,7 @@ golem_context_new(GolemContext * parent)
 {
   GolemContext * self = GOLEM_CONTEXT(g_object_new(GOLEM_TYPE_CONTEXT,NULL));
   GolemContextPrivate * priv = golem_context_get_instance_private(self);
-  priv->parent = GOLEM_CONTEXT(g_object_ref(parent));
+  if(parent)
+    priv->parent = GOLEM_CONTEXT(g_object_ref(parent));
   return self;
 }

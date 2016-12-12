@@ -23,6 +23,12 @@ G_DECLARE_DERIVABLE_TYPE(GolemFunc,golem_func,GOLEM,FUNC,GObject)
 
 typedef struct _GolemFuncMetaData GolemFuncMetaData;
 typedef struct _GolemFuncParam GolemFuncParam;
+typedef struct _GolemArgs GolemArgs;
+
+struct _GolemArgs{
+  guint8 padding[1024];
+};
+
 
 struct _GolemFuncClass{
   GObjectClass parent_class;
@@ -76,6 +82,6 @@ void			golem_func_meta_data_add_param(GolemFuncMetaData * meta_data,const gchar 
 
 void			golem_func_meta_data_catch_exception(GolemFuncMetaData * meta_data);
 
-void			golem_func_meta_data_resolve(GolemFuncMetaData * meta_data);
+gboolean		golem_func_meta_data_resolve(GolemFuncMetaData * meta_data,GError ** error);
 
 #endif /* GOLEMFUNC_H_ */

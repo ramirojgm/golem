@@ -32,24 +32,28 @@ golem_builder_extern_execute(GolemSentence * sentence,GolemContext * context,GEr
   self->priv = golem_builder_extern_get_instance_private(self);
   GModule * global_module = g_module_open(NULL,G_MODULE_BIND_LAZY);
   gpointer address = NULL;
-  gboolean done = TRUE;
-  if(g_module_symbol(global_module,golem_func_meta_data_get_name(self->priv->meta_data),&address))
+  gboolean done;
+  done = golem_func_meta_data_resolve(self->priv->meta_data,error);
+  if(done)
     {
-      GValue func_value = G_VALUE_INIT;
-      g_value_init(&func_value,GOLEM_TYPE_FUNC);
-      g_value_take_object(&func_value,golem_func_new(self->priv->meta_data,address));
-      golem_context_declare(context,golem_func_meta_data_get_name(self->priv->meta_data),GOLEM_TYPE_FUNC,error);
-      golem_context_set(context,golem_func_meta_data_get_name(self->priv->meta_data),&func_value,error);
-      g_value_unset(&func_value);
-      done = TRUE;
-    }
-  else
-    {
-      golem_throw(error,
-		  GOLEM_NOT_EXISTS_ERROR,
-		  "the function \"%s\" not exists",
-		  self->priv->meta_data->name
-      );
+      if(g_module_symbol(global_module,golem_func_meta_data_get_name(self->priv->meta_data),&address))
+	{
+	  GValue func_value = G_VALUE_INIT;
+	  g_value_init(&func_value,GOLEM_TYPE_FUNC);
+	  g_value_take_object(&func_value,golem_func_new(self->priv->meta_data,address));
+	  golem_context_declare(context,golem_func_meta_data_get_name(self->priv->meta_data),GOLEM_TYPE_FUNC,error);
+	  golem_context_set(context,golem_func_meta_data_get_name(self->priv->meta_data),&func_value,error);
+	  g_value_unset(&func_value);
+	  done = TRUE;
+	}
+      else
+	{
+	  golem_throw(error,
+		      GOLEM_NOT_EXISTS_ERROR,
+		      "the function \"%s\" not exists",
+		      self->priv->meta_data->name
+	  );
+	}
     }
   return done;
 }

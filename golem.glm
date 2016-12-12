@@ -1,2 +1,5 @@
 
 extern void g_print(string format);
+
+extern void abort();
+

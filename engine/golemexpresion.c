@@ -14,9 +14,10 @@
 	You should have received a copy of the GNU General Public License
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "golem.h"
 
-#ifndef GOLEMJIT_H_
-#define GOLEMJIT_H_
+struct _GolemExpressionPrivate
+{
 
+};
 
-#endif /* GOLEMJIT_H_ */

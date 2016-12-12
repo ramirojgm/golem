@@ -17,6 +17,7 @@
 
 
 #include "golem.h"
+#include <ctype.h>
 
 GQuark
 golem_error_quark(void)
@@ -47,4 +48,65 @@ golem_throw_error(GError ** error,GError * err)
       g_error_free(err);
       raise(SIGTRAP);
     }
+}
+
+GType
+golem_resolve_type_name(const gchar * name)
+{
+  if(g_strcmp0(name,"void") == 0)
+    return G_TYPE_NONE;
+  else if(g_strcmp0(name,"bool") == 0)
+      return G_TYPE_BOOLEAN;
+  else if(g_strcmp0(name,"string") == 0)
+    return G_TYPE_STRING;
+  else if(g_strcmp0(name,"byte") == 0 || g_strcmp0(name,"char") == 0)
+    return G_TYPE_CHAR;
+  else if(g_strcmp0(name,"int") == 0)
+    return G_TYPE_INT;
+  else if(g_strcmp0(name,"long") == 0)
+    return G_TYPE_LONG;
+  else if(g_strcmp0(name,"ubyte") == 0 || g_strcmp0(name,"uchar") == 0)
+      return G_TYPE_UCHAR;
+  else if(g_strcmp0(name,"uint") == 0)
+    return G_TYPE_UINT;
+  else if(g_strcmp0(name,"ulong") == 0)
+    return G_TYPE_ULONG;
+  else if(g_strcmp0(name,"pointer") == 0)
+    return G_TYPE_POINTER;
+  else if(g_strcmp0(name,"float") == 0)
+      return G_TYPE_FLOAT;
+  else if(g_strcmp0(name,"double") == 0)
+      return G_TYPE_DOUBLE;
+  else if(g_strcmp0(name,"function") == 0)
+      return GOLEM_TYPE_FUNC;
+  else if(g_strcmp0(name,"object") == 0)
+      return G_TYPE_OBJECT;
+  else
+    {
+      GType result = g_type_from_name(name);
+      if(result == 0)
+        {
+
+        }
+      return result;
+    }
+}
+
+const gchar *
+golem_type_get_prefix(const gchar * name)
+{
+  static gchar prefix[256] = {0,};
+  guint offset = 0;
+  for(const gchar * iter = name;*iter;iter++)
+    {
+      if((isupper(*iter)) && (offset != 0))
+	{
+	  prefix[offset] = '_';
+	  offset++;
+	}
+      prefix[offset] = tolower(*iter);
+      offset ++;
+    }
+  prefix[offset] = 0;
+  return prefix;
 }

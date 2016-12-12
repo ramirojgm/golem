@@ -29,7 +29,6 @@ struct _GolemCompiledClass
 
 };
 
-
 struct _GolemCompiled
 {
   GObject parent_instance;

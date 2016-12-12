@@ -15,8 +15,22 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMJIT_H_
-#define GOLEMJIT_H_
+#ifndef GOLEMCONSTANT_H_
+#define GOLEMCONSTANT_H_
+
+#define GOLEM_TYPE_CONSTANT	(golem_constant_get_type())
+G_DECLARE_DERIVABLE_TYPE(GolemConstant,golem_constant,GOLEM,CONSTANT,GolemExpression)
+
+struct _GolemConstantClass
+{
+  GolemExpressionClass parent_class;
+};
+
+GType			golem_constant_get_type(void);
+
+gboolean		golem_constant_check(GolemParser * parser);
+
+GolemExpression * 	golem_constant_parse(GolemParser * parser,GError ** error);
 
 
-#endif /* GOLEMJIT_H_ */
+#endif /* GOLEMCONSTANT_H_ */

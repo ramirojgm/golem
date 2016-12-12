@@ -20,11 +20,6 @@
 #include <errno.h>
 #include <memory.h>
 
-typedef struct _GolemArgs GolemArgs;
-
-struct _GolemArgs{
-  guint8 padding[1024];
-};
 
 gsize _golem_vm_template_sizeof(gpointer func){
   gsize result = 0;
