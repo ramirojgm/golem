@@ -407,7 +407,7 @@ golem_parser_restore_point(GolemParser * parser)
 gint
 golem_parser_get_line(GolemParser * parser)
 {
-
+  return 0;
 }
 
 gboolean

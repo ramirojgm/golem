@@ -53,7 +53,7 @@ C_DEPS += \
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	gcc -std=c11 -I/usr/lib/i386-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	gcc -std=c11 -I/usr/lib/x86_64-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

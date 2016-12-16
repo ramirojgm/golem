@@ -25,9 +25,9 @@ typedef struct _GolemFuncMetaData GolemFuncMetaData;
 typedef struct _GolemFuncParam GolemFuncParam;
 typedef struct _GolemArgs GolemArgs;
 
-struct _GolemArgs{
-  guint8 padding[1024];
-};
+/*struct _GolemArgs{
+  guint8 padding[16];
+};*/
 
 
 struct _GolemFuncClass{
