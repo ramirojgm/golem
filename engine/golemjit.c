@@ -1165,13 +1165,1574 @@ golem_invoke(gpointer address,GolemArgs * args)
 }
 
 guint8
-golem_invoke_guint8(gpointer address,GolemArgs * args);
+golem_invoke_guint8(gpointer address,GolemArgs * args)
+{
+#ifdef __x86_64__
+  switch(args->offset)
+  {
+    case 1:
+	return ((guint8 (*)(_InvokeArgs_1))address)(*((_InvokeArgs_1*)args->mem));
+	break;
+    case 2:
+	return ((guint8 (*)(_InvokeArgs_2))address)(*((_InvokeArgs_2*)args->mem));
+	break;
+    case 3:
+	return ((guint8 (*)(_InvokeArgs_3))address)(*((_InvokeArgs_3*)args->mem));
+	break;
+    case 4:
+	return ((guint8 (*)(_InvokeArgs_4))address)(*((_InvokeArgs_4*)args->mem));
+	break;
+    case 5:
+	return ((guint8 (*)(_InvokeArgs_5))address)(*((_InvokeArgs_5*)args->mem));
+	break;
+    case 6:
+	return ((guint8 (*)(_InvokeArgs_6))address)(*((_InvokeArgs_6*)args->mem));
+	break;
+    case 7:
+	return ((guint8 (*)(_InvokeArgs_7))address)(*((_InvokeArgs_7*)args->mem));
+	break;
+    case 8:
+	return ((guint8 (*)(_InvokeArgs_8))address)(*((_InvokeArgs_8*)args->mem));
+	break;
+    case 9:
+	return ((guint8 (*)(_InvokeArgs_9))address)(*((_InvokeArgs_9*)args->mem));
+	break;
+    case 10:
+	return ((guint8 (*)(_InvokeArgs_10))address)(*((_InvokeArgs_10*)args->mem));
+	break;
+    case 11:
+	return ((guint8 (*)(_InvokeArgs_11))address)(*((_InvokeArgs_11*)args->mem));
+	break;
+    case 12:
+	return ((guint8 (*)(_InvokeArgs_12))address)(*((_InvokeArgs_12*)args->mem));
+	break;
+    case 13:
+	return ((guint8 (*)(_InvokeArgs_13))address)(*((_InvokeArgs_13*)args->mem));
+	break;
+    case 14:
+	return ((guint8 (*)(_InvokeArgs_14))address)(*((_InvokeArgs_14*)args->mem));
+	break;
+    case 15:
+	return ((guint8 (*)(_InvokeArgs_15))address)(*((_InvokeArgs_15*)args->mem));
+	break;
+    case 16:
+	return ((guint8 (*)(_InvokeArgs_16))address)(*((_InvokeArgs_16*)args->mem));
+	break;
+    case 17:
+	return ((guint8 (*)(_InvokeArgs_17))address)(*((_InvokeArgs_17*)args->mem));
+	break;
+    case 18:
+	return ((guint8 (*)(_InvokeArgs_18))address)(*((_InvokeArgs_18*)args->mem));
+	break;
+    case 19:
+	return ((guint8 (*)(_InvokeArgs_19))address)(*((_InvokeArgs_19*)args->mem));
+	break;
+    case 20:
+	return ((guint8 (*)(_InvokeArgs_20))address)(*((_InvokeArgs_20*)args->mem));
+	break;
+    case 21:
+	return ((guint8 (*)(_InvokeArgs_21))address)(*((_InvokeArgs_21*)args->mem));
+	break;
+    case 22:
+	return ((guint8 (*)(_InvokeArgs_22))address)(*((_InvokeArgs_22*)args->mem));
+	break;
+    case 23:
+	return ((guint8 (*)(_InvokeArgs_23))address)(*((_InvokeArgs_23*)args->mem));
+	break;
+    case 24:
+	return ((guint8 (*)(_InvokeArgs_24))address)(*((_InvokeArgs_24*)args->mem));
+	break;
+    case 25:
+	return ((guint8 (*)(_InvokeArgs_25))address)(*((_InvokeArgs_25*)args->mem));
+	break;
+    case 26:
+	return ((guint8 (*)(_InvokeArgs_26))address)(*((_InvokeArgs_26*)args->mem));
+	break;
+    case 27:
+	return ((guint8 (*)(_InvokeArgs_27))address)(*((_InvokeArgs_27*)args->mem));
+	break;
+    case 28:
+	return ((guint8 (*)(_InvokeArgs_28))address)(*((_InvokeArgs_28*)args->mem));
+	break;
+    case 29:
+	return ((guint8 (*)(_InvokeArgs_29))address)(*((_InvokeArgs_29*)args->mem));
+	break;
+    case 30:
+	return ((guint8 (*)(_InvokeArgs_30))address)(*((_InvokeArgs_30*)args->mem));
+	break;
+    case 31:
+	return ((guint8 (*)(_InvokeArgs_31))address)(*((_InvokeArgs_31*)args->mem));
+	break;
+    case 32:
+	return ((guint8 (*)(_InvokeArgs_32))address)(*((_InvokeArgs_32*)args->mem));
+	break;
+    case 33:
+	return ((guint8 (*)(_InvokeArgs_33))address)(*((_InvokeArgs_33*)args->mem));
+	break;
+    case 34:
+	return ((guint8 (*)(_InvokeArgs_34))address)(*((_InvokeArgs_34*)args->mem));
+	break;
+    case 35:
+	return ((guint8 (*)(_InvokeArgs_35))address)(*((_InvokeArgs_35*)args->mem));
+	break;
+    case 36:
+	return ((guint8 (*)(_InvokeArgs_36))address)(*((_InvokeArgs_36*)args->mem));
+	break;
+    case 37:
+	return ((guint8 (*)(_InvokeArgs_37))address)(*((_InvokeArgs_37*)args->mem));
+	break;
+    case 38:
+	return ((guint8 (*)(_InvokeArgs_38))address)(*((_InvokeArgs_38*)args->mem));
+	break;
+    case 39:
+	return ((guint8 (*)(_InvokeArgs_39))address)(*((_InvokeArgs_39*)args->mem));
+	break;
+    case 40:
+	return ((guint8 (*)(_InvokeArgs_40))address)(*((_InvokeArgs_40*)args->mem));
+	break;
+    case 41:
+	return ((guint8 (*)(_InvokeArgs_41))address)(*((_InvokeArgs_41*)args->mem));
+	break;
+    case 42:
+	return ((guint8 (*)(_InvokeArgs_42))address)(*((_InvokeArgs_42*)args->mem));
+	break;
+    case 43:
+	return ((guint8 (*)(_InvokeArgs_43))address)(*((_InvokeArgs_43*)args->mem));
+	break;
+    case 44:
+	return ((guint8 (*)(_InvokeArgs_44))address)(*((_InvokeArgs_44*)args->mem));
+	break;
+    case 45:
+	return ((guint8 (*)(_InvokeArgs_45))address)(*((_InvokeArgs_45*)args->mem));
+	break;
+    case 46:
+	return ((guint8 (*)(_InvokeArgs_46))address)(*((_InvokeArgs_46*)args->mem));
+	break;
+    case 47:
+	return ((guint8 (*)(_InvokeArgs_47))address)(*((_InvokeArgs_47*)args->mem));
+	break;
+    case 48:
+	return ((guint8 (*)(_InvokeArgs_48))address)(*((_InvokeArgs_48*)args->mem));
+	break;
+    case 49:
+	return ((guint8 (*)(_InvokeArgs_49))address)(*((_InvokeArgs_49*)args->mem));
+	break;
+    case 50:
+	return ((guint8 (*)(_InvokeArgs_50))address)(*((_InvokeArgs_50*)args->mem));
+	break;
+    case 51:
+	return ((guint8 (*)(_InvokeArgs_51))address)(*((_InvokeArgs_51*)args->mem));
+	break;
+    case 52:
+	return ((guint8 (*)(_InvokeArgs_52))address)(*((_InvokeArgs_52*)args->mem));
+	break;
+    case 53:
+	return ((guint8 (*)(_InvokeArgs_53))address)(*((_InvokeArgs_53*)args->mem));
+	break;
+    case 54:
+	return ((guint8 (*)(_InvokeArgs_54))address)(*((_InvokeArgs_54*)args->mem));
+	break;
+    case 55:
+	return ((guint8 (*)(_InvokeArgs_55))address)(*((_InvokeArgs_55*)args->mem));
+	break;
+    case 56:
+	return ((guint8 (*)(_InvokeArgs_56))address)(*((_InvokeArgs_56*)args->mem));
+	break;
+    case 57:
+	return ((guint8 (*)(_InvokeArgs_57))address)(*((_InvokeArgs_57*)args->mem));
+	break;
+    case 58:
+	return ((guint8 (*)(_InvokeArgs_58))address)(*((_InvokeArgs_58*)args->mem));
+	break;
+    case 59:
+	return ((guint8 (*)(_InvokeArgs_59))address)(*((_InvokeArgs_59*)args->mem));
+	break;
+    case 60:
+	return ((guint8 (*)(_InvokeArgs_60))address)(*((_InvokeArgs_60*)args->mem));
+	break;
+    case 61:
+	return ((guint8 (*)(_InvokeArgs_61))address)(*((_InvokeArgs_61*)args->mem));
+	break;
+    case 62:
+	return ((guint8 (*)(_InvokeArgs_62))address)(*((_InvokeArgs_62*)args->mem));
+	break;
+    case 63:
+	return ((guint8 (*)(_InvokeArgs_63))address)(*((_InvokeArgs_63*)args->mem));
+	break;
+    case 64:
+	return ((guint8 (*)(_InvokeArgs_64))address)(*((_InvokeArgs_64*)args->mem));
+	break;
+    case 65:
+	return ((guint8 (*)(_InvokeArgs_65))address)(*((_InvokeArgs_65*)args->mem));
+	break;
+    case 66:
+	return ((guint8 (*)(_InvokeArgs_66))address)(*((_InvokeArgs_66*)args->mem));
+	break;
+    case 67:
+	return ((guint8 (*)(_InvokeArgs_67))address)(*((_InvokeArgs_67*)args->mem));
+	break;
+    case 68:
+	return ((guint8 (*)(_InvokeArgs_68))address)(*((_InvokeArgs_68*)args->mem));
+	break;
+    case 69:
+	return ((guint8 (*)(_InvokeArgs_69))address)(*((_InvokeArgs_69*)args->mem));
+	break;
+    case 70:
+	return ((guint8 (*)(_InvokeArgs_70))address)(*((_InvokeArgs_70*)args->mem));
+	break;
+    case 71:
+	return ((guint8 (*)(_InvokeArgs_71))address)(*((_InvokeArgs_71*)args->mem));
+	break;
+    case 72:
+	return ((guint8 (*)(_InvokeArgs_72))address)(*((_InvokeArgs_72*)args->mem));
+	break;
+    case 73:
+	return ((guint8 (*)(_InvokeArgs_73))address)(*((_InvokeArgs_73*)args->mem));
+	break;
+    case 74:
+	return ((guint8 (*)(_InvokeArgs_74))address)(*((_InvokeArgs_74*)args->mem));
+	break;
+    case 75:
+	return ((guint8 (*)(_InvokeArgs_75))address)(*((_InvokeArgs_75*)args->mem));
+	break;
+    case 76:
+	return ((guint8 (*)(_InvokeArgs_76))address)(*((_InvokeArgs_76*)args->mem));
+	break;
+    case 77:
+	return ((guint8 (*)(_InvokeArgs_77))address)(*((_InvokeArgs_77*)args->mem));
+	break;
+    case 78:
+	return ((guint8 (*)(_InvokeArgs_78))address)(*((_InvokeArgs_78*)args->mem));
+	break;
+    case 79:
+	return ((guint8 (*)(_InvokeArgs_79))address)(*((_InvokeArgs_79*)args->mem));
+	break;
+    case 80:
+	return ((guint8 (*)(_InvokeArgs_80))address)(*((_InvokeArgs_80*)args->mem));
+	break;
+    case 81:
+	return ((guint8 (*)(_InvokeArgs_81))address)(*((_InvokeArgs_81*)args->mem));
+	break;
+    case 82:
+	return ((guint8 (*)(_InvokeArgs_82))address)(*((_InvokeArgs_82*)args->mem));
+	break;
+    case 83:
+	return ((guint8 (*)(_InvokeArgs_83))address)(*((_InvokeArgs_83*)args->mem));
+	break;
+    case 84:
+	return ((guint8 (*)(_InvokeArgs_84))address)(*((_InvokeArgs_84*)args->mem));
+	break;
+    case 85:
+	return ((guint8 (*)(_InvokeArgs_85))address)(*((_InvokeArgs_85*)args->mem));
+	break;
+    case 86:
+	return ((guint8 (*)(_InvokeArgs_86))address)(*((_InvokeArgs_86*)args->mem));
+	break;
+    case 87:
+	return ((guint8 (*)(_InvokeArgs_87))address)(*((_InvokeArgs_87*)args->mem));
+	break;
+    case 88:
+	return ((guint8 (*)(_InvokeArgs_88))address)(*((_InvokeArgs_88*)args->mem));
+	break;
+    case 89:
+	return ((guint8 (*)(_InvokeArgs_89))address)(*((_InvokeArgs_89*)args->mem));
+	break;
+    case 90:
+	return ((guint8 (*)(_InvokeArgs_90))address)(*((_InvokeArgs_90*)args->mem));
+	break;
+    case 91:
+	return ((guint8 (*)(_InvokeArgs_91))address)(*((_InvokeArgs_91*)args->mem));
+	break;
+    case 92:
+	return ((guint8 (*)(_InvokeArgs_92))address)(*((_InvokeArgs_92*)args->mem));
+	break;
+    case 93:
+	return ((guint8 (*)(_InvokeArgs_93))address)(*((_InvokeArgs_93*)args->mem));
+	break;
+    case 94:
+	return ((guint8 (*)(_InvokeArgs_94))address)(*((_InvokeArgs_94*)args->mem));
+	break;
+    case 95:
+	return ((guint8 (*)(_InvokeArgs_95))address)(*((_InvokeArgs_95*)args->mem));
+	break;
+    case 96:
+	return ((guint8 (*)(_InvokeArgs_96))address)(*((_InvokeArgs_96*)args->mem));
+	break;
+    case 97:
+	return ((guint8 (*)(_InvokeArgs_97))address)(*((_InvokeArgs_97*)args->mem));
+	break;
+    case 98:
+	return ((guint8 (*)(_InvokeArgs_98))address)(*((_InvokeArgs_98*)args->mem));
+	break;
+    case 99:
+	return ((guint8 (*)(_InvokeArgs_99))address)(*((_InvokeArgs_99*)args->mem));
+	break;
+    case 100:
+	return ((guint8 (*)(_InvokeArgs_100))address)(*((_InvokeArgs_100*)args->mem));
+	break;
+    case 101:
+	return ((guint8 (*)(_InvokeArgs_101))address)(*((_InvokeArgs_101*)args->mem));
+	break;
+    case 102:
+	return ((guint8 (*)(_InvokeArgs_102))address)(*((_InvokeArgs_102*)args->mem));
+	break;
+    case 103:
+	return ((guint8 (*)(_InvokeArgs_103))address)(*((_InvokeArgs_103*)args->mem));
+	break;
+    case 104:
+	return ((guint8 (*)(_InvokeArgs_104))address)(*((_InvokeArgs_104*)args->mem));
+	break;
+    case 105:
+	return ((guint8 (*)(_InvokeArgs_105))address)(*((_InvokeArgs_105*)args->mem));
+	break;
+    case 106:
+	return ((guint8 (*)(_InvokeArgs_106))address)(*((_InvokeArgs_106*)args->mem));
+	break;
+    case 107:
+	return ((guint8 (*)(_InvokeArgs_107))address)(*((_InvokeArgs_107*)args->mem));
+	break;
+    case 108:
+	return ((guint8 (*)(_InvokeArgs_108))address)(*((_InvokeArgs_108*)args->mem));
+	break;
+    case 109:
+	return ((guint8 (*)(_InvokeArgs_109))address)(*((_InvokeArgs_109*)args->mem));
+	break;
+    case 110:
+	return ((guint8 (*)(_InvokeArgs_110))address)(*((_InvokeArgs_110*)args->mem));
+	break;
+    case 111:
+	return ((guint8 (*)(_InvokeArgs_111))address)(*((_InvokeArgs_111*)args->mem));
+	break;
+    case 112:
+	return ((guint8 (*)(_InvokeArgs_112))address)(*((_InvokeArgs_112*)args->mem));
+	break;
+    case 113:
+	return ((guint8 (*)(_InvokeArgs_113))address)(*((_InvokeArgs_113*)args->mem));
+	break;
+    case 114:
+	return ((guint8 (*)(_InvokeArgs_114))address)(*((_InvokeArgs_114*)args->mem));
+	break;
+    case 115:
+	return ((guint8 (*)(_InvokeArgs_115))address)(*((_InvokeArgs_115*)args->mem));
+	break;
+    case 116:
+	return ((guint8 (*)(_InvokeArgs_116))address)(*((_InvokeArgs_116*)args->mem));
+	break;
+    case 117:
+	return ((guint8 (*)(_InvokeArgs_117))address)(*((_InvokeArgs_117*)args->mem));
+	break;
+    case 118:
+	return ((guint8 (*)(_InvokeArgs_118))address)(*((_InvokeArgs_118*)args->mem));
+	break;
+    case 119:
+	return ((guint8 (*)(_InvokeArgs_119))address)(*((_InvokeArgs_119*)args->mem));
+	break;
+    case 120:
+	return ((guint8 (*)(_InvokeArgs_120))address)(*((_InvokeArgs_120*)args->mem));
+	break;
+    case 121:
+	return ((guint8 (*)(_InvokeArgs_121))address)(*((_InvokeArgs_121*)args->mem));
+	break;
+    case 122:
+	return ((guint8 (*)(_InvokeArgs_122))address)(*((_InvokeArgs_122*)args->mem));
+	break;
+    case 123:
+	return ((guint8 (*)(_InvokeArgs_123))address)(*((_InvokeArgs_123*)args->mem));
+	break;
+    case 124:
+	return ((guint8 (*)(_InvokeArgs_124))address)(*((_InvokeArgs_124*)args->mem));
+	break;
+    case 125:
+	return ((guint8 (*)(_InvokeArgs_125))address)(*((_InvokeArgs_125*)args->mem));
+	break;
+    case 126:
+	return ((guint8 (*)(_InvokeArgs_126))address)(*((_InvokeArgs_126*)args->mem));
+	break;
+    case 127:
+	return ((guint8 (*)(_InvokeArgs_127))address)(*((_InvokeArgs_127*)args->mem));
+	break;
+    case 128:
+	return ((guint8 (*)(_InvokeArgs_128))address)(*((_InvokeArgs_128*)args->mem));
+	break;
+    case 129:
+	return ((guint8 (*)(_InvokeArgs_129))address)(*((_InvokeArgs_129*)args->mem));
+	break;
+    case 130:
+	return ((guint8 (*)(_InvokeArgs_130))address)(*((_InvokeArgs_130*)args->mem));
+	break;
+    case 131:
+	return ((guint8 (*)(_InvokeArgs_131))address)(*((_InvokeArgs_131*)args->mem));
+	break;
+    case 132:
+	return ((guint8 (*)(_InvokeArgs_132))address)(*((_InvokeArgs_132*)args->mem));
+	break;
+    case 133:
+	return ((guint8 (*)(_InvokeArgs_133))address)(*((_InvokeArgs_133*)args->mem));
+	break;
+    case 134:
+	return ((guint8 (*)(_InvokeArgs_134))address)(*((_InvokeArgs_134*)args->mem));
+	break;
+    case 135:
+	return ((guint8 (*)(_InvokeArgs_135))address)(*((_InvokeArgs_135*)args->mem));
+	break;
+    case 136:
+	return ((guint8 (*)(_InvokeArgs_136))address)(*((_InvokeArgs_136*)args->mem));
+	break;
+    case 137:
+	return ((guint8 (*)(_InvokeArgs_137))address)(*((_InvokeArgs_137*)args->mem));
+	break;
+    case 138:
+	return ((guint8 (*)(_InvokeArgs_138))address)(*((_InvokeArgs_138*)args->mem));
+	break;
+    case 139:
+	return ((guint8 (*)(_InvokeArgs_139))address)(*((_InvokeArgs_139*)args->mem));
+	break;
+    case 140:
+	return ((guint8 (*)(_InvokeArgs_140))address)(*((_InvokeArgs_140*)args->mem));
+	break;
+    case 141:
+	return ((guint8 (*)(_InvokeArgs_141))address)(*((_InvokeArgs_141*)args->mem));
+	break;
+    case 142:
+	return ((guint8 (*)(_InvokeArgs_142))address)(*((_InvokeArgs_142*)args->mem));
+	break;
+    case 143:
+	return ((guint8 (*)(_InvokeArgs_143))address)(*((_InvokeArgs_143*)args->mem));
+	break;
+    case 144:
+	return ((guint8 (*)(_InvokeArgs_144))address)(*((_InvokeArgs_144*)args->mem));
+	break;
+    case 145:
+	return ((guint8 (*)(_InvokeArgs_145))address)(*((_InvokeArgs_145*)args->mem));
+	break;
+    case 146:
+	return ((guint8 (*)(_InvokeArgs_146))address)(*((_InvokeArgs_146*)args->mem));
+	break;
+    case 147:
+	return ((guint8 (*)(_InvokeArgs_147))address)(*((_InvokeArgs_147*)args->mem));
+	break;
+    case 148:
+	return ((guint8 (*)(_InvokeArgs_148))address)(*((_InvokeArgs_148*)args->mem));
+	break;
+    case 149:
+	return ((guint8 (*)(_InvokeArgs_149))address)(*((_InvokeArgs_149*)args->mem));
+	break;
+    case 150:
+	return ((guint8 (*)(_InvokeArgs_150))address)(*((_InvokeArgs_150*)args->mem));
+	break;
+    case 151:
+	return ((guint8 (*)(_InvokeArgs_151))address)(*((_InvokeArgs_151*)args->mem));
+	break;
+    case 152:
+	return ((guint8 (*)(_InvokeArgs_152))address)(*((_InvokeArgs_152*)args->mem));
+	break;
+    case 153:
+	return ((guint8 (*)(_InvokeArgs_153))address)(*((_InvokeArgs_153*)args->mem));
+	break;
+    case 154:
+	return ((guint8 (*)(_InvokeArgs_154))address)(*((_InvokeArgs_154*)args->mem));
+	break;
+    case 155:
+	return ((guint8 (*)(_InvokeArgs_155))address)(*((_InvokeArgs_155*)args->mem));
+	break;
+    case 156:
+	return ((guint8 (*)(_InvokeArgs_156))address)(*((_InvokeArgs_156*)args->mem));
+	break;
+    case 157:
+	return ((guint8 (*)(_InvokeArgs_157))address)(*((_InvokeArgs_157*)args->mem));
+	break;
+    case 158:
+	return ((guint8 (*)(_InvokeArgs_158))address)(*((_InvokeArgs_158*)args->mem));
+	break;
+    case 159:
+	return ((guint8 (*)(_InvokeArgs_159))address)(*((_InvokeArgs_159*)args->mem));
+	break;
+    case 160:
+	return ((guint8 (*)(_InvokeArgs_160))address)(*((_InvokeArgs_160*)args->mem));
+	break;
+    case 161:
+	return ((guint8 (*)(_InvokeArgs_161))address)(*((_InvokeArgs_161*)args->mem));
+	break;
+    case 162:
+	return ((guint8 (*)(_InvokeArgs_162))address)(*((_InvokeArgs_162*)args->mem));
+	break;
+    case 163:
+	return ((guint8 (*)(_InvokeArgs_163))address)(*((_InvokeArgs_163*)args->mem));
+	break;
+    case 164:
+	return ((guint8 (*)(_InvokeArgs_164))address)(*((_InvokeArgs_164*)args->mem));
+	break;
+    case 165:
+	return ((guint8 (*)(_InvokeArgs_165))address)(*((_InvokeArgs_165*)args->mem));
+	break;
+    case 166:
+	return ((guint8 (*)(_InvokeArgs_166))address)(*((_InvokeArgs_166*)args->mem));
+	break;
+    case 167:
+	return ((guint8 (*)(_InvokeArgs_167))address)(*((_InvokeArgs_167*)args->mem));
+	break;
+    case 168:
+	return ((guint8 (*)(_InvokeArgs_168))address)(*((_InvokeArgs_168*)args->mem));
+	break;
+    case 169:
+	return ((guint8 (*)(_InvokeArgs_169))address)(*((_InvokeArgs_169*)args->mem));
+	break;
+    case 170:
+	return ((guint8 (*)(_InvokeArgs_170))address)(*((_InvokeArgs_170*)args->mem));
+	break;
+    case 171:
+	return ((guint8 (*)(_InvokeArgs_171))address)(*((_InvokeArgs_171*)args->mem));
+	break;
+    case 172:
+	return ((guint8 (*)(_InvokeArgs_172))address)(*((_InvokeArgs_172*)args->mem));
+	break;
+    case 173:
+	return ((guint8 (*)(_InvokeArgs_173))address)(*((_InvokeArgs_173*)args->mem));
+	break;
+    case 174:
+	return ((guint8 (*)(_InvokeArgs_174))address)(*((_InvokeArgs_174*)args->mem));
+	break;
+    case 175:
+	return ((guint8 (*)(_InvokeArgs_175))address)(*((_InvokeArgs_175*)args->mem));
+	break;
+    case 176:
+	return ((guint8 (*)(_InvokeArgs_176))address)(*((_InvokeArgs_176*)args->mem));
+	break;
+    case 177:
+	return ((guint8 (*)(_InvokeArgs_177))address)(*((_InvokeArgs_177*)args->mem));
+	break;
+    case 178:
+	return ((guint8 (*)(_InvokeArgs_178))address)(*((_InvokeArgs_178*)args->mem));
+	break;
+    case 179:
+	return ((guint8 (*)(_InvokeArgs_179))address)(*((_InvokeArgs_179*)args->mem));
+	break;
+    case 180:
+	return ((guint8 (*)(_InvokeArgs_180))address)(*((_InvokeArgs_180*)args->mem));
+	break;
+    case 181:
+	return ((guint8 (*)(_InvokeArgs_181))address)(*((_InvokeArgs_181*)args->mem));
+	break;
+    case 182:
+	return ((guint8 (*)(_InvokeArgs_182))address)(*((_InvokeArgs_182*)args->mem));
+	break;
+    case 183:
+	return ((guint8 (*)(_InvokeArgs_183))address)(*((_InvokeArgs_183*)args->mem));
+	break;
+    case 184:
+	return ((guint8 (*)(_InvokeArgs_184))address)(*((_InvokeArgs_184*)args->mem));
+	break;
+    case 185:
+	return ((guint8 (*)(_InvokeArgs_185))address)(*((_InvokeArgs_185*)args->mem));
+	break;
+    case 186:
+	return ((guint8 (*)(_InvokeArgs_186))address)(*((_InvokeArgs_186*)args->mem));
+	break;
+    case 187:
+	return ((guint8 (*)(_InvokeArgs_187))address)(*((_InvokeArgs_187*)args->mem));
+	break;
+    case 188:
+	return ((guint8 (*)(_InvokeArgs_188))address)(*((_InvokeArgs_188*)args->mem));
+	break;
+    case 189:
+	return ((guint8 (*)(_InvokeArgs_189))address)(*((_InvokeArgs_189*)args->mem));
+	break;
+    case 190:
+	return ((guint8 (*)(_InvokeArgs_190))address)(*((_InvokeArgs_190*)args->mem));
+	break;
+    case 191:
+	return ((guint8 (*)(_InvokeArgs_191))address)(*((_InvokeArgs_191*)args->mem));
+	break;
+    case 192:
+	return ((guint8 (*)(_InvokeArgs_192))address)(*((_InvokeArgs_192*)args->mem));
+	break;
+    case 193:
+	return ((guint8 (*)(_InvokeArgs_193))address)(*((_InvokeArgs_193*)args->mem));
+	break;
+    case 194:
+	return ((guint8 (*)(_InvokeArgs_194))address)(*((_InvokeArgs_194*)args->mem));
+	break;
+    case 195:
+	return ((guint8 (*)(_InvokeArgs_195))address)(*((_InvokeArgs_195*)args->mem));
+	break;
+    case 196:
+	return ((guint8 (*)(_InvokeArgs_196))address)(*((_InvokeArgs_196*)args->mem));
+	break;
+    case 197:
+	return ((guint8 (*)(_InvokeArgs_197))address)(*((_InvokeArgs_197*)args->mem));
+	break;
+    case 198:
+	return ((guint8 (*)(_InvokeArgs_198))address)(*((_InvokeArgs_198*)args->mem));
+	break;
+    case 199:
+	return ((guint8 (*)(_InvokeArgs_199))address)(*((_InvokeArgs_199*)args->mem));
+	break;
+    case 200:
+	return ((guint8 (*)(_InvokeArgs_200))address)(*((_InvokeArgs_200*)args->mem));
+	break;
+    case 201:
+	return ((guint8 (*)(_InvokeArgs_201))address)(*((_InvokeArgs_201*)args->mem));
+	break;
+    case 202:
+	return ((guint8 (*)(_InvokeArgs_202))address)(*((_InvokeArgs_202*)args->mem));
+	break;
+    case 203:
+	return ((guint8 (*)(_InvokeArgs_203))address)(*((_InvokeArgs_203*)args->mem));
+	break;
+    case 204:
+	return ((guint8 (*)(_InvokeArgs_204))address)(*((_InvokeArgs_204*)args->mem));
+	break;
+    case 205:
+	return ((guint8 (*)(_InvokeArgs_205))address)(*((_InvokeArgs_205*)args->mem));
+	break;
+    case 206:
+	return ((guint8 (*)(_InvokeArgs_206))address)(*((_InvokeArgs_206*)args->mem));
+	break;
+    case 207:
+	return ((guint8 (*)(_InvokeArgs_207))address)(*((_InvokeArgs_207*)args->mem));
+	break;
+    case 208:
+	return ((guint8 (*)(_InvokeArgs_208))address)(*((_InvokeArgs_208*)args->mem));
+	break;
+    case 209:
+	return ((guint8 (*)(_InvokeArgs_209))address)(*((_InvokeArgs_209*)args->mem));
+	break;
+    case 210:
+	return ((guint8 (*)(_InvokeArgs_210))address)(*((_InvokeArgs_210*)args->mem));
+	break;
+    case 211:
+	return ((guint8 (*)(_InvokeArgs_211))address)(*((_InvokeArgs_211*)args->mem));
+	break;
+    case 212:
+	return ((guint8 (*)(_InvokeArgs_212))address)(*((_InvokeArgs_212*)args->mem));
+	break;
+    case 213:
+	return ((guint8 (*)(_InvokeArgs_213))address)(*((_InvokeArgs_213*)args->mem));
+	break;
+    case 214:
+	return ((guint8 (*)(_InvokeArgs_214))address)(*((_InvokeArgs_214*)args->mem));
+	break;
+    case 215:
+	return ((guint8 (*)(_InvokeArgs_215))address)(*((_InvokeArgs_215*)args->mem));
+	break;
+    case 216:
+	return ((guint8 (*)(_InvokeArgs_216))address)(*((_InvokeArgs_216*)args->mem));
+	break;
+    case 217:
+	return ((guint8 (*)(_InvokeArgs_217))address)(*((_InvokeArgs_217*)args->mem));
+	break;
+    case 218:
+	return ((guint8 (*)(_InvokeArgs_218))address)(*((_InvokeArgs_218*)args->mem));
+	break;
+    case 219:
+	return ((guint8 (*)(_InvokeArgs_219))address)(*((_InvokeArgs_219*)args->mem));
+	break;
+    case 220:
+	return ((guint8 (*)(_InvokeArgs_220))address)(*((_InvokeArgs_220*)args->mem));
+	break;
+    case 221:
+	return ((guint8 (*)(_InvokeArgs_221))address)(*((_InvokeArgs_221*)args->mem));
+	break;
+    case 222:
+	return ((guint8 (*)(_InvokeArgs_222))address)(*((_InvokeArgs_222*)args->mem));
+	break;
+    case 223:
+	return ((guint8 (*)(_InvokeArgs_223))address)(*((_InvokeArgs_223*)args->mem));
+	break;
+    case 224:
+	return ((guint8 (*)(_InvokeArgs_224))address)(*((_InvokeArgs_224*)args->mem));
+	break;
+    case 225:
+	return ((guint8 (*)(_InvokeArgs_225))address)(*((_InvokeArgs_225*)args->mem));
+	break;
+    case 226:
+	return ((guint8 (*)(_InvokeArgs_226))address)(*((_InvokeArgs_226*)args->mem));
+	break;
+    case 227:
+	return ((guint8 (*)(_InvokeArgs_227))address)(*((_InvokeArgs_227*)args->mem));
+	break;
+    case 228:
+	return ((guint8 (*)(_InvokeArgs_228))address)(*((_InvokeArgs_228*)args->mem));
+	break;
+    case 229:
+	return ((guint8 (*)(_InvokeArgs_229))address)(*((_InvokeArgs_229*)args->mem));
+	break;
+    case 230:
+	return ((guint8 (*)(_InvokeArgs_230))address)(*((_InvokeArgs_230*)args->mem));
+	break;
+    case 231:
+	return ((guint8 (*)(_InvokeArgs_231))address)(*((_InvokeArgs_231*)args->mem));
+	break;
+    case 232:
+	return ((guint8 (*)(_InvokeArgs_232))address)(*((_InvokeArgs_232*)args->mem));
+	break;
+    case 233:
+	return ((guint8 (*)(_InvokeArgs_233))address)(*((_InvokeArgs_233*)args->mem));
+	break;
+    case 234:
+	return ((guint8 (*)(_InvokeArgs_234))address)(*((_InvokeArgs_234*)args->mem));
+	break;
+    case 235:
+	return ((guint8 (*)(_InvokeArgs_235))address)(*((_InvokeArgs_235*)args->mem));
+	break;
+    case 236:
+	return ((guint8 (*)(_InvokeArgs_236))address)(*((_InvokeArgs_236*)args->mem));
+	break;
+    case 237:
+	return ((guint8 (*)(_InvokeArgs_237))address)(*((_InvokeArgs_237*)args->mem));
+	break;
+    case 238:
+	return ((guint8 (*)(_InvokeArgs_238))address)(*((_InvokeArgs_238*)args->mem));
+	break;
+    case 239:
+	return ((guint8 (*)(_InvokeArgs_239))address)(*((_InvokeArgs_239*)args->mem));
+	break;
+    case 240:
+	return ((guint8 (*)(_InvokeArgs_240))address)(*((_InvokeArgs_240*)args->mem));
+	break;
+    case 241:
+	return ((guint8 (*)(_InvokeArgs_241))address)(*((_InvokeArgs_241*)args->mem));
+	break;
+    case 242:
+	return ((guint8 (*)(_InvokeArgs_242))address)(*((_InvokeArgs_242*)args->mem));
+	break;
+    case 243:
+	return ((guint8 (*)(_InvokeArgs_243))address)(*((_InvokeArgs_243*)args->mem));
+	break;
+    case 244:
+	return ((guint8 (*)(_InvokeArgs_244))address)(*((_InvokeArgs_244*)args->mem));
+	break;
+    case 245:
+	return ((guint8 (*)(_InvokeArgs_245))address)(*((_InvokeArgs_245*)args->mem));
+	break;
+    case 246:
+	return ((guint8 (*)(_InvokeArgs_246))address)(*((_InvokeArgs_246*)args->mem));
+	break;
+    case 247:
+	return ((guint8 (*)(_InvokeArgs_247))address)(*((_InvokeArgs_247*)args->mem));
+	break;
+    case 248:
+	return ((guint8 (*)(_InvokeArgs_248))address)(*((_InvokeArgs_248*)args->mem));
+	break;
+    case 249:
+	return ((guint8 (*)(_InvokeArgs_249))address)(*((_InvokeArgs_249*)args->mem));
+	break;
+    case 250:
+	return ((guint8 (*)(_InvokeArgs_250))address)(*((_InvokeArgs_250*)args->mem));
+	break;
+    case 251:
+	return ((guint8 (*)(_InvokeArgs_251))address)(*((_InvokeArgs_251*)args->mem));
+	break;
+    case 252:
+	return ((guint8 (*)(_InvokeArgs_252))address)(*((_InvokeArgs_252*)args->mem));
+	break;
+    case 253:
+	return ((guint8 (*)(_InvokeArgs_253))address)(*((_InvokeArgs_253*)args->mem));
+	break;
+    case 254:
+	return ((guint8 (*)(_InvokeArgs_254))address)(*((_InvokeArgs_254*)args->mem));
+	break;
+    case 255:
+	return ((guint8 (*)(_InvokeArgs_255))address)(*((_InvokeArgs_255*)args->mem));
+	break;
+    case 256:
+	return ((guint8 (*)(_InvokeArgs_256))address)(*((_InvokeArgs_256*)args->mem));
+	break;
+    default:
+      return ((guint8 (*)()address)();
+  }
+#else
+  return ((guint8 (*)(_InvokeArgs_256))address)(*((_InvokeArgs_256*)args->mem));
+#endif
+}
 
 guint
-golem_invoke_guint(gpointer address,GolemArgs * args);
+golem_invoke_guint(gpointer address,GolemArgs * args)
+{
+#ifdef __x86_64__
+  switch(args->offset)
+  {
+    case 1:
+    	return ((guint (*)(_InvokeArgs_1))address)(*((_InvokeArgs_1*)args->mem));
+    	break;
+    case 2:
+    	return ((guint (*)(_InvokeArgs_2))address)(*((_InvokeArgs_2*)args->mem));
+    	break;
+    case 3:
+    	return ((guint (*)(_InvokeArgs_3))address)(*((_InvokeArgs_3*)args->mem));
+    	break;
+    case 4:
+    	return ((guint (*)(_InvokeArgs_4))address)(*((_InvokeArgs_4*)args->mem));
+    	break;
+    case 5:
+    	return ((guint (*)(_InvokeArgs_5))address)(*((_InvokeArgs_5*)args->mem));
+    	break;
+    case 6:
+    	return ((guint (*)(_InvokeArgs_6))address)(*((_InvokeArgs_6*)args->mem));
+    	break;
+    case 7:
+    	return ((guint (*)(_InvokeArgs_7))address)(*((_InvokeArgs_7*)args->mem));
+    	break;
+    case 8:
+    	return ((guint (*)(_InvokeArgs_8))address)(*((_InvokeArgs_8*)args->mem));
+    	break;
+    case 9:
+    	return ((guint (*)(_InvokeArgs_9))address)(*((_InvokeArgs_9*)args->mem));
+    	break;
+    case 10:
+    	return ((guint (*)(_InvokeArgs_10))address)(*((_InvokeArgs_10*)args->mem));
+    	break;
+    case 11:
+    	return ((guint (*)(_InvokeArgs_11))address)(*((_InvokeArgs_11*)args->mem));
+    	break;
+    case 12:
+    	return ((guint (*)(_InvokeArgs_12))address)(*((_InvokeArgs_12*)args->mem));
+    	break;
+    case 13:
+    	return ((guint (*)(_InvokeArgs_13))address)(*((_InvokeArgs_13*)args->mem));
+    	break;
+    case 14:
+    	return ((guint (*)(_InvokeArgs_14))address)(*((_InvokeArgs_14*)args->mem));
+    	break;
+    case 15:
+    	return ((guint (*)(_InvokeArgs_15))address)(*((_InvokeArgs_15*)args->mem));
+    	break;
+    case 16:
+    	return ((guint (*)(_InvokeArgs_16))address)(*((_InvokeArgs_16*)args->mem));
+    	break;
+    case 17:
+    	return ((guint (*)(_InvokeArgs_17))address)(*((_InvokeArgs_17*)args->mem));
+    	break;
+    case 18:
+    	return ((guint (*)(_InvokeArgs_18))address)(*((_InvokeArgs_18*)args->mem));
+    	break;
+    case 19:
+    	return ((guint (*)(_InvokeArgs_19))address)(*((_InvokeArgs_19*)args->mem));
+    	break;
+    case 20:
+    	return ((guint (*)(_InvokeArgs_20))address)(*((_InvokeArgs_20*)args->mem));
+    	break;
+    case 21:
+    	return ((guint (*)(_InvokeArgs_21))address)(*((_InvokeArgs_21*)args->mem));
+    	break;
+    case 22:
+    	return ((guint (*)(_InvokeArgs_22))address)(*((_InvokeArgs_22*)args->mem));
+    	break;
+    case 23:
+    	return ((guint (*)(_InvokeArgs_23))address)(*((_InvokeArgs_23*)args->mem));
+    	break;
+    case 24:
+    	return ((guint (*)(_InvokeArgs_24))address)(*((_InvokeArgs_24*)args->mem));
+    	break;
+    case 25:
+    	return ((guint (*)(_InvokeArgs_25))address)(*((_InvokeArgs_25*)args->mem));
+    	break;
+    case 26:
+    	return ((guint (*)(_InvokeArgs_26))address)(*((_InvokeArgs_26*)args->mem));
+    	break;
+    case 27:
+    	return ((guint (*)(_InvokeArgs_27))address)(*((_InvokeArgs_27*)args->mem));
+    	break;
+    case 28:
+    	return ((guint (*)(_InvokeArgs_28))address)(*((_InvokeArgs_28*)args->mem));
+    	break;
+    case 29:
+    	return ((guint (*)(_InvokeArgs_29))address)(*((_InvokeArgs_29*)args->mem));
+    	break;
+    case 30:
+    	return ((guint (*)(_InvokeArgs_30))address)(*((_InvokeArgs_30*)args->mem));
+    	break;
+    case 31:
+    	return ((guint (*)(_InvokeArgs_31))address)(*((_InvokeArgs_31*)args->mem));
+    	break;
+    case 32:
+    	return ((guint (*)(_InvokeArgs_32))address)(*((_InvokeArgs_32*)args->mem));
+    	break;
+    case 33:
+    	return ((guint (*)(_InvokeArgs_33))address)(*((_InvokeArgs_33*)args->mem));
+    	break;
+    case 34:
+    	return ((guint (*)(_InvokeArgs_34))address)(*((_InvokeArgs_34*)args->mem));
+    	break;
+    case 35:
+    	return ((guint (*)(_InvokeArgs_35))address)(*((_InvokeArgs_35*)args->mem));
+    	break;
+    case 36:
+    	return ((guint (*)(_InvokeArgs_36))address)(*((_InvokeArgs_36*)args->mem));
+    	break;
+    case 37:
+    	return ((guint (*)(_InvokeArgs_37))address)(*((_InvokeArgs_37*)args->mem));
+    	break;
+    case 38:
+    	return ((guint (*)(_InvokeArgs_38))address)(*((_InvokeArgs_38*)args->mem));
+    	break;
+    case 39:
+    	return ((guint (*)(_InvokeArgs_39))address)(*((_InvokeArgs_39*)args->mem));
+    	break;
+    case 40:
+    	return ((guint (*)(_InvokeArgs_40))address)(*((_InvokeArgs_40*)args->mem));
+    	break;
+    case 41:
+    	return ((guint (*)(_InvokeArgs_41))address)(*((_InvokeArgs_41*)args->mem));
+    	break;
+    case 42:
+    	return ((guint (*)(_InvokeArgs_42))address)(*((_InvokeArgs_42*)args->mem));
+    	break;
+    case 43:
+    	return ((guint (*)(_InvokeArgs_43))address)(*((_InvokeArgs_43*)args->mem));
+    	break;
+    case 44:
+    	return ((guint (*)(_InvokeArgs_44))address)(*((_InvokeArgs_44*)args->mem));
+    	break;
+    case 45:
+    	return ((guint (*)(_InvokeArgs_45))address)(*((_InvokeArgs_45*)args->mem));
+    	break;
+    case 46:
+    	return ((guint (*)(_InvokeArgs_46))address)(*((_InvokeArgs_46*)args->mem));
+    	break;
+    case 47:
+    	return ((guint (*)(_InvokeArgs_47))address)(*((_InvokeArgs_47*)args->mem));
+    	break;
+    case 48:
+    	return ((guint (*)(_InvokeArgs_48))address)(*((_InvokeArgs_48*)args->mem));
+    	break;
+    case 49:
+    	return ((guint (*)(_InvokeArgs_49))address)(*((_InvokeArgs_49*)args->mem));
+    	break;
+    case 50:
+    	return ((guint (*)(_InvokeArgs_50))address)(*((_InvokeArgs_50*)args->mem));
+    	break;
+    case 51:
+    	return ((guint (*)(_InvokeArgs_51))address)(*((_InvokeArgs_51*)args->mem));
+    	break;
+    case 52:
+    	return ((guint (*)(_InvokeArgs_52))address)(*((_InvokeArgs_52*)args->mem));
+    	break;
+    case 53:
+    	return ((guint (*)(_InvokeArgs_53))address)(*((_InvokeArgs_53*)args->mem));
+    	break;
+    case 54:
+    	return ((guint (*)(_InvokeArgs_54))address)(*((_InvokeArgs_54*)args->mem));
+    	break;
+    case 55:
+    	return ((guint (*)(_InvokeArgs_55))address)(*((_InvokeArgs_55*)args->mem));
+    	break;
+    case 56:
+    	return ((guint (*)(_InvokeArgs_56))address)(*((_InvokeArgs_56*)args->mem));
+    	break;
+    case 57:
+    	return ((guint (*)(_InvokeArgs_57))address)(*((_InvokeArgs_57*)args->mem));
+    	break;
+    case 58:
+    	return ((guint (*)(_InvokeArgs_58))address)(*((_InvokeArgs_58*)args->mem));
+    	break;
+    case 59:
+    	return ((guint (*)(_InvokeArgs_59))address)(*((_InvokeArgs_59*)args->mem));
+    	break;
+    case 60:
+    	return ((guint (*)(_InvokeArgs_60))address)(*((_InvokeArgs_60*)args->mem));
+    	break;
+    case 61:
+    	return ((guint (*)(_InvokeArgs_61))address)(*((_InvokeArgs_61*)args->mem));
+    	break;
+    case 62:
+    	return ((guint (*)(_InvokeArgs_62))address)(*((_InvokeArgs_62*)args->mem));
+    	break;
+    case 63:
+    	return ((guint (*)(_InvokeArgs_63))address)(*((_InvokeArgs_63*)args->mem));
+    	break;
+    case 64:
+    	return ((guint (*)(_InvokeArgs_64))address)(*((_InvokeArgs_64*)args->mem));
+    	break;
+    case 65:
+    	return ((guint (*)(_InvokeArgs_65))address)(*((_InvokeArgs_65*)args->mem));
+    	break;
+    case 66:
+    	return ((guint (*)(_InvokeArgs_66))address)(*((_InvokeArgs_66*)args->mem));
+    	break;
+    case 67:
+    	return ((guint (*)(_InvokeArgs_67))address)(*((_InvokeArgs_67*)args->mem));
+    	break;
+    case 68:
+    	return ((guint (*)(_InvokeArgs_68))address)(*((_InvokeArgs_68*)args->mem));
+    	break;
+    case 69:
+    	return ((guint (*)(_InvokeArgs_69))address)(*((_InvokeArgs_69*)args->mem));
+    	break;
+    case 70:
+    	return ((guint (*)(_InvokeArgs_70))address)(*((_InvokeArgs_70*)args->mem));
+    	break;
+    case 71:
+    	return ((guint (*)(_InvokeArgs_71))address)(*((_InvokeArgs_71*)args->mem));
+    	break;
+    case 72:
+    	return ((guint (*)(_InvokeArgs_72))address)(*((_InvokeArgs_72*)args->mem));
+    	break;
+    case 73:
+    	return ((guint (*)(_InvokeArgs_73))address)(*((_InvokeArgs_73*)args->mem));
+    	break;
+    case 74:
+    	return ((guint (*)(_InvokeArgs_74))address)(*((_InvokeArgs_74*)args->mem));
+    	break;
+    case 75:
+    	return ((guint (*)(_InvokeArgs_75))address)(*((_InvokeArgs_75*)args->mem));
+    	break;
+    case 76:
+    	return ((guint (*)(_InvokeArgs_76))address)(*((_InvokeArgs_76*)args->mem));
+    	break;
+    case 77:
+    	return ((guint (*)(_InvokeArgs_77))address)(*((_InvokeArgs_77*)args->mem));
+    	break;
+    case 78:
+    	return ((guint (*)(_InvokeArgs_78))address)(*((_InvokeArgs_78*)args->mem));
+    	break;
+    case 79:
+    	return ((guint (*)(_InvokeArgs_79))address)(*((_InvokeArgs_79*)args->mem));
+    	break;
+    case 80:
+    	return ((guint (*)(_InvokeArgs_80))address)(*((_InvokeArgs_80*)args->mem));
+    	break;
+    case 81:
+    	return ((guint (*)(_InvokeArgs_81))address)(*((_InvokeArgs_81*)args->mem));
+    	break;
+    case 82:
+    	return ((guint (*)(_InvokeArgs_82))address)(*((_InvokeArgs_82*)args->mem));
+    	break;
+    case 83:
+    	return ((guint (*)(_InvokeArgs_83))address)(*((_InvokeArgs_83*)args->mem));
+    	break;
+    case 84:
+    	return ((guint (*)(_InvokeArgs_84))address)(*((_InvokeArgs_84*)args->mem));
+    	break;
+    case 85:
+    	return ((guint (*)(_InvokeArgs_85))address)(*((_InvokeArgs_85*)args->mem));
+    	break;
+    case 86:
+    	return ((guint (*)(_InvokeArgs_86))address)(*((_InvokeArgs_86*)args->mem));
+    	break;
+    case 87:
+    	return ((guint (*)(_InvokeArgs_87))address)(*((_InvokeArgs_87*)args->mem));
+    	break;
+    case 88:
+    	return ((guint (*)(_InvokeArgs_88))address)(*((_InvokeArgs_88*)args->mem));
+    	break;
+    case 89:
+    	return ((guint (*)(_InvokeArgs_89))address)(*((_InvokeArgs_89*)args->mem));
+    	break;
+    case 90:
+    	return ((guint (*)(_InvokeArgs_90))address)(*((_InvokeArgs_90*)args->mem));
+    	break;
+    case 91:
+    	return ((guint (*)(_InvokeArgs_91))address)(*((_InvokeArgs_91*)args->mem));
+    	break;
+    case 92:
+    	return ((guint (*)(_InvokeArgs_92))address)(*((_InvokeArgs_92*)args->mem));
+    	break;
+    case 93:
+    	return ((guint (*)(_InvokeArgs_93))address)(*((_InvokeArgs_93*)args->mem));
+    	break;
+    case 94:
+    	return ((guint (*)(_InvokeArgs_94))address)(*((_InvokeArgs_94*)args->mem));
+    	break;
+    case 95:
+    	return ((guint (*)(_InvokeArgs_95))address)(*((_InvokeArgs_95*)args->mem));
+    	break;
+    case 96:
+    	return ((guint (*)(_InvokeArgs_96))address)(*((_InvokeArgs_96*)args->mem));
+    	break;
+    case 97:
+    	return ((guint (*)(_InvokeArgs_97))address)(*((_InvokeArgs_97*)args->mem));
+    	break;
+    case 98:
+    	return ((guint (*)(_InvokeArgs_98))address)(*((_InvokeArgs_98*)args->mem));
+    	break;
+    case 99:
+    	return ((guint (*)(_InvokeArgs_99))address)(*((_InvokeArgs_99*)args->mem));
+    	break;
+    case 100:
+    	return ((guint (*)(_InvokeArgs_100))address)(*((_InvokeArgs_100*)args->mem));
+    	break;
+    case 101:
+    	return ((guint (*)(_InvokeArgs_101))address)(*((_InvokeArgs_101*)args->mem));
+    	break;
+    case 102:
+    	return ((guint (*)(_InvokeArgs_102))address)(*((_InvokeArgs_102*)args->mem));
+    	break;
+    case 103:
+    	return ((guint (*)(_InvokeArgs_103))address)(*((_InvokeArgs_103*)args->mem));
+    	break;
+    case 104:
+    	return ((guint (*)(_InvokeArgs_104))address)(*((_InvokeArgs_104*)args->mem));
+    	break;
+    case 105:
+    	return ((guint (*)(_InvokeArgs_105))address)(*((_InvokeArgs_105*)args->mem));
+    	break;
+    case 106:
+    	return ((guint (*)(_InvokeArgs_106))address)(*((_InvokeArgs_106*)args->mem));
+    	break;
+    case 107:
+    	return ((guint (*)(_InvokeArgs_107))address)(*((_InvokeArgs_107*)args->mem));
+    	break;
+    case 108:
+    	return ((guint (*)(_InvokeArgs_108))address)(*((_InvokeArgs_108*)args->mem));
+    	break;
+    case 109:
+    	return ((guint (*)(_InvokeArgs_109))address)(*((_InvokeArgs_109*)args->mem));
+    	break;
+    case 110:
+    	return ((guint (*)(_InvokeArgs_110))address)(*((_InvokeArgs_110*)args->mem));
+    	break;
+    case 111:
+    	return ((guint (*)(_InvokeArgs_111))address)(*((_InvokeArgs_111*)args->mem));
+    	break;
+    case 112:
+    	return ((guint (*)(_InvokeArgs_112))address)(*((_InvokeArgs_112*)args->mem));
+    	break;
+    case 113:
+    	return ((guint (*)(_InvokeArgs_113))address)(*((_InvokeArgs_113*)args->mem));
+    	break;
+    case 114:
+    	return ((guint (*)(_InvokeArgs_114))address)(*((_InvokeArgs_114*)args->mem));
+    	break;
+    case 115:
+    	return ((guint (*)(_InvokeArgs_115))address)(*((_InvokeArgs_115*)args->mem));
+    	break;
+    case 116:
+    	return ((guint (*)(_InvokeArgs_116))address)(*((_InvokeArgs_116*)args->mem));
+    	break;
+    case 117:
+    	return ((guint (*)(_InvokeArgs_117))address)(*((_InvokeArgs_117*)args->mem));
+    	break;
+    case 118:
+    	return ((guint (*)(_InvokeArgs_118))address)(*((_InvokeArgs_118*)args->mem));
+    	break;
+    case 119:
+    	return ((guint (*)(_InvokeArgs_119))address)(*((_InvokeArgs_119*)args->mem));
+    	break;
+    case 120:
+    	return ((guint (*)(_InvokeArgs_120))address)(*((_InvokeArgs_120*)args->mem));
+    	break;
+    case 121:
+    	return ((guint (*)(_InvokeArgs_121))address)(*((_InvokeArgs_121*)args->mem));
+    	break;
+    case 122:
+    	return ((guint (*)(_InvokeArgs_122))address)(*((_InvokeArgs_122*)args->mem));
+    	break;
+    case 123:
+    	return ((guint (*)(_InvokeArgs_123))address)(*((_InvokeArgs_123*)args->mem));
+    	break;
+    case 124:
+    	return ((guint (*)(_InvokeArgs_124))address)(*((_InvokeArgs_124*)args->mem));
+    	break;
+    case 125:
+    	return ((guint (*)(_InvokeArgs_125))address)(*((_InvokeArgs_125*)args->mem));
+    	break;
+    case 126:
+    	return ((guint (*)(_InvokeArgs_126))address)(*((_InvokeArgs_126*)args->mem));
+    	break;
+    case 127:
+    	return ((guint (*)(_InvokeArgs_127))address)(*((_InvokeArgs_127*)args->mem));
+    	break;
+    case 128:
+    	return ((guint (*)(_InvokeArgs_128))address)(*((_InvokeArgs_128*)args->mem));
+    	break;
+    case 129:
+    	return ((guint (*)(_InvokeArgs_129))address)(*((_InvokeArgs_129*)args->mem));
+    	break;
+    case 130:
+    	return ((guint (*)(_InvokeArgs_130))address)(*((_InvokeArgs_130*)args->mem));
+    	break;
+    case 131:
+    	return ((guint (*)(_InvokeArgs_131))address)(*((_InvokeArgs_131*)args->mem));
+    	break;
+    case 132:
+    	return ((guint (*)(_InvokeArgs_132))address)(*((_InvokeArgs_132*)args->mem));
+    	break;
+    case 133:
+    	return ((guint (*)(_InvokeArgs_133))address)(*((_InvokeArgs_133*)args->mem));
+    	break;
+    case 134:
+    	return ((guint (*)(_InvokeArgs_134))address)(*((_InvokeArgs_134*)args->mem));
+    	break;
+    case 135:
+    	return ((guint (*)(_InvokeArgs_135))address)(*((_InvokeArgs_135*)args->mem));
+    	break;
+    case 136:
+    	return ((guint (*)(_InvokeArgs_136))address)(*((_InvokeArgs_136*)args->mem));
+    	break;
+    case 137:
+    	return ((guint (*)(_InvokeArgs_137))address)(*((_InvokeArgs_137*)args->mem));
+    	break;
+    case 138:
+    	return ((guint (*)(_InvokeArgs_138))address)(*((_InvokeArgs_138*)args->mem));
+    	break;
+    case 139:
+    	return ((guint (*)(_InvokeArgs_139))address)(*((_InvokeArgs_139*)args->mem));
+    	break;
+    case 140:
+    	return ((guint (*)(_InvokeArgs_140))address)(*((_InvokeArgs_140*)args->mem));
+    	break;
+    case 141:
+    	return ((guint (*)(_InvokeArgs_141))address)(*((_InvokeArgs_141*)args->mem));
+    	break;
+    case 142:
+    	return ((guint (*)(_InvokeArgs_142))address)(*((_InvokeArgs_142*)args->mem));
+    	break;
+    case 143:
+    	return ((guint (*)(_InvokeArgs_143))address)(*((_InvokeArgs_143*)args->mem));
+    	break;
+    case 144:
+    	return ((guint (*)(_InvokeArgs_144))address)(*((_InvokeArgs_144*)args->mem));
+    	break;
+    case 145:
+    	return ((guint (*)(_InvokeArgs_145))address)(*((_InvokeArgs_145*)args->mem));
+    	break;
+    case 146:
+    	return ((guint (*)(_InvokeArgs_146))address)(*((_InvokeArgs_146*)args->mem));
+    	break;
+    case 147:
+    	return ((guint (*)(_InvokeArgs_147))address)(*((_InvokeArgs_147*)args->mem));
+    	break;
+    case 148:
+    	return ((guint (*)(_InvokeArgs_148))address)(*((_InvokeArgs_148*)args->mem));
+    	break;
+    case 149:
+    	return ((guint (*)(_InvokeArgs_149))address)(*((_InvokeArgs_149*)args->mem));
+    	break;
+    case 150:
+    	return ((guint (*)(_InvokeArgs_150))address)(*((_InvokeArgs_150*)args->mem));
+    	break;
+    case 151:
+    	return ((guint (*)(_InvokeArgs_151))address)(*((_InvokeArgs_151*)args->mem));
+    	break;
+    case 152:
+    	return ((guint (*)(_InvokeArgs_152))address)(*((_InvokeArgs_152*)args->mem));
+    	break;
+    case 153:
+    	return ((guint (*)(_InvokeArgs_153))address)(*((_InvokeArgs_153*)args->mem));
+    	break;
+    case 154:
+    	return ((guint (*)(_InvokeArgs_154))address)(*((_InvokeArgs_154*)args->mem));
+    	break;
+    case 155:
+    	return ((guint (*)(_InvokeArgs_155))address)(*((_InvokeArgs_155*)args->mem));
+    	break;
+    case 156:
+    	return ((guint (*)(_InvokeArgs_156))address)(*((_InvokeArgs_156*)args->mem));
+    	break;
+    case 157:
+    	return ((guint (*)(_InvokeArgs_157))address)(*((_InvokeArgs_157*)args->mem));
+    	break;
+    case 158:
+    	return ((guint (*)(_InvokeArgs_158))address)(*((_InvokeArgs_158*)args->mem));
+    	break;
+    case 159:
+    	return ((guint (*)(_InvokeArgs_159))address)(*((_InvokeArgs_159*)args->mem));
+    	break;
+    case 160:
+    	return ((guint (*)(_InvokeArgs_160))address)(*((_InvokeArgs_160*)args->mem));
+    	break;
+    case 161:
+    	return ((guint (*)(_InvokeArgs_161))address)(*((_InvokeArgs_161*)args->mem));
+    	break;
+    case 162:
+    	return ((guint (*)(_InvokeArgs_162))address)(*((_InvokeArgs_162*)args->mem));
+    	break;
+    case 163:
+    	return ((guint (*)(_InvokeArgs_163))address)(*((_InvokeArgs_163*)args->mem));
+    	break;
+    case 164:
+    	return ((guint (*)(_InvokeArgs_164))address)(*((_InvokeArgs_164*)args->mem));
+    	break;
+    case 165:
+    	return ((guint (*)(_InvokeArgs_165))address)(*((_InvokeArgs_165*)args->mem));
+    	break;
+    case 166:
+    	return ((guint (*)(_InvokeArgs_166))address)(*((_InvokeArgs_166*)args->mem));
+    	break;
+    case 167:
+    	return ((guint (*)(_InvokeArgs_167))address)(*((_InvokeArgs_167*)args->mem));
+    	break;
+    case 168:
+    	return ((guint (*)(_InvokeArgs_168))address)(*((_InvokeArgs_168*)args->mem));
+    	break;
+    case 169:
+    	return ((guint (*)(_InvokeArgs_169))address)(*((_InvokeArgs_169*)args->mem));
+    	break;
+    case 170:
+    	return ((guint (*)(_InvokeArgs_170))address)(*((_InvokeArgs_170*)args->mem));
+    	break;
+    case 171:
+    	return ((guint (*)(_InvokeArgs_171))address)(*((_InvokeArgs_171*)args->mem));
+    	break;
+    case 172:
+    	return ((guint (*)(_InvokeArgs_172))address)(*((_InvokeArgs_172*)args->mem));
+    	break;
+    case 173:
+    	return ((guint (*)(_InvokeArgs_173))address)(*((_InvokeArgs_173*)args->mem));
+    	break;
+    case 174:
+    	return ((guint (*)(_InvokeArgs_174))address)(*((_InvokeArgs_174*)args->mem));
+    	break;
+    case 175:
+    	return ((guint (*)(_InvokeArgs_175))address)(*((_InvokeArgs_175*)args->mem));
+    	break;
+    case 176:
+    	return ((guint (*)(_InvokeArgs_176))address)(*((_InvokeArgs_176*)args->mem));
+    	break;
+    case 177:
+    	return ((guint (*)(_InvokeArgs_177))address)(*((_InvokeArgs_177*)args->mem));
+    	break;
+    case 178:
+    	return ((guint (*)(_InvokeArgs_178))address)(*((_InvokeArgs_178*)args->mem));
+    	break;
+    case 179:
+    	return ((guint (*)(_InvokeArgs_179))address)(*((_InvokeArgs_179*)args->mem));
+    	break;
+    case 180:
+    	return ((guint (*)(_InvokeArgs_180))address)(*((_InvokeArgs_180*)args->mem));
+    	break;
+    case 181:
+    	return ((guint (*)(_InvokeArgs_181))address)(*((_InvokeArgs_181*)args->mem));
+    	break;
+    case 182:
+    	return ((guint (*)(_InvokeArgs_182))address)(*((_InvokeArgs_182*)args->mem));
+    	break;
+    case 183:
+    	return ((guint (*)(_InvokeArgs_183))address)(*((_InvokeArgs_183*)args->mem));
+    	break;
+    case 184:
+    	return ((guint (*)(_InvokeArgs_184))address)(*((_InvokeArgs_184*)args->mem));
+    	break;
+    case 185:
+    	return ((guint (*)(_InvokeArgs_185))address)(*((_InvokeArgs_185*)args->mem));
+    	break;
+    case 186:
+    	return ((guint (*)(_InvokeArgs_186))address)(*((_InvokeArgs_186*)args->mem));
+    	break;
+    case 187:
+    	return ((guint (*)(_InvokeArgs_187))address)(*((_InvokeArgs_187*)args->mem));
+    	break;
+    case 188:
+    	return ((guint (*)(_InvokeArgs_188))address)(*((_InvokeArgs_188*)args->mem));
+    	break;
+    case 189:
+    	return ((guint (*)(_InvokeArgs_189))address)(*((_InvokeArgs_189*)args->mem));
+    	break;
+    case 190:
+    	return ((guint (*)(_InvokeArgs_190))address)(*((_InvokeArgs_190*)args->mem));
+    	break;
+    case 191:
+    	return ((guint (*)(_InvokeArgs_191))address)(*((_InvokeArgs_191*)args->mem));
+    	break;
+    case 192:
+    	return ((guint (*)(_InvokeArgs_192))address)(*((_InvokeArgs_192*)args->mem));
+    	break;
+    case 193:
+    	return ((guint (*)(_InvokeArgs_193))address)(*((_InvokeArgs_193*)args->mem));
+    	break;
+    case 194:
+    	return ((guint (*)(_InvokeArgs_194))address)(*((_InvokeArgs_194*)args->mem));
+    	break;
+    case 195:
+    	return ((guint (*)(_InvokeArgs_195))address)(*((_InvokeArgs_195*)args->mem));
+    	break;
+    case 196:
+    	return ((guint (*)(_InvokeArgs_196))address)(*((_InvokeArgs_196*)args->mem));
+    	break;
+    case 197:
+    	return ((guint (*)(_InvokeArgs_197))address)(*((_InvokeArgs_197*)args->mem));
+    	break;
+    case 198:
+    	return ((guint (*)(_InvokeArgs_198))address)(*((_InvokeArgs_198*)args->mem));
+    	break;
+    case 199:
+    	return ((guint (*)(_InvokeArgs_199))address)(*((_InvokeArgs_199*)args->mem));
+    	break;
+    case 200:
+    	return ((guint (*)(_InvokeArgs_200))address)(*((_InvokeArgs_200*)args->mem));
+    	break;
+    case 201:
+    	return ((guint (*)(_InvokeArgs_201))address)(*((_InvokeArgs_201*)args->mem));
+    	break;
+    case 202:
+    	return ((guint (*)(_InvokeArgs_202))address)(*((_InvokeArgs_202*)args->mem));
+    	break;
+    case 203:
+    	return ((guint (*)(_InvokeArgs_203))address)(*((_InvokeArgs_203*)args->mem));
+    	break;
+    case 204:
+    	return ((guint (*)(_InvokeArgs_204))address)(*((_InvokeArgs_204*)args->mem));
+    	break;
+    case 205:
+    	return ((guint (*)(_InvokeArgs_205))address)(*((_InvokeArgs_205*)args->mem));
+    	break;
+    case 206:
+    	return ((guint (*)(_InvokeArgs_206))address)(*((_InvokeArgs_206*)args->mem));
+    	break;
+    case 207:
+    	return ((guint (*)(_InvokeArgs_207))address)(*((_InvokeArgs_207*)args->mem));
+    	break;
+    case 208:
+    	return ((guint (*)(_InvokeArgs_208))address)(*((_InvokeArgs_208*)args->mem));
+    	break;
+    case 209:
+    	return ((guint (*)(_InvokeArgs_209))address)(*((_InvokeArgs_209*)args->mem));
+    	break;
+    case 210:
+    	return ((guint (*)(_InvokeArgs_210))address)(*((_InvokeArgs_210*)args->mem));
+    	break;
+    case 211:
+    	return ((guint (*)(_InvokeArgs_211))address)(*((_InvokeArgs_211*)args->mem));
+    	break;
+    case 212:
+    	return ((guint (*)(_InvokeArgs_212))address)(*((_InvokeArgs_212*)args->mem));
+    	break;
+    case 213:
+    	return ((guint (*)(_InvokeArgs_213))address)(*((_InvokeArgs_213*)args->mem));
+    	break;
+    case 214:
+    	return ((guint (*)(_InvokeArgs_214))address)(*((_InvokeArgs_214*)args->mem));
+    	break;
+    case 215:
+    	return ((guint (*)(_InvokeArgs_215))address)(*((_InvokeArgs_215*)args->mem));
+    	break;
+    case 216:
+    	return ((guint (*)(_InvokeArgs_216))address)(*((_InvokeArgs_216*)args->mem));
+    	break;
+    case 217:
+    	return ((guint (*)(_InvokeArgs_217))address)(*((_InvokeArgs_217*)args->mem));
+    	break;
+    case 218:
+    	return ((guint (*)(_InvokeArgs_218))address)(*((_InvokeArgs_218*)args->mem));
+    	break;
+    case 219:
+    	return ((guint (*)(_InvokeArgs_219))address)(*((_InvokeArgs_219*)args->mem));
+    	break;
+    case 220:
+    	return ((guint (*)(_InvokeArgs_220))address)(*((_InvokeArgs_220*)args->mem));
+    	break;
+    case 221:
+    	return ((guint (*)(_InvokeArgs_221))address)(*((_InvokeArgs_221*)args->mem));
+    	break;
+    case 222:
+    	return ((guint (*)(_InvokeArgs_222))address)(*((_InvokeArgs_222*)args->mem));
+    	break;
+    case 223:
+    	return ((guint (*)(_InvokeArgs_223))address)(*((_InvokeArgs_223*)args->mem));
+    	break;
+    case 224:
+    	return ((guint (*)(_InvokeArgs_224))address)(*((_InvokeArgs_224*)args->mem));
+    	break;
+    case 225:
+    	return ((guint (*)(_InvokeArgs_225))address)(*((_InvokeArgs_225*)args->mem));
+    	break;
+    case 226:
+    	return ((guint (*)(_InvokeArgs_226))address)(*((_InvokeArgs_226*)args->mem));
+    	break;
+    case 227:
+    	return ((guint (*)(_InvokeArgs_227))address)(*((_InvokeArgs_227*)args->mem));
+    	break;
+    case 228:
+    	return ((guint (*)(_InvokeArgs_228))address)(*((_InvokeArgs_228*)args->mem));
+    	break;
+    case 229:
+    	return ((guint (*)(_InvokeArgs_229))address)(*((_InvokeArgs_229*)args->mem));
+    	break;
+    case 230:
+    	return ((guint (*)(_InvokeArgs_230))address)(*((_InvokeArgs_230*)args->mem));
+    	break;
+    case 231:
+    	return ((guint (*)(_InvokeArgs_231))address)(*((_InvokeArgs_231*)args->mem));
+    	break;
+    case 232:
+    	return ((guint (*)(_InvokeArgs_232))address)(*((_InvokeArgs_232*)args->mem));
+    	break;
+    case 233:
+    	return ((guint (*)(_InvokeArgs_233))address)(*((_InvokeArgs_233*)args->mem));
+    	break;
+    case 234:
+    	return ((guint (*)(_InvokeArgs_234))address)(*((_InvokeArgs_234*)args->mem));
+    	break;
+    case 235:
+    	return ((guint (*)(_InvokeArgs_235))address)(*((_InvokeArgs_235*)args->mem));
+    	break;
+    case 236:
+    	return ((guint (*)(_InvokeArgs_236))address)(*((_InvokeArgs_236*)args->mem));
+    	break;
+    case 237:
+    	return ((guint (*)(_InvokeArgs_237))address)(*((_InvokeArgs_237*)args->mem));
+    	break;
+    case 238:
+    	return ((guint (*)(_InvokeArgs_238))address)(*((_InvokeArgs_238*)args->mem));
+    	break;
+    case 239:
+    	return ((guint (*)(_InvokeArgs_239))address)(*((_InvokeArgs_239*)args->mem));
+    	break;
+    case 240:
+    	return ((guint (*)(_InvokeArgs_240))address)(*((_InvokeArgs_240*)args->mem));
+    	break;
+    case 241:
+    	return ((guint (*)(_InvokeArgs_241))address)(*((_InvokeArgs_241*)args->mem));
+    	break;
+    case 242:
+    	return ((guint (*)(_InvokeArgs_242))address)(*((_InvokeArgs_242*)args->mem));
+    	break;
+    case 243:
+    	return ((guint (*)(_InvokeArgs_243))address)(*((_InvokeArgs_243*)args->mem));
+    	break;
+    case 244:
+    	return ((guint (*)(_InvokeArgs_244))address)(*((_InvokeArgs_244*)args->mem));
+    	break;
+    case 245:
+    	return ((guint (*)(_InvokeArgs_245))address)(*((_InvokeArgs_245*)args->mem));
+    	break;
+    case 246:
+    	return ((guint (*)(_InvokeArgs_246))address)(*((_InvokeArgs_246*)args->mem));
+    	break;
+    case 247:
+    	return ((guint (*)(_InvokeArgs_247))address)(*((_InvokeArgs_247*)args->mem));
+    	break;
+    case 248:
+    	return ((guint (*)(_InvokeArgs_248))address)(*((_InvokeArgs_248*)args->mem));
+    	break;
+    case 249:
+    	return ((guint (*)(_InvokeArgs_249))address)(*((_InvokeArgs_249*)args->mem));
+    	break;
+    case 250:
+    	return ((guint (*)(_InvokeArgs_250))address)(*((_InvokeArgs_250*)args->mem));
+    	break;
+    case 251:
+    	return ((guint (*)(_InvokeArgs_251))address)(*((_InvokeArgs_251*)args->mem));
+    	break;
+    case 252:
+    	return ((guint (*)(_InvokeArgs_252))address)(*((_InvokeArgs_252*)args->mem));
+    	break;
+    case 253:
+    	return ((guint (*)(_InvokeArgs_253))address)(*((_InvokeArgs_253*)args->mem));
+    	break;
+    case 254:
+    	return ((guint (*)(_InvokeArgs_254))address)(*((_InvokeArgs_254*)args->mem));
+    	break;
+    case 255:
+    	return ((guint (*)(_InvokeArgs_255))address)(*((_InvokeArgs_255*)args->mem));
+    	break;
+    case 256:
+    	return ((guint (*)(_InvokeArgs_256))address)(*((_InvokeArgs_256*)args->mem));
+    	break;
+    default:
+      return ((guint (*)())address)();
+  }
+#else
+  return ((guint (*)(_InvokeArgs_256))address)(*((_InvokeArgs_256*)args->mem));
+#endif
+}
 
 guint64
-golem_invoke_guint64(gpointer address,GolemArgs * args);
+golem_invoke_guint64(gpointer address,GolemArgs * args)
+{
+
+}
 
 gulong
 golem_invoke_gulong(gpointer address,GolemArgs * args);

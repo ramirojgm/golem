@@ -10,9 +10,10 @@ C_SRCS += \
 ../engine/golembuilderextern.c \
 ../engine/golemclass.c \
 ../engine/golemcompiled.c \
+../engine/golemconstant.c \
 ../engine/golemcontext.c \
 ../engine/golemdebugobject.c \
-../engine/golemexpresion.c \
+../engine/golemexpression.c \
 ../engine/golemfunc.c \
 ../engine/golemjit.c \
 ../engine/golemparser.c \
@@ -25,9 +26,10 @@ OBJS += \
 ./engine/golembuilderextern.o \
 ./engine/golemclass.o \
 ./engine/golemcompiled.o \
+./engine/golemconstant.o \
 ./engine/golemcontext.o \
 ./engine/golemdebugobject.o \
-./engine/golemexpresion.o \
+./engine/golemexpression.o \
 ./engine/golemfunc.o \
 ./engine/golemjit.o \
 ./engine/golemparser.o \
@@ -40,9 +42,10 @@ C_DEPS += \
 ./engine/golembuilderextern.d \
 ./engine/golemclass.d \
 ./engine/golemcompiled.d \
+./engine/golemconstant.d \
 ./engine/golemcontext.d \
 ./engine/golemdebugobject.d \
-./engine/golemexpresion.d \
+./engine/golemexpression.d \
 ./engine/golemfunc.d \
 ./engine/golemjit.d \
 ./engine/golemparser.d \
@@ -53,7 +56,7 @@ C_DEPS += \
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	gcc -std=c11 -I/usr/lib/x86_64-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -std=c11 -I/usr/lib/i386-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

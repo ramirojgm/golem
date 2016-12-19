@@ -25,6 +25,14 @@ struct _GolemCompiledPrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemCompiled,golem_compiled,G_TYPE_OBJECT)
 
 static void
+_golem_compiled_disponse(GObject * object)
+{
+  GolemCompiled * self = GOLEM_COMPILED(object);
+  g_list_free_full(self->priv->sentences,g_object_unref);
+  G_OBJECT_CLASS(golem_compiled_parent_class)->dispose(object);
+}
+
+static void
 golem_compiled_init(GolemCompiled * self)
 {
   self->priv = golem_compiled_get_instance_private(self);
@@ -33,7 +41,7 @@ golem_compiled_init(GolemCompiled * self)
 static void
 golem_compiled_class_init(GolemCompiledClass * klass)
 {
-
+  G_OBJECT_CLASS(klass)->dispose = _golem_compiled_disponse;
 }
 
 gboolean
@@ -76,7 +84,6 @@ golem_compiled_run(GolemCompiled * compiled,GolemContext * context,GError ** err
       if(!done)
 	break;
     }
-  //g_list_free_full(sentences,g_object_unref);
   return done;
 }
 

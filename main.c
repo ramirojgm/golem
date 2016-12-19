@@ -47,12 +47,12 @@ main(gint argc,gchar * argv[])
   g_value_init(args[0],G_TYPE_STRING);
   g_value_init(args[1],G_TYPE_STRING);
   g_value_set_string(args[0],"hello world (%s)\n");
-  g_value_set_string(args[1],"rigoberto");
+  g_value_set_string(args[1],"ostia");
 
   golem_context_get(context,"g_print",&func_value,NULL);
   golem_func_invoke(GOLEM_FUNC(g_value_get_object(&func_value)),args,&result,NULL);
   g_object_unref(context);
-  getchar();
+  g_object_unref(compilation);
   return 0;
 }
 

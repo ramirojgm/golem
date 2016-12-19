@@ -24,7 +24,7 @@ G_DECLARE_DERIVABLE_TYPE(GolemExpression,golem_expression,GOLEM,EXPRESSION,Golem
 struct _GolemExpressionClass
 {
   GolemSentenceClass parent_class;
-  gboolean (*evalue)(GolemExpression * expression,GolemContext * context,GValue * result);
+  gboolean (*evalue)(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
 };
 
@@ -34,6 +34,6 @@ gboolean		golem_expression_check(GolemParser * parser);
 
 GolemExpression * 	golem_expression_parse(GolemParser * parser,GError ** error);
 
-gboolean	 	golem_expression_evalue(GolemContext * context,GValue * result,GError ** error);
+gboolean	 	golem_expression_evalue(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
 #endif /* GOLEMEXPRESSION_H_ */

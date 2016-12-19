@@ -27,6 +27,8 @@
 #include "golemcontext.h"
 #include "golemsentence.h"
 #include "golemexpression.h"
+#include "golemconstant.h"
+#include "golemexpressioncomplex.h"
 #include "golemblock.h"
 #include "golemjit.h"
 #include "golemfunc.h"

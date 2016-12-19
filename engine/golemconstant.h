@@ -19,11 +19,20 @@
 #define GOLEMCONSTANT_H_
 
 #define GOLEM_TYPE_CONSTANT	(golem_constant_get_type())
-G_DECLARE_DERIVABLE_TYPE(GolemConstant,golem_constant,GOLEM,CONSTANT,GolemExpression)
+
+typedef struct _GolemConstantPrivate GolemConstantPrivate;
+
+G_DECLARE_FINAL_TYPE(GolemConstant,golem_constant,GOLEM,CONSTANT,GolemExpression)
 
 struct _GolemConstantClass
 {
   GolemExpressionClass parent_class;
+};
+
+struct _GolemConstant
+{
+  GolemExpression parent_instance;
+  GolemConstantPrivate * priv;
 };
 
 GType			golem_constant_get_type(void);
