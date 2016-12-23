@@ -1939,7 +1939,7 @@ golem_invoke_guint8(gpointer address,GolemArgs * args)
 	return ((guint8 (*)(_InvokeArgs_256))address)(*((_InvokeArgs_256*)args->mem));
 	break;
     default:
-      return ((guint8 (*)()address)();
+      return ((guint8 (*)())address)();
   }
 #else
   return ((guint8 (*)(_InvokeArgs_256))address)(*((_InvokeArgs_256*)args->mem));

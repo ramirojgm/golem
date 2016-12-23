@@ -2,3 +2,5 @@
 extern int g_print(string format);
 
 extern void abort();
+
+g_print("hostias tio");

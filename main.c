@@ -27,7 +27,6 @@ gint
 main(gint argc,gchar * argv[])
 {
   GolemContext * context = golem_context_new(NULL);
-
   gchar * script_file_content = NULL;
 
   GError * parser_error = NULL;

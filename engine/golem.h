@@ -28,6 +28,8 @@
 #include "golemsentence.h"
 #include "golemexpression.h"
 #include "golemconstant.h"
+#include "golemdeclaration.h"
+#include "golemidentificator.h"
 #include "golemexpressioncomplex.h"
 #include "golemblock.h"
 #include "golemjit.h"

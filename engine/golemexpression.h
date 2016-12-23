@@ -18,13 +18,26 @@
 #ifndef GOLEMEXPRESSION_H_
 #define GOLEMEXPRESSION_H_
 
+typedef enum _GolemExpressionLimit GolemExpressionLimit;
+
 #define GOLEM_TYPE_EXPRESSION	(golem_expression_get_type())
 G_DECLARE_DERIVABLE_TYPE(GolemExpression,golem_expression,GOLEM,EXPRESSION,GolemSentence)
+
+
+enum _GolemExpressionLimit
+{
+  GOLEM_EXPRESSION_LIMIT_SEMICOLON,
+  GOLEM_EXPRESSION_LIMIT_PARENTHESIS,
+  GOLEM_EXPRESSION_LIMIT_PARENTHESIS_COMA,
+  GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET,
+  GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET_COMA
+};
+
 
 struct _GolemExpressionClass
 {
   GolemSentenceClass parent_class;
-  gboolean (*evalue)(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
+  gboolean (*evaluate)(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
 };
 
@@ -34,6 +47,6 @@ gboolean		golem_expression_check(GolemParser * parser);
 
 GolemExpression * 	golem_expression_parse(GolemParser * parser,GError ** error);
 
-gboolean	 	golem_expression_evalue(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
+gboolean	 	golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
 #endif /* GOLEMEXPRESSION_H_ */

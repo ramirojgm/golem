@@ -64,6 +64,8 @@ gboolean	golem_parser_check_is_number(GolemParser * parser);
 
 gboolean	golem_parser_check_is_const(GolemParser * parser);
 
+gboolean	golem_parser_check_is_hex(GolemParser * parser);
+
 gboolean	golem_parser_check_is_named(GolemParser * parser);
 
 gboolean	golem_parser_check_is_string(GolemParser * parser);
