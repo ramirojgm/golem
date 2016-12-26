@@ -1,6 +1,8 @@
+const string name;
+const string string_value = "this is a expression for \"golem\"";
+int   edad;
 
 extern int g_print(string format);
 
 extern void abort();
 
-g_print("hostias tio");

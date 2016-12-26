@@ -197,6 +197,18 @@ golem_parser_parse_next_word(const gchar * str,gsize * length,const gchar * end)
     }
 }
 
+guint
+golem_parser_get_line_at(const gchar * value,goffset offset)
+{
+  guint line = 1;
+  for(const gchar * index = value;(index - value) < offset;index++)
+    {
+      if(*index == '\n')
+	line++;
+    }
+  return line;
+}
+
 gboolean
 golem_parser_parse(GolemParser * parser,const gchar * str,gssize length)
 {
@@ -225,6 +237,7 @@ golem_parser_parse(GolemParser * parser,const gchar * str,gssize length)
 	  word->start = cur - str;
 	  word->end = (cur + word_length) - str;
 	  word->length = word_length;
+	  word->line = golem_parser_get_line_at(str,word->start);
 	  priv->words = g_list_append(priv->words,word);
 	  cur += word_length;
 	}
@@ -407,7 +420,12 @@ golem_parser_restore_point(GolemParser * parser)
 gint
 golem_parser_get_line(GolemParser * parser)
 {
-  return 0;
+  GolemParserPrivate * priv;
+  priv = golem_parser_get_instance_private(parser);
+  if(priv->cur_word)
+    return ((GolemParserWord*)priv->cur_word->data)->line;
+  else
+    return 0;
 }
 
 gboolean

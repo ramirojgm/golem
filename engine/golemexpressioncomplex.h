@@ -33,7 +33,7 @@ struct _GolemExpressionComplexClass
 
 struct _GolemExpressionComplex
 {
-  GolemExpressionComplex parent_instance;
+  GolemExpression parent_instance;
   GolemExpressionComplexPrivate * priv;
 };
 

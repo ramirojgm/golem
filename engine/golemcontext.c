@@ -162,7 +162,6 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
 {
   GolemContextPrivate * priv;
   GolemContextVariable * variable;
-
   priv = golem_context_get_instance_private(context);
   for(GList * iter = g_list_first(priv->variables);iter;iter = g_list_next(iter))
     {

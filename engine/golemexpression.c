@@ -47,24 +47,22 @@ golem_expression_class_init(GolemExpressionClass * klass)
   GOLEM_SENTENCE_CLASS(klass)->execute = _golem_expression_execute;
 }
 
+gboolean
+golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
+{
+  return GOLEM_EXPRESSION_GET_CLASS(expression)->evaluate(expression,context,result,error);
+}
+
 GolemExpression *
 golem_expression_parse(GolemParser * parser,GError ** error)
 {
   GolemExpression * expression = NULL;
-  if(golem_constant_check(parser))
-    expression = golem_constant_parse(parser,error);
+  expression = golem_expression_complex_parse(parser,GOLEM_EXPRESSION_LIMIT_SEMICOLON,error);
 
   if(!golem_parser_next_word_check(parser,";"))
     {
       g_clear_object(&expression);
-      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected \";\"");
+      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected \";\" at line (%d)",golem_parser_get_line(parser));
     }
   return expression;
-}
-
-gboolean
-golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
-{
-  g_print("evaluated");
-  return GOLEM_EXPRESSION_GET_CLASS(expression)->evaluate(expression,context,result,error);
 }

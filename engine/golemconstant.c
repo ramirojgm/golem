@@ -40,7 +40,7 @@ _golem_constant_evaluate(GolemExpression * expression,GolemContext * context,GVa
   GolemConstant * self = GOLEM_CONSTANT(expression);
   g_value_unset(result);
   g_value_init(result,G_VALUE_TYPE(&(self->priv->value)));
-  g_value_copy(result,&(self->priv->value));
+  g_value_copy(&(self->priv->value),result);
   return TRUE;
 }
 
@@ -129,7 +129,7 @@ golem_constant_parse(GolemParser * parser,GError ** error)
   else if(golem_parser_check_is_string(parser))
     {
       const gchar * str = golem_parser_next_word(parser,NULL,TRUE);
-      gchar * new_str = g_strndup(str+1,g_utf8_strlen(str,-1) - 1);
+      gchar * new_str = g_strndup(str+1,g_utf8_strlen(str,-1) - 2);
       g_value_init(&(self->priv->value),G_TYPE_STRING);
       g_value_take_string(&(self->priv->value),g_strcompress(new_str));
       g_free(new_str);

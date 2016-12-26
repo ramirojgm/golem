@@ -28,6 +28,8 @@ struct _GolemIdentificatorClass
 
 GType			golem_identificator_get_type(void);
 
+gboolean		golem_identificator_check(GolemParser * parser);
+
 GolemExpression * 	golem_identificator_parse(GolemParser * parser,GolemExpressionLimit limit,GError ** error);
 
 #endif /* ENGINE_GOLEMIDENTIFICATOR_H_ */

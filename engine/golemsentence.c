@@ -60,6 +60,8 @@ golem_sentence_parse(GolemParser * parser,GError ** error)
       return GOLEM_SENTENCE(golem_builder_class_parse(parser,error));
   else if(golem_builder_extern_check(parser))
     return GOLEM_SENTENCE(golem_builder_extern_parse(parser,error));
+  else if(golem_declaration_check(parser))
+    return GOLEM_SENTENCE(golem_declaration_parse(parser,error));
   else if(golem_block_check(parser))
     return GOLEM_SENTENCE(golem_block_parse(parser,error));
   else

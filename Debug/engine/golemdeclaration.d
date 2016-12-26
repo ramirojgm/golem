@@ -1,6 +1,6 @@
-engine/golembuilderextern.o: ../engine/golembuilderextern.c \
- ../engine/golem.h /usr/include/glib-2.0/glib.h \
- /usr/include/glib-2.0/glib/galloca.h /usr/include/glib-2.0/glib/gtypes.h \
+engine/golemdeclaration.o: ../engine/golemdeclaration.c ../engine/golem.h \
+ /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
+ /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
  /usr/include/glib-2.0/glib/gversionmacros.h \
@@ -89,7 +89,7 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
  ../engine/golemexpressioncomplex.h ../engine/golemblock.h \
  ../engine/golemjit.h ../engine/golemfunc.h ../engine/golemclass.h \
  ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
- ../engine/golemcompiled.h /usr/include/glib-2.0/gmodule.h
+ ../engine/golemcompiled.h
 
 ../engine/golem.h:
 
@@ -316,5 +316,3 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
 ../engine/golembuilderextern.h:
 
 ../engine/golemcompiled.h:
-
-/usr/include/glib-2.0/gmodule.h:

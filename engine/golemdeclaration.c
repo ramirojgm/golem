@@ -17,7 +17,12 @@
 
 #include "golem.h"
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemDeclaration,golem_declaration,GOLEM_TYPE_SENTENCE)
+typedef struct _GolemDeclarationVariable GolemDeclarationVariable;
+
+struct _GolemDeclarationVariable
+{
+
+};
 
 struct _GolemDeclarationPrivate
 {
@@ -30,6 +35,45 @@ struct _GolemDeclarationPrivate
   GolemExpression * 	value;
 };
 
+
+G_DEFINE_TYPE_WITH_PRIVATE(GolemDeclaration,golem_declaration,GOLEM_TYPE_SENTENCE)
+
+gboolean
+_golem_declaration_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+{
+  GolemDeclaration * self = GOLEM_DECLARATION(sentence);
+  if(!self->priv->is_resolved)
+    {
+      self->priv->is_resolved = TRUE;
+      self->priv->type = golem_resolve_type_name(self->priv->type_name);
+    }
+
+  if(self->priv->type != 0)
+    {
+      if(golem_context_declare(context,self->priv->name,self->priv->type,error))
+	{
+	  if(self->priv->value)
+	    {
+	      GValue value = G_VALUE_INIT;
+	      gboolean done;
+	      if((done = golem_expression_evaluate(self->priv->value,context,&value,error)))
+		{
+		  done = golem_context_set(context,self->priv->name,&value,error);
+		}
+	      return done;
+	    }
+	  else
+	    {
+	      return TRUE;
+	    }
+	}
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 static void
 golem_declaration_init(GolemDeclaration * self)
 {
@@ -39,7 +83,7 @@ golem_declaration_init(GolemDeclaration * self)
 static void
 golem_declaration_class_init(GolemDeclarationClass * klass)
 {
-
+  GOLEM_SENTENCE_CLASS(klass)->execute = _golem_declaration_execute;
 }
 
 gboolean
@@ -64,6 +108,19 @@ GolemSentence *
 golem_declaration_parse(GolemParser * parser,GError ** error)
 {
   GolemDeclaration * self = GOLEM_DECLARATION(g_object_new(GOLEM_TYPE_DECLARATION,NULL));
+  if(golem_parser_next_word_check(parser,"const"))
+    self->priv->is_constant = TRUE;
+  self->priv->type_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+  self->priv->name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
 
+  if(golem_parser_next_word_check(parser,"="))
+    {
+      self->priv->value = golem_expression_complex_parse(parser,GOLEM_EXPRESSION_LIMIT_SEMICOLON,error);
+    }
+
+  if(!golem_parser_next_word_check(parser,";"))
+    {
+      //TODO: throw exception not ;
+    }
   return GOLEM_SENTENCE(self);
 }

@@ -1,5 +1,4 @@
-engine/golembuilderextern.o: ../engine/golembuilderextern.c \
- ../engine/golem.h /usr/include/glib-2.0/glib.h \
+main.o: ../main.c /usr/include/glib-2.0/glib.h \
  /usr/include/glib-2.0/glib/galloca.h /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
@@ -62,7 +61,7 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
  /usr/include/glib-2.0/glib/deprecated/gmain.h \
  /usr/include/glib-2.0/glib/deprecated/grel.h \
  /usr/include/glib-2.0/glib/deprecated/gthread.h \
- /usr/include/glib-2.0/glib/glib-autocleanups.h \
+ /usr/include/glib-2.0/glib/glib-autocleanups.h ../engine/golem.h \
  /usr/include/glib-2.0/glib-object.h \
  /usr/include/glib-2.0/gobject/gbinding.h \
  /usr/include/glib-2.0/gobject/gobject.h \
@@ -89,9 +88,7 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
  ../engine/golemexpressioncomplex.h ../engine/golemblock.h \
  ../engine/golemjit.h ../engine/golemfunc.h ../engine/golemclass.h \
  ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
- ../engine/golemcompiled.h /usr/include/glib-2.0/gmodule.h
-
-../engine/golem.h:
+ ../engine/golemcompiled.h
 
 /usr/include/glib-2.0/glib.h:
 
@@ -247,6 +244,8 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
 
 /usr/include/glib-2.0/glib/glib-autocleanups.h:
 
+../engine/golem.h:
+
 /usr/include/glib-2.0/glib-object.h:
 
 /usr/include/glib-2.0/gobject/gbinding.h:
@@ -316,5 +315,3 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
 ../engine/golembuilderextern.h:
 
 ../engine/golemcompiled.h:
-
-/usr/include/glib-2.0/gmodule.h:

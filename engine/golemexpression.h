@@ -43,10 +43,6 @@ struct _GolemExpressionClass
 
 GType			golem_expression_get_type(void);
 
-gboolean		golem_expression_check(GolemParser * parser);
-
-GolemExpression * 	golem_expression_parse(GolemParser * parser,GError ** error);
-
 gboolean	 	golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
 #endif /* GOLEMEXPRESSION_H_ */
