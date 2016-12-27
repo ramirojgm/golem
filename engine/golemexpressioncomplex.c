@@ -126,6 +126,75 @@ _golem_expression_complex_value_set(GValue * dest,gdouble value){
   }
 }
 
+#define GOLEM_ARITMETICAL(type_name,op,val_a,val_b) switch(op)\
+  {\
+   case GOLEM_OPERATOR_ADD:\
+     g_value_set_##type_name(result,g_value_get_##type_name(&val_a) + g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_SUB:\
+     g_value_set_##type_name(result,g_value_get_##type_name(&val_a) - g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_DIV:\
+     g_value_set_##type_name(result,g_value_get_##type_name(&val_a) / g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_MUL:\
+     g_value_set_##type_name(result,g_value_get_##type_name(&val_a) * g_value_get_##type_name(&val_b));\
+     break;\
+   default:\
+     g_value_unset(result);\
+  }
+
+static void
+_golem_expression_complex_operator_aritmetical(GValue * a,GValue * b,GValue * result,GolemOperator op)
+{
+  GType optimal_type = _golem_expression_complex_result_type(a,b);
+  GValue optimal_a = G_VALUE_INIT,
+ 	 optimal_b = G_VALUE_INIT;
+
+  g_value_init(&optimal_a,optimal_type);
+  g_value_init(&optimal_b,optimal_type);
+  g_value_init(result,optimal_type);
+
+  g_value_transform(a,&optimal_a);
+  g_value_transform(b,&optimal_b);
+
+  switch(optimal_type)
+  {
+    case G_TYPE_CHAR:
+	 GOLEM_ARITMETICAL(schar,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_INT:
+	 GOLEM_ARITMETICAL(int,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_LONG:
+	 GOLEM_ARITMETICAL(long,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_INT64:
+	 GOLEM_ARITMETICAL(int64,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_UCHAR:
+	 GOLEM_ARITMETICAL(uchar,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_UINT:
+	 GOLEM_ARITMETICAL(uint,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_ULONG:
+	 GOLEM_ARITMETICAL(ulong,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_UINT64:
+	 GOLEM_ARITMETICAL(uint64,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_DOUBLE:
+	 GOLEM_ARITMETICAL(double,op,optimal_a,optimal_b)
+         break;
+       case G_TYPE_FLOAT:
+	 GOLEM_ARITMETICAL(float,op,optimal_a,optimal_b)
+         break;
+  }
+  g_value_unset(&optimal_a);
+  g_value_unset(&optimal_b);
+}
+
 static gboolean
 _golem_expression_complex_phase_evaluate(GolemExpressionComplexPhase * phase,GolemContext * context,GValue * result,GError ** error)
 {
@@ -142,26 +211,8 @@ _golem_expression_complex_phase_evaluate(GolemExpressionComplexPhase * phase,Gol
 	{
 	  if((done = _golem_expression_complex_phase_evaluate(phase->b,context,&b,error)))
 	    {
-	      g_value_init(result,_golem_expression_complex_result_type(&a,&b));
-	      if(phase->operator == GOLEM_OPERATOR_DIV){
-		  gdouble value_a = g_value_get_double(&a);
-		  gdouble value_b = g_value_get_double(&b);
-		  _golem_expression_complex_value_set(result,value_a / value_b);
-	      }
-	      else if(phase->operator == GOLEM_OPERATOR_MUL){
-		  gdouble value_a = g_value_get_double(&a);
-		  gdouble value_b = g_value_get_double(&b);
-		  _golem_expression_complex_value_set(result,value_a * value_b);
-	      }
-	      else if(phase->operator == GOLEM_OPERATOR_ADD){
-		  gdouble value_a = g_value_get_double(&a);
-		  gdouble value_b = g_value_get_double(&b);
-		  _golem_expression_complex_value_set(result,value_a + value_b);
-	      }
-	      else if(phase->operator == GOLEM_OPERATOR_SUB){
-		  gdouble value_a = g_value_get_double(&a);
-		  gdouble value_b = g_value_get_double(&b);
-		  _golem_expression_complex_value_set(result,value_a - value_b);
+	      if(phase->operator >= GOLEM_OPERATOR_DIV && phase->operator <= GOLEM_OPERATOR_SUB){
+		  _golem_expression_complex_operator_aritmetical(&a,&b,result,phase->operator);
 	      }
 	    }
 	}
@@ -174,6 +225,8 @@ _golem_expression_complex_phase_evaluate(GolemExpressionComplexPhase * phase,Gol
 gboolean
 golem_expression_complex_check_continue(GolemParser * parser,GolemExpressionLimit limit)
 {
+  if(golem_parser_is_end(parser))
+    return FALSE;
   const gchar * wd = golem_parser_next_word(parser,NULL,FALSE);
   switch(limit)
   {
@@ -261,11 +314,6 @@ golem_expression_complex_phase_build(GList * parts,GolemOperator level)
 	  g_list_free(right);
 	}
     }
-  else
-    {
-      g_print("<0");
-      abort();
-    }
   return phase;
 }
 
@@ -277,6 +325,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
   GList * expression_parts = NULL;
   while(golem_expression_complex_check_continue(parser,limit))
     {
+      g_print("->%s\n",golem_parser_next_word(parser,NULL,FALSE));
       if(golem_parser_next_word_check(parser,"!"))
 	op = GOLEM_OPERATOR_NOT;
       else if(golem_parser_next_word_check(parser,"*"))
@@ -310,6 +359,18 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
       	  else
       	    op = GOLEM_OPERATOR_OR_BIT;
       	}
+      else if(golem_parser_next_word_check(parser,"("))
+	{
+	  GolemExpression * subexp = golem_expression_complex_parse(parser,GOLEM_EXPRESSION_LIMIT_PARENTHESIS,error);
+	  if(subexp)
+	    {
+	      GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
+	      part->expression = subexp;
+	      part->operator = op;
+	      expression_parts = g_list_append(expression_parts,part);
+	    }
+	  golem_parser_next_word_check(parser,")");
+	}
       else if(golem_constant_check(parser))
 	{
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
@@ -317,13 +378,31 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	  part->operator = op;
 	  expression_parts = g_list_append(expression_parts,part);
 	}
+      else if(golem_identificator_check(parser))
+	{
+	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
+	  part->expression = golem_identificator_parse(parser,limit,error);
+	  part->operator = op;
+	  expression_parts = g_list_append(expression_parts,part);
+	}
       else
 	{
+	  g_print("%s",golem_parser_next_word(parser,NULL,FALSE));
+	  abort();
 	  //TODO: throw exception expected operator, constant or identificator
 	}
     }
-  expression = GOLEM_EXPRESSION_COMPLEX(g_object_new(GOLEM_TYPE_EXPRESSION_COMPLEX,NULL));
-  expression->priv->phase = golem_expression_complex_phase_build(g_list_first(expression_parts),GOLEM_OPERATOR_NONE);
+
+  if(g_list_length(g_list_first(expression_parts)) == 1)
+    {
+      expression = (GolemExpressionComplex*)((GolemExpressionComplexPart *)expression_parts->data)->expression;
+
+    }
+  else
+    {
+      expression = GOLEM_EXPRESSION_COMPLEX(g_object_new(GOLEM_TYPE_EXPRESSION_COMPLEX,NULL));
+      expression->priv->phase = golem_expression_complex_phase_build(g_list_first(expression_parts),GOLEM_OPERATOR_NONE);
+    }
   g_list_free(expression_parts);
   return GOLEM_EXPRESSION(expression);
 }

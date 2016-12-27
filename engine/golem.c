@@ -82,14 +82,7 @@ golem_resolve_type_name(const gchar * name)
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;
   else
-    {
-      GType result = g_type_from_name(name);
-      if(result == 0)
-        {
-
-        }
-      return result;
-    }
+      return g_type_from_name(name);
 }
 
 const gchar *

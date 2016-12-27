@@ -39,15 +39,18 @@ main(gint argc,gchar * argv[])
   golem_compiled_run(compilation,context,NULL);
   GValue func_value = G_VALUE_INIT;
   GValue var = G_VALUE_INIT;
+  GValue num = G_VALUE_INIT;
+  golem_context_get(context,"int_value",&num,NULL);
   golem_context_get(context,"string_value",&var,NULL);
 
   GValue result = G_VALUE_INIT;
-  GValue ** args = g_new0(GValue*,3);
+  GValue ** args = g_new0(GValue*,4);
   args[0] = g_new0(GValue,1);
   args[1] = &var;
+  args[2] = &num;
   g_value_init(args[0],G_TYPE_STRING);
   //g_value_init(args[1],G_TYPE_STRING);
-  g_value_set_string(args[0],"hello world (%s)\n");
+  g_value_set_string(args[0],"hello world (%s,%d)\n");
 
   golem_context_get(context,"g_print",&func_value,NULL);
   golem_func_invoke(GOLEM_FUNC(g_value_get_object(&func_value)),args,&result,NULL);

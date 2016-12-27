@@ -18,12 +18,20 @@
 #ifndef ENGINE_GOLEMIDENTIFICATOR_H_
 #define ENGINE_GOLEMIDENTIFICATOR_H_
 
+typedef struct _GolemIdentificatorPrivate GolemIdentificatorPrivate;
+
 #define GOLEM_TYPE_IDENTIFICATOR (golem_identificator_get_type())
 G_DECLARE_FINAL_TYPE(GolemIdentificator,golem_identificator,GOLEM,IDENTIFICATOR,GolemExpression)
 
 struct _GolemIdentificatorClass
 {
   GolemExpressionClass parent_class;
+};
+
+struct _GolemIdentificator
+{
+  GolemExpression parent_instance;
+  GolemIdentificatorPrivate * priv;
 };
 
 GType			golem_identificator_get_type(void);

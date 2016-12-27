@@ -1,8 +1,11 @@
-const string name;
-const string string_value = "this is a expression for \"golem\"";
-int   edad;
+extern int		g_print(string format);
+extern void 	abort();
 
-extern int g_print(string format);
 
-extern void abort();
+#string string_value = "this is a expression for \"golem\"";
+int int_value;
 
+int_value = 25;
+int_value = int_value * 2;
+
+#g_print("Hola Mundo");

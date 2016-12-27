@@ -17,6 +17,7 @@ C_SRCS += \
 ../engine/golemexpression.c \
 ../engine/golemexpressioncomplex.c \
 ../engine/golemfunc.c \
+../engine/golemidentificator.c \
 ../engine/golemjit.c \
 ../engine/golemparser.c \
 ../engine/golemsentence.c 
@@ -35,6 +36,7 @@ OBJS += \
 ./engine/golemexpression.o \
 ./engine/golemexpressioncomplex.o \
 ./engine/golemfunc.o \
+./engine/golemidentificator.o \
 ./engine/golemjit.o \
 ./engine/golemparser.o \
 ./engine/golemsentence.o 
@@ -53,6 +55,7 @@ C_DEPS += \
 ./engine/golemexpression.d \
 ./engine/golemexpressioncomplex.d \
 ./engine/golemfunc.d \
+./engine/golemidentificator.d \
 ./engine/golemjit.d \
 ./engine/golemparser.d \
 ./engine/golemsentence.d 
