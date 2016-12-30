@@ -54,6 +54,8 @@ gboolean	golem_parser_next_word_check(GolemParser * parser,const gchar * str);
 
 void		golem_parser_save_point(GolemParser * parser);
 
+void		golem_parser_commit_point(GolemParser * parser);
+
 void		golem_parser_restore_point(GolemParser * parser);
 
 gint		golem_parser_get_line(GolemParser * parser);

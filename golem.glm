@@ -2,10 +2,15 @@ extern int		g_print(string format);
 extern void 	abort();
 
 
-#string string_value = "this is a expression for \"golem\"";
-int int_value;
+string string_value = "x + y = ";
+int width = 250;
+int height = 200;
+int x;
+int y;
 
-int_value = 25;
-int_value = int_value * 2;
+x = (width / 2);
+y = (height / 2);
+
+int int_value = (x > y);
 
 #g_print("Hola Mundo");

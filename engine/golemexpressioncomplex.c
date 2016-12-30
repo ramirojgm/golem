@@ -35,6 +35,10 @@ enum _GolemOperator
   GOLEM_OPERATOR_MUL,
   GOLEM_OPERATOR_ADD,
   GOLEM_OPERATOR_SUB,
+  GOLEM_OPERATOR_LES,
+  GOLEM_OPERATOR_GRE,
+  GOLEM_OPERATOR_LES_EQU,
+  GOLEM_OPERATOR_GRE_EQU,
   GOLEM_OPERATOR_IS,
   GOLEM_OPERATOR_IN,
   GOLEM_OPERATOR_EQU,
@@ -90,42 +94,6 @@ static GType _golem_expression_complex_result_type(GValue * a,GValue * b)
      return G_TYPE_POINTER;
 }
 
-static void
-_golem_expression_complex_value_set(GValue * dest,gdouble value){
-  switch(G_VALUE_TYPE(dest)){
-    case G_TYPE_CHAR:
-      g_value_set_schar(dest,(gchar)value);
-      break;
-    case G_TYPE_INT:
-      g_value_set_int(dest,(gint)value);
-      break;
-    case G_TYPE_LONG:
-      g_value_set_long(dest,(glong)value);
-      break;
-    case G_TYPE_INT64:
-      g_value_set_int64(dest,(gint64)value);
-      break;
-    case G_TYPE_UCHAR:
-      g_value_set_uchar(dest,(guchar)value);
-      break;
-    case G_TYPE_UINT:
-      g_value_set_uint(dest,(guint)value);
-      break;
-    case G_TYPE_ULONG:
-      g_value_set_long(dest,(gulong)value);
-      break;
-    case G_TYPE_UINT64:
-      g_value_set_uint64(dest,(guint64)value);
-      break;
-    case G_TYPE_DOUBLE:
-      g_value_set_double(dest,(gdouble)value);
-      break;
-    case G_TYPE_FLOAT:
-      g_value_set_float(dest,(gfloat)value);
-      break;
-  }
-}
-
 #define GOLEM_ARITMETICAL(type_name,op,val_a,val_b) switch(op)\
   {\
    case GOLEM_OPERATOR_ADD:\
@@ -140,6 +108,46 @@ _golem_expression_complex_value_set(GValue * dest,gdouble value){
    case GOLEM_OPERATOR_MUL:\
      g_value_set_##type_name(result,g_value_get_##type_name(&val_a) * g_value_get_##type_name(&val_b));\
      break;\
+   case GOLEM_OPERATOR_LES:\
+     if(!G_VALUE_HOLDS_BOOLEAN(result))\
+      {\
+	g_value_unset(result);\
+	g_value_init(result,G_TYPE_BOOLEAN);\
+      }\
+     g_value_set_boolean(result,g_value_get_##type_name(&val_a) < g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_GRE:\
+     if(!G_VALUE_HOLDS_BOOLEAN(result))\
+      {\
+  	g_value_unset(result);\
+  	g_value_init(result,G_TYPE_BOOLEAN);\
+      }\
+     g_value_set_boolean(result,g_value_get_##type_name(&val_a) > g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_LES_EQU:\
+     if(!G_VALUE_HOLDS_BOOLEAN(result))\
+      {\
+  	g_value_unset(result);\
+  	g_value_init(result,G_TYPE_BOOLEAN);\
+      }\
+     g_value_set_boolean(result,g_value_get_##type_name(&val_a) <= g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_GRE_EQU:\
+     if(!G_VALUE_HOLDS_BOOLEAN(result))\
+      {\
+  	g_value_unset(result);\
+  	g_value_init(result,G_TYPE_BOOLEAN);\
+      }\
+     g_value_set_boolean(result,g_value_get_##type_name(&val_a) >= g_value_get_##type_name(&val_b));\
+     break;\
+   case GOLEM_OPERATOR_EQU:\
+     if(!G_VALUE_HOLDS_BOOLEAN(result))\
+      {\
+  	g_value_unset(result);\
+  	g_value_init(result,G_TYPE_BOOLEAN);\
+      }\
+     g_value_set_boolean(result,g_value_get_##type_name(&val_a) == g_value_get_##type_name(&val_b));\
+     break;\
    default:\
      g_value_unset(result);\
   }
@@ -153,43 +161,52 @@ _golem_expression_complex_operator_aritmetical(GValue * a,GValue * b,GValue * re
 
   g_value_init(&optimal_a,optimal_type);
   g_value_init(&optimal_b,optimal_type);
-  g_value_init(result,optimal_type);
+  if(!G_VALUE_HOLDS(result,optimal_type))
+    {
+      g_value_unset(result);
+      g_value_init(result,optimal_type);
+    }
 
   g_value_transform(a,&optimal_a);
   g_value_transform(b,&optimal_b);
 
   switch(optimal_type)
   {
-    case G_TYPE_CHAR:
-	 GOLEM_ARITMETICAL(schar,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_INT:
-	 GOLEM_ARITMETICAL(int,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_LONG:
-	 GOLEM_ARITMETICAL(long,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_INT64:
-	 GOLEM_ARITMETICAL(int64,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_UCHAR:
-	 GOLEM_ARITMETICAL(uchar,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_UINT:
-	 GOLEM_ARITMETICAL(uint,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_ULONG:
-	 GOLEM_ARITMETICAL(ulong,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_UINT64:
-	 GOLEM_ARITMETICAL(uint64,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_DOUBLE:
-	 GOLEM_ARITMETICAL(double,op,optimal_a,optimal_b)
-         break;
-       case G_TYPE_FLOAT:
-	 GOLEM_ARITMETICAL(float,op,optimal_a,optimal_b)
-         break;
+     case G_TYPE_BOOLEAN:
+       GOLEM_ARITMETICAL(boolean,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_CHAR:
+       GOLEM_ARITMETICAL(schar,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_INT:
+       GOLEM_ARITMETICAL(int,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_LONG:
+       GOLEM_ARITMETICAL(long,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_INT64:
+       GOLEM_ARITMETICAL(int64,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_UCHAR:
+       GOLEM_ARITMETICAL(uchar,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_UINT:
+       GOLEM_ARITMETICAL(uint,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_ULONG:
+       GOLEM_ARITMETICAL(ulong,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_UINT64:
+       GOLEM_ARITMETICAL(uint64,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_DOUBLE:
+       GOLEM_ARITMETICAL(double,op,optimal_a,optimal_b)
+       break;
+     case G_TYPE_FLOAT:
+       GOLEM_ARITMETICAL(float,op,optimal_a,optimal_b)
+       break;
+     default:
+       break;
   }
   g_value_unset(&optimal_a);
   g_value_unset(&optimal_b);
@@ -211,7 +228,7 @@ _golem_expression_complex_phase_evaluate(GolemExpressionComplexPhase * phase,Gol
 	{
 	  if((done = _golem_expression_complex_phase_evaluate(phase->b,context,&b,error)))
 	    {
-	      if(phase->operator >= GOLEM_OPERATOR_DIV && phase->operator <= GOLEM_OPERATOR_SUB){
+	      if(phase->operator >= GOLEM_OPERATOR_DIV && phase->operator <= GOLEM_OPERATOR_DIF){
 		  _golem_expression_complex_operator_aritmetical(&a,&b,result,phase->operator);
 	      }
 	    }
@@ -325,7 +342,6 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
   GList * expression_parts = NULL;
   while(golem_expression_complex_check_continue(parser,limit))
     {
-      g_print("->%s\n",golem_parser_next_word(parser,NULL,FALSE));
       if(golem_parser_next_word_check(parser,"!"))
 	op = GOLEM_OPERATOR_NOT;
       else if(golem_parser_next_word_check(parser,"*"))
@@ -334,6 +350,24 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	    op = GOLEM_OPERATOR_POW;
 	  else
 	    op = GOLEM_OPERATOR_MUL;
+	}
+      else if(golem_parser_next_word_check(parser,">"))
+	{
+	  if(golem_parser_next_word_check(parser,"="))
+	    op = GOLEM_OPERATOR_GRE_EQU;
+	  else
+	    op = GOLEM_OPERATOR_GRE;
+	}
+      else if(golem_parser_next_word_check(parser,"<"))
+      	{
+      	  if(golem_parser_next_word_check(parser,"="))
+      	    op = GOLEM_OPERATOR_LES_EQU;
+      	  else
+      	    op = GOLEM_OPERATOR_LES;
+      	}
+      else if(golem_parser_next_word_check(parser,"=="))
+	{
+	  op = GOLEM_OPERATOR_EQU;
 	}
       else if(golem_parser_next_word_check(parser,"/"))
       	op = GOLEM_OPERATOR_DIV;

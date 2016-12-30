@@ -406,13 +406,21 @@ golem_parser_save_point(GolemParser * parser)
 }
 
 void
+golem_parser_commit_point(GolemParser * parser)
+{
+  GolemParserPrivate * priv;
+  priv = golem_parser_get_instance_private(parser);
+  g_queue_pop_tail(priv->saved_point);
+}
+
+void
 golem_parser_restore_point(GolemParser * parser)
 {
   GolemParserPrivate * priv;
 
   priv = golem_parser_get_instance_private(parser);
 
-  GList * saved_point = g_queue_pop_head(priv->saved_point);
+  GList * saved_point = g_queue_pop_tail(priv->saved_point);
   if (saved_point)
     priv->cur_word = saved_point;
 }
