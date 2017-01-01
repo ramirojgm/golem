@@ -1,4 +1,4 @@
-engine/golem.o: ../engine/golem.c ../engine/golem.h \
+engine/goleminvoke.o: ../engine/goleminvoke.c ../engine/golem.h \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h \

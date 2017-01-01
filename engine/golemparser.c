@@ -40,7 +40,7 @@ struct _GolemParserWord
 G_DEFINE_TYPE_WITH_PRIVATE(GolemParser,golem_parser,G_TYPE_OBJECT)
 
 static const gchar * golem_parser_spaces[] = {"\n","\r","\t"," ",NULL};
-static const gchar * golem_parser_spliters[] = {"<=",">=","==","!=","&&","||","+","-","*","/","%","!","<",">","=","\\","@","#","$",",",".",";",":","[","]","(",")","{","}",NULL};
+static const gchar * golem_parser_spliters[] = {"<=",">=","==","!=","&&","||","**","+","-","*","/","%","!","<",">","=","\\","@","#","$",",",".",";",":","[","]","(",")","{","}",NULL};
 
 static void
 golem_parser_word_free(GolemParserWord * word)

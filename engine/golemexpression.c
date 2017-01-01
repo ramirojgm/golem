@@ -28,7 +28,7 @@ _golem_expression_evaluate(GolemExpression * expression,GolemContext * context,G
 static gboolean
 _golem_expression_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
 {
-  GValue result;
+  GValue result = G_VALUE_INIT;
   gboolean done = golem_expression_evaluate(GOLEM_EXPRESSION(sentence),context,&result,error);
   g_value_unset(&result);
   return done;

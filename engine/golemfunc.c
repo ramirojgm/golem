@@ -29,16 +29,15 @@ struct _GolemFuncPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemFunc,golem_func,G_TYPE_OBJECT)
 
-void g_printv2(GolemArgs args)
-{
-  FILE * output = fopen("output.out","w");
-  //fwrite(args.padding,64,1,output);
-  fclose(output);
-}
-
 gboolean
 _golem_func_invoke_real(GolemFunc * func,GValue ** args,GValue * result,GError ** error)
 {
+  struct GolemArgReference
+  {
+    GValue * arg;
+    gpointer ref;
+  };
+
   GolemFuncPrivate * priv = golem_func_get_instance_private(func);
   GolemFuncMetaData * meta_data = priv->meta_data;
   GError * catch = NULL;
@@ -60,7 +59,7 @@ _golem_func_invoke_real(GolemFunc * func,GValue ** args,GValue * result,GError *
 	    break;
 	  if(param->is_reference)
 	    {
-	      golem_args_pointer(v_args,g_value_peek_pointer(args[i_args]));
+	      golem_args_pointer(v_args,&(args[i_args]->data[0]));
 	    }
 	  else if((args[i_args]->g_type == param->type)||(g_type_is_a(args[i_args]->g_type,param->type)))
 	    {
@@ -80,14 +79,24 @@ _golem_func_invoke_real(GolemFunc * func,GValue ** args,GValue * result,GError *
     }
 
   gpointer address = golem_func_get_address(func);
-  /*guint8 * arg_mem = g_new0(guint8,offset);
-  memcpy(arg_mem,func_mem,offset);
-  invoke(*((GolemArgs *)arg_mem));
-  invoke = g_printv2;
-  invoke(*((GolemArgs *)arg_mem));
-  g_free(func_mem);
-  g_free(arg_mem);*/
-  golem_invoke(address,v_args);
+  GType fundamental_return  = G_TYPE_FUNDAMENTAL(meta_data->return_type);
+  if(meta_data->return_type != G_TYPE_NONE)
+    g_value_init(result,meta_data->return_type);
+  switch(fundamental_return)
+  {
+    case G_TYPE_BOOLEAN:
+      g_value_set_boolean(result,golem_invoke_gint(address,v_args));
+      break;
+    case G_TYPE_INT:
+      g_value_set_int(result,golem_invoke_gint(address,v_args));
+      break;
+    case G_TYPE_POINTER:
+      g_value_set_pointer(result,golem_invoke_gpointer(address,v_args));
+      break;
+    default:
+      golem_invoke(address,v_args);
+      break;
+  }
   golem_args_free(v_args);
   return done;
 }
@@ -159,7 +168,7 @@ golem_func_meta_data_parse(GolemParser * parser,GError ** error)
   meta_data->is_resolved = FALSE;
   if(golem_parser_check_is_named(parser))
     {
-      meta_data->return_type_name = golem_parser_next_word(parser,NULL,TRUE);
+      meta_data->return_type_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
       if(golem_parser_check_is_named(parser))
 	{
 	  meta_data->name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));

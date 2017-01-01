@@ -38,8 +38,11 @@ gboolean
 _golem_constant_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
 {
   GolemConstant * self = GOLEM_CONSTANT(expression);
-  g_value_unset(result);
-  g_value_init(result,G_VALUE_TYPE(&(self->priv->value)));
+  if(!G_VALUE_HOLDS(result,G_VALUE_TYPE(&(self->priv->value))))
+    {
+      g_value_unset(result);
+      g_value_init(result,G_VALUE_TYPE(&(self->priv->value)));
+    }
   g_value_copy(&(self->priv->value),result);
   return TRUE;
 }

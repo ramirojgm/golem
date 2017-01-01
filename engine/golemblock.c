@@ -73,20 +73,23 @@ GolemBlock *
 golem_block_parse(GolemParser * parser,GError ** error)
 {
   GolemBlock * self = GOLEM_BLOCK(g_object_new(GOLEM_TYPE_BLOCK,NULL));
-  while(!golem_parser_is_end(parser))
+  if(golem_parser_next_word_check(parser,"{"))
     {
-     if(golem_parser_is_next_word(parser,"}"))
-       break;
-     GolemSentence * sentence = golem_sentence_parse(parser,error);
-     if(sentence)
-       {
-	 self->priv->sentences = g_list_append(self->priv->sentences,sentence);
-       }
-     else
-       {
-	 g_clear_object(&self);
-	 break;
-       }
+      while(!golem_parser_is_end(parser))
+	{
+	   if(golem_parser_next_word_check(parser,"}"))
+	     break;
+	   GolemSentence * sentence = golem_sentence_parse(parser,error);
+	   if(sentence)
+	     {
+	       self->priv->sentences = g_list_append(self->priv->sentences,sentence);
+	     }
+	   else
+	     {
+	       g_clear_object(&self);
+	       break;
+	     }
+	}
     }
   return self;
 }

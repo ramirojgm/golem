@@ -18,9 +18,11 @@ C_SRCS += \
 ../engine/golemexpressioncomplex.c \
 ../engine/golemfunc.c \
 ../engine/golemidentificator.c \
+../engine/goleminvoke.c \
 ../engine/golemjit.c \
 ../engine/golemparser.c \
-../engine/golemsentence.c 
+../engine/golemsentence.c \
+../engine/golemsharedobject.c 
 
 OBJS += \
 ./engine/golem.o \
@@ -37,9 +39,11 @@ OBJS += \
 ./engine/golemexpressioncomplex.o \
 ./engine/golemfunc.o \
 ./engine/golemidentificator.o \
+./engine/goleminvoke.o \
 ./engine/golemjit.o \
 ./engine/golemparser.o \
-./engine/golemsentence.o 
+./engine/golemsentence.o \
+./engine/golemsharedobject.o 
 
 C_DEPS += \
 ./engine/golem.d \
@@ -56,9 +60,11 @@ C_DEPS += \
 ./engine/golemexpressioncomplex.d \
 ./engine/golemfunc.d \
 ./engine/golemidentificator.d \
+./engine/goleminvoke.d \
 ./engine/golemjit.d \
 ./engine/golemparser.d \
-./engine/golemsentence.d 
+./engine/golemsentence.d \
+./engine/golemsharedobject.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

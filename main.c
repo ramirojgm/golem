@@ -28,33 +28,36 @@ main(gint argc,gchar * argv[])
 {
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
+  GValue  main_argc = G_VALUE_INIT,
+	  main_argv = G_VALUE_INIT,
+	  main_argc_ref = G_VALUE_INIT,
+	  main_argv_ref = G_VALUE_INIT;
 
-  GError * parser_error = NULL;
+  g_value_init(&main_argc,G_TYPE_INT);
+  g_value_init(&main_argv,G_TYPE_STRV);
+  g_value_init(&main_argc_ref,G_TYPE_POINTER);
+  g_value_init(&main_argv_ref,G_TYPE_POINTER);
+
+  g_value_set_int(&main_argc,argc);
+  g_value_set_boxed(&main_argv,argv);
+  g_value_set_pointer(&main_argc_ref,&argc);
+  g_value_set_pointer(&main_argv_ref,&argv);
+
+  golem_context_declare(context,"builtin_argc",G_TYPE_INT,NULL);
+  golem_context_declare(context,"builtin_argv",G_TYPE_STRV,NULL);
+  golem_context_declare(context,"builtin_argc_ptr",G_TYPE_POINTER,NULL);
+  golem_context_declare(context,"builtin_argv_ptr",G_TYPE_POINTER,NULL);
+  golem_context_set(context,"builtin_argc",&main_argc,NULL);
+  golem_context_set(context,"builtin_argv",&main_argv,NULL);
+  golem_context_set(context,"builtin_argc_ptr",&main_argc_ref,NULL);
+  golem_context_set(context,"builtin_argv_ptr",&main_argv_ref,NULL);
 
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
   GolemCompiled * compilation = golem_compiled_new();
   golem_compiled_add_string(compilation,script_file_content,-1,NULL);
   g_free(script_file_content);
-
   golem_compiled_run(compilation,context,NULL);
-  GValue func_value = G_VALUE_INIT;
-  GValue var = G_VALUE_INIT;
-  GValue num = G_VALUE_INIT;
-  golem_context_get(context,"int_value",&num,NULL);
-  golem_context_get(context,"string_value",&var,NULL);
-
-  GValue result = G_VALUE_INIT;
-  GValue ** args = g_new0(GValue*,4);
-  args[0] = g_new0(GValue,1);
-  args[1] = &var;
-  args[2] = &num;
-  g_value_init(args[0],G_TYPE_STRING);
-  //g_value_init(args[1],G_TYPE_STRING);
-  g_value_set_string(args[0],"hello world (%s,%d)\n");
-
-  golem_context_get(context,"g_print",&func_value,NULL);
-  golem_func_invoke(GOLEM_FUNC(g_value_get_object(&func_value)),args,&result,NULL);
-  g_object_unref(context);
+    g_object_unref(context);
   g_object_unref(compilation);
   return 0;
 }

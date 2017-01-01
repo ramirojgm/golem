@@ -77,7 +77,7 @@ golem_resolve_type_name(const gchar * name)
       return G_TYPE_FLOAT;
   else if(g_strcmp0(name,"double") == 0)
       return G_TYPE_DOUBLE;
-  else if(g_strcmp0(name,"function") == 0)
+  else if(g_strcmp0(name,"func") == 0)
       return GOLEM_TYPE_FUNC;
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;

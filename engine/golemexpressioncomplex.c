@@ -148,6 +148,14 @@ static GType _golem_expression_complex_result_type(GValue * a,GValue * b)
       }\
      g_value_set_boolean(result,g_value_get_##type_name(&val_a) == g_value_get_##type_name(&val_b));\
      break;\
+   case GOLEM_OPERATOR_DIF:\
+     if(!G_VALUE_HOLDS_BOOLEAN(result))\
+      {\
+  	g_value_unset(result);\
+  	g_value_init(result,G_TYPE_BOOLEAN);\
+      }\
+     g_value_set_boolean(result,g_value_get_##type_name(&val_a) != g_value_get_##type_name(&val_b));\
+     break;\
    default:\
      g_value_unset(result);\
   }
@@ -248,7 +256,7 @@ golem_expression_complex_check_continue(GolemParser * parser,GolemExpressionLimi
   switch(limit)
   {
     case GOLEM_EXPRESSION_LIMIT_PARENTHESIS_COMA:
-      if((*wd != ',') || (*wd != ')'))
+      if((*wd != ',') && (*wd != ')'))
     	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_PARENTHESIS:
@@ -256,8 +264,8 @@ golem_expression_complex_check_continue(GolemParser * parser,GolemExpressionLimi
 	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET_COMA:
-      if((*wd != ',') || (*wd != ']'))
-	    return TRUE;
+      if((*wd != ',') && (*wd != ']'))
+	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET:
       if(*wd != ']')
@@ -335,6 +343,21 @@ golem_expression_complex_phase_build(GList * parts,GolemOperator level)
 }
 
 GolemExpression *
+golem_expression_complex_parse_subexpression(GolemParser * parser,GolemExpression * parent,GolemExpressionLimit limit,GError ** error)
+{
+  GolemExpression * result = parent;
+  if(golem_invoke_check(parser))
+    {
+      result = golem_invoke_parse(parser,parent,error);
+      if(golem_expression_complex_check_continue(parser,limit))
+	{
+	  result = golem_expression_complex_parse_subexpression(parser,result,limit,error);
+	}
+    }
+  return result;
+}
+
+GolemExpression *
 golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, GError ** error)
 {
   GolemExpressionComplex * expression = NULL;
@@ -344,31 +367,20 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
     {
       if(golem_parser_next_word_check(parser,"!"))
 	op = GOLEM_OPERATOR_NOT;
+      else if(golem_parser_next_word_check(parser,"**"))
+	op = GOLEM_OPERATOR_POW;
       else if(golem_parser_next_word_check(parser,"*"))
-	{
-	  if(golem_parser_next_word_check(parser,"*"))
-	    op = GOLEM_OPERATOR_POW;
-	  else
-	    op = GOLEM_OPERATOR_MUL;
-	}
+	op = GOLEM_OPERATOR_MUL;
+      else if(golem_parser_next_word_check(parser,">="))
+	op = GOLEM_OPERATOR_GRE_EQU;
       else if(golem_parser_next_word_check(parser,">"))
-	{
-	  if(golem_parser_next_word_check(parser,"="))
-	    op = GOLEM_OPERATOR_GRE_EQU;
-	  else
-	    op = GOLEM_OPERATOR_GRE;
-	}
+	op = GOLEM_OPERATOR_GRE;
+      else if(golem_parser_next_word_check(parser,"<="))
+	op = GOLEM_OPERATOR_LES_EQU;
       else if(golem_parser_next_word_check(parser,"<"))
-      	{
-      	  if(golem_parser_next_word_check(parser,"="))
-      	    op = GOLEM_OPERATOR_LES_EQU;
-      	  else
-      	    op = GOLEM_OPERATOR_LES;
-      	}
+	op = GOLEM_OPERATOR_LES;
       else if(golem_parser_next_word_check(parser,"=="))
-	{
 	  op = GOLEM_OPERATOR_EQU;
-	}
       else if(golem_parser_next_word_check(parser,"/"))
       	op = GOLEM_OPERATOR_DIV;
       else if(golem_parser_next_word_check(parser,"+"))
@@ -380,26 +392,20 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
       else if(golem_parser_next_word_check(parser,"is"))
       	op = GOLEM_OPERATOR_IS;
       else if(golem_parser_next_word_check(parser,"&"))
-	{
-	  if(golem_parser_next_word_check(parser,"&"))
-	    op = GOLEM_OPERATOR_AND;
-	  else
-	    op = GOLEM_OPERATOR_AND_BIT;
-	}
+	op = GOLEM_OPERATOR_AND_BIT;
+      else if(golem_parser_next_word_check(parser,"&&"))
+	op = GOLEM_OPERATOR_AND;
+      else if(golem_parser_next_word_check(parser,"||"))
+	op = GOLEM_OPERATOR_OR;
       else if(golem_parser_next_word_check(parser,"|"))
-      	{
-      	  if(golem_parser_next_word_check(parser,"|"))
-      	    op = GOLEM_OPERATOR_OR;
-      	  else
-      	    op = GOLEM_OPERATOR_OR_BIT;
-      	}
+	op = GOLEM_OPERATOR_OR_BIT;
       else if(golem_parser_next_word_check(parser,"("))
 	{
 	  GolemExpression * subexp = golem_expression_complex_parse(parser,GOLEM_EXPRESSION_LIMIT_PARENTHESIS,error);
 	  if(subexp)
 	    {
 	      GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
-	      part->expression = subexp;
+	      part->expression = golem_expression_complex_parse_subexpression(parser,subexp,limit,error);
 	      part->operator = op;
 	      expression_parts = g_list_append(expression_parts,part);
 	    }
@@ -408,14 +414,14 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
       else if(golem_constant_check(parser))
 	{
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
-	  part->expression = golem_constant_parse(parser,error);
+	  part->expression = golem_expression_complex_parse_subexpression(parser, golem_constant_parse(parser,error),limit,error);
 	  part->operator = op;
 	  expression_parts = g_list_append(expression_parts,part);
 	}
       else if(golem_identificator_check(parser))
 	{
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
-	  part->expression = golem_identificator_parse(parser,limit,error);
+	  part->expression = golem_expression_complex_parse_subexpression(parser,golem_identificator_parse(parser,limit,error),limit,error);
 	  part->operator = op;
 	  expression_parts = g_list_append(expression_parts,part);
 	}
