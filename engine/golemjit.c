@@ -2117,11 +2117,14 @@ gpointer golem_v_func(GType return_type,gpointer metadata)
       v_func = NULL;
   }
 
-
+#ifndef __WIN32__
   v_func = mmap( NULL,v_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE,0,0);
   memcpy(v_func,v_template,v_size);
   memcpy(v_func + 0xC,&metadata,sizeof(gpointer));
   return v_func;
+#else
+  v_func = VirtualAlloc();
+#endif
 }
 
 */
