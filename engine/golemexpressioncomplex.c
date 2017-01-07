@@ -357,11 +357,13 @@ golem_expression_complex_parse_subexpression(GolemParser * parser,GolemExpressio
   if(golem_invoke_check(parser))
     {
       result = golem_invoke_parse(parser,parent,error);
+      g_print("Invoke over %s\n",g_type_name_from_instance(parent));
       if(golem_expression_complex_check_continue(parser,limit))
 	{
 	  result = golem_expression_complex_parse_subexpression(parser,result,limit,error);
 	}
     }
+    g_print("exp %s\n",g_type_name_from_instance(result));
   return result;
 }
 
@@ -442,7 +444,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	}
       else
 	{
-	  g_print("%s",golem_parser_next_word(parser,NULL,FALSE));
+	  g_print("bad %s",golem_parser_next_word(parser,NULL,FALSE));
 	  abort();
 	  //TODO: throw exception expected operator, constant or identificator
 	}
@@ -451,7 +453,6 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
   if(g_list_length(g_list_first(expression_parts)) == 1)
     {
       expression = (GolemExpressionComplex*)((GolemExpressionComplexPart *)expression_parts->data)->expression;
-
     }
   else
     {

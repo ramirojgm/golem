@@ -35,7 +35,6 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
   gboolean done = TRUE;
   guint invoke_args_index = 0;
   GValue ** invoke_args_values = NULL;
-
   if((done = golem_expression_evaluate(self->priv->func_exp,context,&func,error)))
     {
       if(g_type_is_a(func.g_type,GOLEM_TYPE_FUNC))
@@ -125,9 +124,9 @@ golem_invoke_parse(GolemParser * parser,GolemExpression * expression,GError ** e
 	    }
 	}
     }
-  if(done)
+  if(!done)
     {
-
+      //TODO: free expression
     }
   return GOLEM_EXPRESSION(self);
 }

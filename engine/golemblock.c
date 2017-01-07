@@ -79,6 +79,8 @@ golem_block_parse(GolemParser * parser,GError ** error)
 	{
 	   if(golem_parser_next_word_check(parser,"}"))
 	     break;
+	   else
+	     g_print("next -> %s\n",golem_parser_next_word(parser,NULL,FALSE));
 	   GolemSentence * sentence = golem_sentence_parse(parser,error);
 	   if(sentence)
 	     {

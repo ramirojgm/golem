@@ -67,6 +67,9 @@ golem_sentence_parse(GolemParser * parser,GError ** error)
   else if(golem_block_check(parser))
     return GOLEM_SENTENCE(golem_block_parse(parser,error));
   else
-    return GOLEM_SENTENCE(golem_expression_parse(parser,error));
-    //golem_throw(error,GOLEM_SYNTAXIS_ERROR,"unknown sentence '%s'",golem_parser_next_word(parser,NULL,FALSE));
+    {
+      GolemExpression * exp = golem_expression_parse(parser,error);
+      return GOLEM_SENTENCE(exp);
+    }
+
 }

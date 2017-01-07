@@ -47,4 +47,6 @@ GType			golem_expression_get_type(void);
 
 gboolean	 	golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
+GolemExpression *	golem_expression_parse(GolemParser * parser,GError ** error);
+
 #endif /* GOLEMEXPRESSION_H_ */
