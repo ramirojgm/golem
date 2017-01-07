@@ -29,6 +29,7 @@
 #include "golemsharedobject.h"
 #include "golemexpression.h"
 #include "golemconstant.h"
+#include "golemnew.h"
 #include "golemdeclaration.h"
 #include "golemidentificator.h"
 #include "goleminvoke.h"
@@ -53,6 +54,7 @@ enum GolemError
   GOLEM_INVALID_CAST_ERROR,
   GOLEM_NOT_EXISTS_ERROR,
   GOLEM_ALREADY_EXISTS_ERROR,
+  GOLEM_UNKNOWN_TYPE_ERROR,
 };
 
 GQuark		golem_error_quark(void);

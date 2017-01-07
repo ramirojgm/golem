@@ -29,10 +29,10 @@ gboolean
 golem_builder_extern_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
 {
   GolemBuilderExtern * self = GOLEM_BUILDER_EXTERN(sentence);
-  self->priv = golem_builder_extern_get_instance_private(self);
   GModule * global_module = g_module_open(NULL,G_MODULE_BIND_LOCAL);
   gpointer address = NULL;
   gboolean done;
+
   done = golem_func_meta_data_resolve(self->priv->meta_data,error);
   if(done)
     {

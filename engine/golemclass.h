@@ -29,7 +29,7 @@ struct _GolemClassIter
   GType	   type;
   gboolean (*iter_first)(gpointer instance,gpointer * iter_dest);
   gboolean (*iter_next)(gpointer instance,gpointer iter);
-  void	   (*iter_fetch)(gpointer instance,GValue * dest);
+  gboolean (*iter_fetch)(gpointer instance,GValue * dest);
   void 	   (*iter_free)(gpointer instance,gpointer iter);
 };
 

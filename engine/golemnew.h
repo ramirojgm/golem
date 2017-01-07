@@ -15,30 +15,31 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMBUILDEREXTERN_H_
-#define GOLEMBUILDEREXTERN_H_
+#ifndef GOLEMNEW_H_
+#define GOLEMNEW_H_
 
-#define GOLEM_TYPE_BUILDER_EXTERN	(golem_builder_extern_get_type())
-G_DECLARE_FINAL_TYPE(GolemBuilderExtern,golem_builder_extern,GOLEM,BUILDER_EXTERN,GolemSentence)
+typedef struct _GolemNewPrivate GolemNewPrivate;
 
-typedef struct _GolemBuilderExternPrivate GolemBuilderExternPrivate;
+#define GOLEM_TYPE_NEW	(golem_new_get_type())
+G_DECLARE_FINAL_TYPE(GolemNew,golem_new,GOLEM,NEW,GolemExpression)
 
-struct _GolemBuilderExternClass
+struct _GolemNewClass
 {
-  GolemSentenceClass parent_class;
-
+  GolemExpressionClass parent_class;
 };
 
-struct _GolemBuilderExtern
+
+struct _GolemNew
 {
-  GolemSentence parent_instance;
-  GolemBuilderExternPrivate * priv;
+  GolemExpression parent_instance;
+  GolemNewPrivate * priv;
 };
 
-GType			golem_builder_extern_get_type(void);
+GType		  golem_new_get_type(void);
 
-gboolean		golem_builder_extern_check(GolemParser * parser);
+gboolean	  golem_new_check(GolemParser * parser);
 
-GolemBuilderExtern * 	golem_builder_extern_parse(GolemParser * parser,GError ** error);
+GolemExpression * golem_new_parse(GolemParser * parser,GError ** error);
 
-#endif /* GOLEMBUILDEREXTERN_H_ */
+
+#endif /* GOLEMNEW_H_ */

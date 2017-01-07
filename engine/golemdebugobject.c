@@ -37,7 +37,7 @@ golem_debug_object_dispose(GObject * instance)
 static void
 golem_debug_object_init(GolemDebugObject * self)
 {
-
+  g_print("new <%p>\n",self);
 }
 
 static void

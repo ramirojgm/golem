@@ -98,7 +98,7 @@ golem_invoke_parse(GolemParser * parser,GolemExpression * expression,GError ** e
 	  if(golem_parser_next_word_check(parser,","))
 	    {
 	      done = FALSE;
-	      //TODO:throw no arg
+	      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected a expression before \",\"");
 	      break;
 	    }
 
@@ -115,8 +115,13 @@ golem_invoke_parse(GolemParser * parser,GolemExpression * expression,GError ** e
 
 	  if(!golem_parser_next_word_check(parser,","))
 	    {
-	      done = FALSE;
-	      //TODO: throw expected ','
+	      if(golem_parser_next_word_check(parser,")"))
+		break;
+	      else
+		{
+		  done = FALSE;
+		  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \",\" or \")\"");
+		}
 	    }
 	}
     }

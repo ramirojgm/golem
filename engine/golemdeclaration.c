@@ -67,6 +67,8 @@ _golem_declaration_execute(GolemSentence * sentence,GolemContext * context,GErro
 	      return TRUE;
 	    }
 	}
+      else
+	return FALSE;
     }
   else
     {

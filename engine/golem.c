@@ -17,7 +17,9 @@
 
 
 #include "golem.h"
+#include "gmodule.h"
 #include <ctype.h>
+#include <string.h>
 
 GQuark
 golem_error_quark(void)
@@ -81,8 +83,39 @@ golem_resolve_type_name(const gchar * name)
       return GOLEM_TYPE_FUNC;
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;
+  else if(g_strcmp0(name,"debug_object") == 0)
+      return GOLEM_TYPE_DEBUG_OBJECT;
   else
-      return g_type_from_name(name);
+    {
+      GType type = g_type_from_name(name);
+      static gchar type_named[256] = {0,};
+      memset(type_named,0,256);
+      if(type == 0)
+	{
+	  GModule * module = g_module_open(NULL,0);
+	  guint type_named_index = 0;
+	  for(const gchar * iter = name;*iter;iter ++)
+	    {
+	      if(isupper(*iter) && (iter != name))
+		{
+		  type_named[type_named_index] = '_';
+		  type_named_index++;
+
+		}
+	      type_named[type_named_index] = tolower(*iter);
+	      type_named_index++;
+	    }
+	  strcat(type_named,"_get_type");
+	  GType (*get_type)() = 0;
+	  g_module_symbol(module,type_named,(gpointer*)&get_type);
+	  if(get_type)
+	    type = get_type();
+	  else
+	    type = 0;
+	  g_module_close(module);
+	}
+      return type;
+    }
 }
 
 const gchar *

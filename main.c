@@ -30,35 +30,31 @@ main(gint argc,gchar * argv[])
   gchar * script_file_content = NULL;
   GValue  main_argc = G_VALUE_INIT,
 	  main_argv = G_VALUE_INIT,
-	  main_argc_ref = G_VALUE_INIT,
-	  main_argv_ref = G_VALUE_INIT;
+	  const_true = G_VALUE_INIT;
 
   g_value_init(&main_argc,G_TYPE_INT);
   g_value_init(&main_argv,G_TYPE_STRV);
-  g_value_init(&main_argc_ref,G_TYPE_POINTER);
-  g_value_init(&main_argv_ref,G_TYPE_POINTER);
+  g_value_init(&const_true,G_TYPE_BOOLEAN);
 
   g_value_set_int(&main_argc,argc);
   g_value_set_boxed(&main_argv,argv);
-  g_value_set_pointer(&main_argc_ref,&argc);
-  g_value_set_pointer(&main_argv_ref,&argv);
+  g_value_set_boolean(&const_true,TRUE);
 
   golem_context_declare(context,"builtin_argc",G_TYPE_INT,NULL);
   golem_context_declare(context,"builtin_argv",G_TYPE_STRV,NULL);
-  golem_context_declare(context,"builtin_argc_ptr",G_TYPE_POINTER,NULL);
-  golem_context_declare(context,"builtin_argv_ptr",G_TYPE_POINTER,NULL);
+  golem_context_declare(context,"true",G_TYPE_BOOLEAN,NULL);
   golem_context_set(context,"builtin_argc",&main_argc,NULL);
   golem_context_set(context,"builtin_argv",&main_argv,NULL);
-  golem_context_set(context,"builtin_argc_ptr",&main_argc_ref,NULL);
-  golem_context_set(context,"builtin_argv_ptr",&main_argv_ref,NULL);
+  golem_context_set(context,"true",&const_true,NULL);
 
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
   GolemCompiled * compilation = golem_compiled_new();
   golem_compiled_add_string(compilation,script_file_content,-1,NULL);
   g_free(script_file_content);
   golem_compiled_run(compilation,context,NULL);
-    g_object_unref(context);
+  g_object_unref(context);
   g_object_unref(compilation);
+
   return 0;
 }
 

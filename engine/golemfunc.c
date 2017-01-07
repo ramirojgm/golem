@@ -59,7 +59,7 @@ _golem_func_invoke_real(GolemFunc * func,GValue ** args,GValue * result,GError *
 	    break;
 	  if(param->is_reference)
 	    {
-	      golem_args_pointer(v_args,&(args[i_args]->data[0]));
+	      golem_args_pointer(v_args,&(args[i_args]->data[1].v_pointer));
 	    }
 	  else if((args[i_args]->g_type == param->type)||(g_type_is_a(args[i_args]->g_type,param->type)))
 	    {
@@ -304,7 +304,7 @@ golem_func_meta_data_resolve(GolemFuncMetaData * meta_data,GError ** error)
   if(!meta_data->is_resolved)
     {
       meta_data->return_type = golem_resolve_type_name(meta_data->return_type_name);
-      if(meta_data->return_type_name)
+      if(meta_data->return_type)
 	{
 	  for(GList * iter = g_list_first(meta_data->params);iter;iter = g_list_next(iter))
 	    {
@@ -312,7 +312,11 @@ golem_func_meta_data_resolve(GolemFuncMetaData * meta_data,GError ** error)
 	      param->type = golem_resolve_type_name(param->type_name);
 	      if(!param->type)
 		{
-		  //TODO: throw unknown type
+		  golem_throw(error,
+			      GOLEM_UNKNOWN_TYPE_ERROR,
+			      "argument(%d) unknown type '%s'",
+			      0,param->type_name
+			      );
 		  done = FALSE;
 		  break;
 		}
@@ -320,7 +324,11 @@ golem_func_meta_data_resolve(GolemFuncMetaData * meta_data,GError ** error)
 	}
       else
 	{
-	  //TODO: throw error unknown type
+	  golem_throw(error,
+		      GOLEM_UNKNOWN_TYPE_ERROR,
+		      "unknown type '%s'",
+		      meta_data->return_type_name
+		      );
 	  done = FALSE;
 	}
     }

@@ -271,6 +271,14 @@ golem_expression_complex_check_continue(GolemParser * parser,GolemExpressionLimi
       if(*wd != ']')
 	return TRUE;
       break;
+    case GOLEM_EXPRESSION_LIMIT_BRACKET_COMA:
+      if((*wd != ',') && (*wd != '}'))
+	return TRUE;
+      break;
+    case GOLEM_EXPRESSION_LIMIT_BRACKET:
+      if(*wd != '}')
+	return TRUE;
+      break;
     case GOLEM_EXPRESSION_LIMIT_SEMICOLON:
       if(*wd != ';')
 	return TRUE;
@@ -411,6 +419,13 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	    }
 	  golem_parser_next_word_check(parser,")");
 	}
+      else if(golem_new_check(parser))
+  	{
+  	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
+  	  part->expression = golem_expression_complex_parse_subexpression(parser, golem_new_parse(parser,error),limit,error);
+  	  part->operator = op;
+  	  expression_parts = g_list_append(expression_parts,part);
+  	}
       else if(golem_constant_check(parser))
 	{
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);

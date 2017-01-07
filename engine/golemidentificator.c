@@ -32,8 +32,14 @@ golem_identificator_evaluate(GolemExpression * expression,GolemContext * context
   gboolean done;
   if(self->priv->value)
     {
-      if((done = golem_expression_evaluate(self->priv->value,context,result,error)))
-	done = golem_context_set(context,self->priv->var_name,result,error);
+      GValue result_value = G_VALUE_INIT;
+      if((done = golem_expression_evaluate(self->priv->value,context,&result_value,error)))
+	{
+	  done = golem_context_set(context,self->priv->var_name,&result_value,error);
+	  g_value_init(result,G_VALUE_TYPE(&result_value));
+	  g_value_copy(&result_value,result);
+	  g_value_unset(&result_value);
+	}
     }
   else
     {

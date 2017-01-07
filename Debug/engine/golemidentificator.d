@@ -85,12 +85,12 @@ engine/golemidentificator.o: ../engine/golemidentificator.c \
  ../engine/golemdebugobject.h ../engine/golemparser.h \
  ../engine/golemcontext.h ../engine/golemsentence.h \
  ../engine/golemsharedobject.h ../engine/golemexpression.h \
- ../engine/golemconstant.h ../engine/golemdeclaration.h \
- ../engine/golemidentificator.h ../engine/goleminvoke.h \
- ../engine/golemexpressioncomplex.h ../engine/golemblock.h \
- ../engine/golemjit.h ../engine/golemfunc.h ../engine/golemclass.h \
- ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
- ../engine/golemcompiled.h
+ ../engine/golemconstant.h ../engine/golemnew.h \
+ ../engine/golemdeclaration.h ../engine/golemidentificator.h \
+ ../engine/goleminvoke.h ../engine/golemexpressioncomplex.h \
+ ../engine/golemblock.h ../engine/golemjit.h ../engine/golemfunc.h \
+ ../engine/golemclass.h ../engine/golembuilderclass.h \
+ ../engine/golembuilderextern.h ../engine/golemcompiled.h
 
 ../engine/golem.h:
 
@@ -299,6 +299,8 @@ engine/golemidentificator.o: ../engine/golemidentificator.c \
 ../engine/golemexpression.h:
 
 ../engine/golemconstant.h:
+
+../engine/golemnew.h:
 
 ../engine/golemdeclaration.h:
 
