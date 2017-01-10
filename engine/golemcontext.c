@@ -84,7 +84,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
       GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
       if(g_strcmp0(name,variable->name) == 0)
 	{
-	  if(variable->value.g_type == value->g_type)
+	  if((variable->type == G_TYPE_VALUE)||(variable->value.g_type == value->g_type))
 	    {
 	      g_value_unset(&(variable->value));
 	      g_value_init(&(variable->value),value->g_type);

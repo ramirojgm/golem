@@ -1,7 +1,7 @@
-engine/golembuilderextern.d: ../engine/golembuilderextern.c \
+engine/golembuilderextern.o: ../engine/golembuilderextern.c \
  ../engine/golem.h /usr/include/glib-2.0/glib.h \
  /usr/include/glib-2.0/glib/galloca.h /usr/include/glib-2.0/glib/gtypes.h \
- /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h \
+ /usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h \
  /usr/include/glib-2.0/glib/gmacros.h \
  /usr/include/glib-2.0/glib/gversionmacros.h \
  /usr/include/glib-2.0/glib/garray.h \
@@ -36,8 +36,6 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
  /usr/include/glib-2.0/glib/gmappedfile.h \
  /usr/include/glib-2.0/glib/gmarkup.h \
  /usr/include/glib-2.0/glib/gmessages.h \
- /usr/include/glib-2.0/glib/gvariant.h \
- /usr/include/glib-2.0/glib/gvarianttype.h \
  /usr/include/glib-2.0/glib/goption.h \
  /usr/include/glib-2.0/glib/gpattern.h \
  /usr/include/glib-2.0/glib/gprimes.h /usr/include/glib-2.0/glib/gqsort.h \
@@ -55,6 +53,8 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
  /usr/include/glib-2.0/glib/gtrashstack.h \
  /usr/include/glib-2.0/glib/gtree.h \
  /usr/include/glib-2.0/glib/gurifuncs.h \
+ /usr/include/glib-2.0/glib/gvarianttype.h \
+ /usr/include/glib-2.0/glib/gvariant.h \
  /usr/include/glib-2.0/glib/gversion.h \
  /usr/include/glib-2.0/glib/deprecated/gallocator.h \
  /usr/include/glib-2.0/glib/deprecated/gcache.h \
@@ -90,8 +90,8 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
  ../engine/golemexpressioncomplex.h ../engine/golemidentificator.h \
  ../engine/golemblock.h ../engine/golemjit.h ../engine/golemfunc.h \
  ../engine/golemclass.h ../engine/golembuilderclass.h \
- ../engine/golembuilderextern.h ../engine/golemcompiled.h \
- /usr/include/glib-2.0/gmodule.h
+ ../engine/golembuilderextern.h ../engine/golembuilderclosure.h \
+ ../engine/golemcompiled.h /usr/include/glib-2.0/gmodule.h
 
 ../engine/golem.h:
 
@@ -101,7 +101,7 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
 
 /usr/include/glib-2.0/glib/gtypes.h:
 
-/usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h:
+/usr/lib/i386-linux-gnu/glib-2.0/include/glibconfig.h:
 
 /usr/include/glib-2.0/glib/gmacros.h:
 
@@ -189,10 +189,6 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
 
 /usr/include/glib-2.0/glib/gmessages.h:
 
-/usr/include/glib-2.0/glib/gvariant.h:
-
-/usr/include/glib-2.0/glib/gvarianttype.h:
-
 /usr/include/glib-2.0/glib/goption.h:
 
 /usr/include/glib-2.0/glib/gpattern.h:
@@ -232,6 +228,10 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
 /usr/include/glib-2.0/glib/gtree.h:
 
 /usr/include/glib-2.0/glib/gurifuncs.h:
+
+/usr/include/glib-2.0/glib/gvarianttype.h:
+
+/usr/include/glib-2.0/glib/gvariant.h:
 
 /usr/include/glib-2.0/glib/gversion.h:
 
@@ -322,6 +322,8 @@ engine/golembuilderextern.d: ../engine/golembuilderextern.c \
 ../engine/golembuilderclass.h:
 
 ../engine/golembuilderextern.h:
+
+../engine/golembuilderclosure.h:
 
 ../engine/golemcompiled.h:
 

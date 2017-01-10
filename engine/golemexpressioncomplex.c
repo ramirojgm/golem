@@ -357,13 +357,11 @@ golem_expression_complex_parse_subexpression(GolemParser * parser,GolemExpressio
   if(golem_invoke_check(parser))
     {
       result = golem_invoke_parse(parser,parent,error);
-      g_print("Invoke over %s\n",g_type_name_from_instance(parent));
       if(golem_expression_complex_check_continue(parser,limit))
 	{
 	  result = golem_expression_complex_parse_subexpression(parser,result,limit,error);
 	}
     }
-    g_print("exp %s\n",g_type_name_from_instance(result));
   return result;
 }
 

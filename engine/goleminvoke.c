@@ -52,6 +52,23 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 	  invoke_args_values[invoke_args_index] = NULL;
 	  done = golem_func_invoke(GOLEM_FUNC(g_value_get_object(&func)),invoke_args_values,result,error);
 	}
+      if(g_type_is_a(func.g_type,G_TYPE_CLOSURE))
+	{
+	  invoke_args_values = g_new0(GValue*,g_list_length(self->priv->args_exp) + 1);
+	  for(GList * iter_arg = g_list_first(self->priv->args_exp);iter_arg;iter_arg = iter_arg->next)
+	    {
+	      invoke_args_values[invoke_args_index] = g_memdup(&empty_value,sizeof(GValue));
+	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,invoke_args_values[invoke_args_index],error)))
+		{
+		  break;
+		}
+	      invoke_args_index ++;
+	    }
+	  invoke_args_values[invoke_args_index] = NULL;
+	  GClosure * closure = (GClosure*)(g_value_get_boxed(&func));
+	  g_closure_invoke(closure,result,invoke_args_index,invoke_args_values,NULL);
+	  done = TRUE;
+	}
       else
 	{
 	  //TODO: throw error no function invocable

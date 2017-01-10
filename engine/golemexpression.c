@@ -59,8 +59,6 @@ golem_expression_parse(GolemParser * parser,GError ** error)
   GolemExpression * expression = NULL;
   expression = golem_expression_complex_parse(parser,GOLEM_EXPRESSION_LIMIT_SEMICOLON,error);
 
-  g_print("DONE!");
-
   if(!golem_parser_next_word_check(parser,";"))
     {
       g_clear_object(&expression);

@@ -33,8 +33,6 @@ _golem_shared_object_execute(GolemSentence * sentence,GolemContext * context,GEr
     {
 
     }
-  else
-    g_print("loaded");
   return TRUE;
 }
 

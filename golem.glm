@@ -5,41 +5,56 @@ extern void		g_print(string format);
 extern void		gtk_init(int & a,pointer & b);
 extern void		gtk_main();
 extern void		gtk_main_quit();
+extern void		gtk_box_pack_start(GtkBox box,GtkWidget child,bool expand,bool fill,uint padding);
 extern ulong	g_signal_connect_data(object instance,string signal_name,func callback);
 extern void		gtk_container_add(GtkContainer container,GtkWidget child);
 extern void		gtk_window_set_titlebar(GtkWindow window,GtkWidget titlebar);
-extern void		gtk_widget_show(GtkWidget widget);
+extern void		gtk_widget_show_all(GtkWidget widget); 
+extern int		g_application_run(GApplication app,int argc,pointer argv);
+extern ulong	g_signal_connect_closure (object instance,string detailed_signal,closure c,bool after);
+
+#gtk_init(builtin_argc,builtin_argv);
+
+GtkApplication app = new GtkApplication {
+	application_id: "org.gnome.golem.app"
+};
 
 
 
-{
-	gtk_init(builtin_argc,builtin_argc);
-	
-	GtkButton m_button;
-	GtkHeaderBar m_bar;
-	
-	GtkWindow m_window = new GtkWindow {
-		title: "Hola Mundo",
-		border_width: 20,
-		icon_name: "list-add"
-	};
-	
-	m_bar = new GtkHeaderBar {
-		visible: true,
-		title: "Hola Mundo",
-		show_close_button: true
-	};
-	
-	gtk_window_set_titlebar(m_window,m_bar);
-	
-	gtk_widget_show(m_window);
-	
-	gtk_container_add(m_window,m_button = new GtkButton {
-		label: "Click Me",
-		visible: true
-	});
+g_application_run(app,builtin_argc,builtin_argv);
 
-	#g_signal_connect_data(m_window,"delete-event",gtk_main_quit);
-	
-	gtk_main();
-}
+GtkWindow m_window = new GtkWindow {
+	title: "Hola Mundo",
+	border_width: 20,
+	icon_name: "list-add"
+};
+
+GtkHeaderBar m_bar = new GtkHeaderBar {
+	title: "Hola Mundo",
+	show_close_button: true
+};
+
+GtkBox m_box = new GtkBox {
+	orientation: 1,
+	spacing : 5
+};
+
+
+
+GtkEntry m_num1 = new GtkEntry { text: "0" };
+GtkEntry m_num2 = new GtkEntry { text: "0" };
+GtkButton m_button = new GtkButton { label: "Click Me" };
+
+gtk_box_pack_start(m_box,m_num1,false,false,0);
+gtk_box_pack_start(m_box,m_num2,false,false,0);
+gtk_box_pack_start(m_box,m_button,false,false,0);
+
+gtk_window_set_titlebar(m_window,m_bar);
+
+gtk_container_add(m_window,m_box);
+
+gtk_widget_show_all(m_window);
+
+g_signal_connect_data(m_window,"delete-event",gtk_main_quit);
+
+gtk_main();

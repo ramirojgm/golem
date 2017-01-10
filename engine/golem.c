@@ -57,6 +57,8 @@ golem_resolve_type_name(const gchar * name)
 {
   if(g_strcmp0(name,"void") == 0)
     return G_TYPE_NONE;
+  else if(g_strcmp0(name,"var") == 0)
+    return G_TYPE_VALUE;
   else if(g_strcmp0(name,"bool") == 0)
       return G_TYPE_BOOLEAN;
   else if(g_strcmp0(name,"string") == 0)
@@ -81,6 +83,8 @@ golem_resolve_type_name(const gchar * name)
       return G_TYPE_DOUBLE;
   else if(g_strcmp0(name,"func") == 0)
       return GOLEM_TYPE_FUNC;
+  else if(g_strcmp0(name,"closure") == 0)
+      return G_TYPE_CLOSURE;
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;
   else if(g_strcmp0(name,"debug_object") == 0)

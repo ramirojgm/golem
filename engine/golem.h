@@ -40,6 +40,7 @@
 #include "golemclass.h"
 #include "golembuilderclass.h"
 #include "golembuilderextern.h"
+#include "golembuilderclosure.h"
 #include "golemcompiled.h"
 
 #define GOLEM_ERROR	(golem_error_quark())
