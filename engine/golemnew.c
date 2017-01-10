@@ -118,7 +118,15 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 	}
       if(done)
 	{
-	  gpointer instance = g_object_newv(type,params_construct_n,params_construct);
+	  GolemArgs * new_args = golem_args_new();
+	  golem_args_append_type(new_args,type);
+	  for(guint index = 0;index < params_construct_n;index ++)
+	    {
+	      golem_args_append_string(new_args,params_construct[index].name);
+	      golem_args_append(new_args,&(params_construct[index].value));
+	    }
+	  gpointer instance = golem_invoke_gpointer(g_object_new,new_args);
+	  golem_args_free(new_args);
 	  for(guint params_index = 0;params_index < params_data_n;params_index++)
 	    {
 	      if(!(params_data[params_index].name))

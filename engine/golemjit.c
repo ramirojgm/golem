@@ -1066,6 +1066,31 @@ golem_args_new()
 					*((type*)(args->mem + offset)) = value_get(value)
 
 void
+golem_args_append_string(GolemArgs * args,const gchar * str1)
+{
+  args->mem = g_realloc(args->mem,args->offset + sizeof(gchar*));
+  *((const gchar**)args->mem + args->offset) = str1;
+  args->offset += sizeof(gchar*);
+}
+
+void
+golem_args_append_type(GolemArgs * args,GType type)
+{
+  args->mem = g_realloc(args->mem,args->offset + sizeof(GType));
+  *((GType*)args->mem + args->offset) = type;
+  args->offset += sizeof(GType);
+}
+
+void
+golem_args_append_pointer(GolemArgs * args,gconstpointer pointer)
+{
+  args->mem = g_realloc(args->mem,args->offset + sizeof(gpointer));
+  *((gconstpointer*)args->mem + args->offset) = pointer;
+  args->offset += sizeof(gpointer);
+}
+
+
+void
 golem_args_append(GolemArgs * args,const GValue * value)
 {
   guint16 offset = args->offset;
@@ -1134,14 +1159,6 @@ golem_args_append(GolemArgs * args,const GValue * value)
       break;
     }
    args->offset += size;
-}
-
-void
-golem_args_pointer(GolemArgs * args,gconstpointer pointer)
-{
-  args->mem = g_realloc(args->mem,args->offset + sizeof(gpointer));
-  *((gconstpointer*)args->mem + args->offset) = pointer;
-  args->offset += sizeof(gpointer);
 }
 
 void

@@ -3,6 +3,9 @@ sharedobject "libgtk-3.so"
 
 extern void		g_print(string format);
 extern void		gtk_init(int & a,pointer & b);
+
+gtk_init(builtin_argc,builtin_argv);
+
 extern void		gtk_main();
 extern void		gtk_main_quit();
 extern void		gtk_box_pack_start(GtkBox box,GtkWidget child,bool expand,bool fill,uint padding);
@@ -13,15 +16,15 @@ extern void		gtk_widget_show_all(GtkWidget widget);
 extern int		g_application_run(GApplication app,int argc,pointer argv);
 extern ulong	g_signal_connect_closure (object instance,string detailed_signal,closure c,bool after);
 
-#gtk_init(builtin_argc,builtin_argv);
-
-GtkApplication app = new GtkApplication {
-	application_id: "org.gnome.golem.app"
-};
 
 
+#GtkApplication app = new GtkApplication {
+#	application_id: "org.gnome.golem.app"
+#};
 
-g_application_run(app,builtin_argc,builtin_argv);
+
+
+#g_application_run(app,builtin_argc,builtin_argv);
 
 GtkWindow m_window = new GtkWindow {
 	title: "Hola Mundo",
