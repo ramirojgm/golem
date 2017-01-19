@@ -59,7 +59,7 @@ _golem_func_invoke_real(GolemFunc * func,GValue ** args,GValue * result,GError *
 	    break;
 	  if(param->is_reference)
 	    {
-	      golem_args_append_pointer(v_args,&(args[i_args]->data[1].v_pointer));
+	      golem_args_append_pointer(v_args,&(args[i_args]->data[0].v_pointer));
 	    }
 	  else if((args[i_args]->g_type == param->type)||(g_type_is_a(args[i_args]->g_type,param->type)))
 	    {

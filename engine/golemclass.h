@@ -53,11 +53,7 @@ GolemClass * 	golem_class_new();
 
 GolemClass *	golem_class_from_type(GType type);
 
-void		golem_class_register(GolemClass * klass,GolemContext * context,GError ** error);
-
-void		golem_class_set_parent_name(GolemClass * klass,const gchar * parent_name);
-
-const gchar *	golem_class_get_parent_name(GolemClass * klass);
+GType		golem_class_register(GolemClass * klass,GError ** error);
 
 void		golem_class_implement(GolemClass * klass,const gchar * interface_name);
 

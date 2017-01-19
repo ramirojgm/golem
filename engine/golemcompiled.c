@@ -83,6 +83,7 @@ golem_compiled_run(GolemCompiled * compiled,GolemContext * context,GError ** err
       done = golem_sentence_execute(sentence,context,error);
       if(!done)
 	break;
+
     }
   return done;
 }
