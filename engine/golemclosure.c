@@ -29,12 +29,70 @@ void golem_symbol_invoke (GClosure *closure,
                     gpointer invocation_hint,
                     gpointer marshal_data)
 {
+  GolemSymbol * self = (GolemSymbol*)closure;
+  GType return_type = golem_closure_info_get_return_type(self->parent_boxed.info);
+  GType fundamental_return_type = G_TYPE_FUNDAMENTAL(return_type);
+  GolemArgs * args = golem_args_new();
+  GList * cur_param = g_list_first(golem_closure_info_get_parameters(self->parent_boxed.info));
+  const GValue * param_value = NULL;
+  GolemClosureParameter * param_info = NULL;
 
+  for(guint param_index = 0;param_index < n_param_values;param_index ++)
+    {
+      const GValue * param_value = param_values[param_index];
+      if(cur_param)
+	{
+	  param_info = (GolemClosureParameter*)cur_param->data;
+	  cur_param = g_list_next(cur_param);
+	  if(param_info->is_catch)
+	    {
+	      golem_args_append_pointer(args,&(self->parent_boxed.error));
+	      cur_param = g_list_next(cur_param);
+	      if(cur_param)
+		{
+		  param_info = (GolemClosureParameter*)cur_param->data;
+		  cur_param = g_list_next(cur_param);
+		}
+	      else
+		{
+		  param_info = NULL;
+		}
+	    }
+	}
+      else
+	{
+	  param_info = NULL;
+	}
+
+      if(param_info)
+	{
+
+
+	}
+      else
+	{
+	  golem_args_append(args,param_value);
+	}
+    }
+
+  switch(fundamental_return_type)
+  {
+
+  }
+
+  golem_args_free(args);
 }
 
 void golem_symbol_finalizer(gpointer data,GClosure * closure)
 {
+  GolemSymbol * self = (GolemSymbol*)closure;
+  if(self->parent_boxed.error)
+    g_error_free(self->parent_boxed.error);
 
+  if(self->parent_boxed.instance)
+    g_object_unref(self->parent_boxed.instance);
+
+  g_object_unref(self->parent_boxed.info);
 }
 
 void golem_function_invoke (GClosure *closure,

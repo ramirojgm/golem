@@ -23,6 +23,7 @@ typedef struct _GolemSignal GolemSignal;
 typedef struct _GolemSymbol GolemSymbol;
 typedef struct _GolemFunction GolemFunction;
 typedef struct _GolemClosureInfo GolemClosureInfo;
+typedef struct _GolemClosureParameter GolemClosureParameter;
 
 #define GOLEM_TYPE_CLOSURE_INFO	(golem_closure_info_get_type())
 #define GOLEM_TYPE_CLOSURE	(golem_closure_get_type())
