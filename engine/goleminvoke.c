@@ -34,7 +34,6 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
   gboolean done = TRUE;
   guint invoke_args_index = 0;
   GValue * invoke_args_values = NULL;
-  g_print("%s()",G_OBJECT_TYPE_NAME(self->priv->func_exp));
   if((done = golem_expression_evaluate(self->priv->func_exp,context,&func,error)))
     {
       if(G_VALUE_HOLDS_CLOSURE(&func))
@@ -49,6 +48,7 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 	      invoke_args_index ++;
 	    }
 	  GClosure * closure = (GClosure*)(g_value_get_boxed(&func));
+
 	  g_closure_invoke(closure,result,invoke_args_index,invoke_args_values,0);
 	  if(GOLEM_CLOSURE(closure)->error)
 	    {

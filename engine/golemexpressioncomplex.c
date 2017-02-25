@@ -437,6 +437,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	}
       else if(golem_new_check(parser))
   	{
+	  g_print("is new\n");
   	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
   	  part->expression = golem_expression_complex_parse_subexpression(parser, golem_new_parse(parser,error),limit,error);
   	  part->operator = op;
@@ -444,6 +445,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
   	}
       else if(golem_builder_closure_check(parser))
 	{
+	  g_print("is closure\n");
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
 	  part->expression = golem_expression_complex_parse_subexpression(parser, golem_builder_closure_parse(parser,error),limit,error);
 	  part->operator = op;
@@ -451,6 +453,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	}
       else if(golem_constant_check(parser))
 	{
+	  g_print("is constant:%s\n",golem_parser_next_word(parser,NULL,FALSE));
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
 	  part->expression = golem_expression_complex_parse_subexpression(parser, golem_constant_parse(parser,error),limit,error);
 	  part->operator = op;
@@ -458,6 +461,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	}
       else if(golem_identificator_check(parser))
 	{
+	  g_print("is identificator\n");
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
 	  part->expression = golem_expression_complex_parse_subexpression(parser,golem_identificator_parse(parser,limit,error),limit,error);
 	  part->operator = op;

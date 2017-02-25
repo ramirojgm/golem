@@ -32,11 +32,15 @@ _golem_builder_closure_evaluate(GolemExpression * expression,GolemContext * cont
 {
   GolemBuilderClosure * self = GOLEM_BUILDER_CLOSURE(expression);
   GolemBuilderClosurePrivate *priv = golem_builder_closure_get_instance_private(self);
-  GolemClosure * closure = golem_function_new(priv->info,context, GOLEM_STATEMENT(priv->block));
-  g_value_init(result,G_TYPE_CLOSURE);
-  g_value_set_boxed(result,closure);
-  g_print("builder_closure:(%p)\n",closure);
-  return TRUE;
+  if(golem_closure_info_resolve(priv->info,context,error))
+    {
+      GolemClosure * closure = golem_function_new(priv->info,context, GOLEM_STATEMENT(priv->block));
+      g_value_init(result,G_TYPE_CLOSURE);
+      g_value_set_boxed(result,closure);
+      return TRUE;
+    }
+  else
+    return FALSE;
 }
 
 static void

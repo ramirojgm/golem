@@ -93,7 +93,6 @@ golem_builder_extern_parse(GolemParser * parser,GError ** error)
 	  //TODO: throw error expected ';'
 	  g_clear_object(&self);
 	}
-      g_print("extern:%s\n",golem_parser_next_word(parser,NULL,FALSE));
     }
   else
     {

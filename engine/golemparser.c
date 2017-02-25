@@ -442,6 +442,8 @@ golem_parser_check_is_number(GolemParser * parser)
   const gchar * word = golem_parser_next_word(parser,NULL,FALSE);
   if(word)
     {
+      if((*word == 'l') || (*word == 'f'))
+	return FALSE;
       for(const gchar * c = word;*c != 0;c++)
 	{
 	  if(!(isdigit(*c) || (*c == 'l') || (*c == 'f')))

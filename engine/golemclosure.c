@@ -239,14 +239,16 @@ void golem_function_invoke (GClosure *closure,
 {
   GolemFunction * self = GOLEM_FUNCTION(closure);
   GolemContext * this_context = golem_context_new(self->context);
+
   GList * cur_param = g_list_first(golem_closure_info_get_parameters(self->parent_boxed.info));
   GValue * param_value = NULL;
   GolemClosureParameter * param_info = NULL;
   guint param_index = 0;
 
-  golem_context_declare(this_context,"::return::",G_TYPE_NONE,NULL);
-
+  g_print(":::::::::::::::::::invoking:::::::::::::::::\n");
+  golem_context_declare(this_context,"::return::",G_TYPE_VALUE,NULL);
   //set parameters
+
   for(param_index = 0;param_index < n_param_values;param_index ++)
     {
       param_value = (GValue*)&(param_values[param_index]);
@@ -265,14 +267,16 @@ void golem_function_invoke (GClosure *closure,
 	//declared parameter
 	if(param_info->is_reference)
 	  {
-
+	    g_print("transform param:%s\n",param_info->name);
 	  }
 	else if((G_VALUE_TYPE(param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(param_value),param_info->type)))
 	  {
+	    g_print("param:%s\n",param_info->name);
 	    golem_context_set_auto(this_context,param_info->name,param_value,NULL);
 	  }
 	else if(param_info->type == G_TYPE_VALUE)
 	  {
+	    g_print("param_n:%d\n",n_param_values);
 	    GValue * new_value = g_new0(GValue,0);
 	    g_value_init(new_value,G_VALUE_TYPE(param_value));
 	    g_value_copy(param_value,new_value);
@@ -283,6 +287,7 @@ void golem_function_invoke (GClosure *closure,
 	  }
 	else if(g_value_type_transformable(G_VALUE_TYPE(param_value), param_info->type))
 	  {
+	    g_print("transform param:%s\n",param_info->name);
 	    GValue transformed = G_VALUE_INIT;
 	    g_value_init(&transformed,param_info->type);
 	    g_value_transform(param_value,&transformed);
@@ -293,6 +298,9 @@ void golem_function_invoke (GClosure *closure,
 	  }
 	else
 	  {
+	    g_print("can't transform from '%s' to '%s'",
+		g_type_name(G_VALUE_TYPE(param_value)),
+		g_type_name(param_info->type));
 	    self->parent_boxed.error = g_error_new(
 		GOLEM_ERROR,
 		GOLEM_INVALID_CAST_ERROR,
@@ -311,7 +319,14 @@ void golem_function_invoke (GClosure *closure,
 
   if(golem_statement_execute(self->sentence,this_context,&(self->parent_boxed.error)))
     {
-      //return
+
+
+    }
+
+
+  if(self->parent_boxed.error)
+    {
+      golem_throw_error(NULL,self->parent_boxed.error);
     }
   //TODO: free param values
   g_object_unref(this_context);
@@ -453,6 +468,7 @@ golem_closure_info_parse(GolemParser * parser,GError ** error)
 		  if(golem_parser_check_is_named(parser))
 		    {
 		      type_name = golem_parser_next_word(parser,NULL,TRUE);
+
 		      if(golem_parser_next_word_check(parser,"&"))
 			{
 			  is_reference = TRUE;

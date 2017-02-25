@@ -2,6 +2,11 @@ sharedobject "libgtk-3.so"
 
 extern void g_print(string format);
 
-string f = 'ramiro';
+function f;
 
-g_print("%s",f);
+f = func(int x,int y,int width,int height)
+{
+	g_print("cubo:{\n\tx:%d,\n\ty:%d,\n\twidth:%d,\n\theight:%d\n}",x,y,width,height);
+};
+
+f(0,0,20,30);
