@@ -426,6 +426,13 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
   	  part->operator = op;
   	  expression_parts = g_list_append(expression_parts,part);
   	}
+      else if(golem_builder_closure_check(parser))
+	{
+	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);
+	  part->expression = golem_expression_complex_parse_subexpression(parser, golem_builder_closure_parse(parser,error),limit,error);
+	  part->operator = op;
+	  expression_parts = g_list_append(expression_parts,part);
+	}
       else if(golem_constant_check(parser))
 	{
 	  GolemExpressionComplexPart * part = g_new0(GolemExpressionComplexPart,1);

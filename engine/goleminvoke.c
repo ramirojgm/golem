@@ -31,48 +31,41 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 {
   GolemInvoke * self = GOLEM_INVOKE(expression);
   GValue func = G_VALUE_INIT;
-  GValue empty_value = G_VALUE_INIT;
   gboolean done = TRUE;
   guint invoke_args_index = 0;
-  GValue ** invoke_args_values = NULL;
+  GValue * invoke_args_values = NULL;
+  g_print("%s()",G_OBJECT_TYPE_NAME(self->priv->func_exp));
   if((done = golem_expression_evaluate(self->priv->func_exp,context,&func,error)))
     {
-      if(g_type_is_a(func.g_type,GOLEM_TYPE_FUNC))
+      if(G_VALUE_HOLDS_CLOSURE(&func))
 	{
-	  invoke_args_values = g_new0(GValue*,g_list_length(self->priv->args_exp) + 1);
+	  invoke_args_values = g_new0(GValue,g_list_length(self->priv->args_exp));
 	  for(GList * iter_arg = g_list_first(self->priv->args_exp);iter_arg;iter_arg = iter_arg->next)
 	    {
-	      invoke_args_values[invoke_args_index] = g_memdup(&empty_value,sizeof(GValue));
-	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,invoke_args_values[invoke_args_index],error)))
+	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,&(invoke_args_values[invoke_args_index]),error)))
 		{
 		  break;
 		}
 	      invoke_args_index ++;
 	    }
-	  invoke_args_values[invoke_args_index] = NULL;
-	  done = golem_func_invoke(GOLEM_FUNC(g_value_get_object(&func)),invoke_args_values,result,error);
-	}
-      if(g_type_is_a(func.g_type,G_TYPE_CLOSURE))
-	{
-	  invoke_args_values = g_new0(GValue*,g_list_length(self->priv->args_exp) + 1);
-	  for(GList * iter_arg = g_list_first(self->priv->args_exp);iter_arg;iter_arg = iter_arg->next)
-	    {
-	      invoke_args_values[invoke_args_index] = g_memdup(&empty_value,sizeof(GValue));
-	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,invoke_args_values[invoke_args_index],error)))
-		{
-		  break;
-		}
-	      invoke_args_index ++;
-	    }
-	  invoke_args_values[invoke_args_index] = NULL;
 	  GClosure * closure = (GClosure*)(g_value_get_boxed(&func));
-	  g_closure_invoke(closure,result,invoke_args_index,invoke_args_values,NULL);
-	  done = TRUE;
+	  g_closure_invoke(closure,result,invoke_args_index,invoke_args_values,0);
+	  if(GOLEM_CLOSURE(closure)->error)
+	    {
+	      GError * err = GOLEM_CLOSURE(closure)->error;
+	      GOLEM_CLOSURE(closure)->error = NULL;
+	      golem_throw_error(error,err);
+	    }
+	  else
+	    {
+	      done = TRUE;
+	    }
 	}
       else
 	{
 	  //TODO: throw error no function invocable
 	  done = FALSE;
+	  g_print("error:(%d)\n",g_value_get_int(&func));
 	}
     }
   //TODO: free args

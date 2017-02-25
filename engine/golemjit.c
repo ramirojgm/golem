@@ -1082,10 +1082,10 @@ golem_args_append_type(GolemArgs * args,GType type)
 }
 
 void
-golem_args_append_pointer(GolemArgs * args,gconstpointer pointer)
+golem_args_append_pointer(GolemArgs * args,gpointer pointer)
 {
   args->mem = g_realloc(args->mem,args->offset + sizeof(gpointer));
-  *((gconstpointer*)args->mem + args->offset) = pointer;
+  *((gpointer*)args->mem + args->offset) = pointer;
   args->offset += sizeof(gpointer);
 }
 
@@ -1146,16 +1146,7 @@ golem_args_append(GolemArgs * args,const GValue * value)
       GOLEM_ARGS_SET(gpointer,g_value_get_boxed);
       break;
     case G_TYPE_OBJECT:
-      if(g_type_is_a(G_VALUE_TYPE(value), GOLEM_TYPE_FUNC))
-	{
-	  size = sizeof(gpointer);
-	  args->mem = g_realloc(args->mem,args->offset + size);
-	  *((gpointer*)(args->mem + offset)) = golem_func_get_address(GOLEM_FUNC(g_value_get_object(value)));
-	}
-      else
-	{
-	  GOLEM_ARGS_SET(GObject*,g_value_get_object);
-	}
+      GOLEM_ARGS_SET(GObject*,g_value_get_object);
       break;
     }
    args->offset += size;
@@ -1168,7 +1159,6 @@ golem_args_free(GolemArgs * args)
   g_free(args);
 }
 
-inline
 void
 golem_invoke(gpointer address,GolemArgs * args)
 {

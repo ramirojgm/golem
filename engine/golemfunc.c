@@ -19,7 +19,7 @@
 #include "golem.h"
 #include <stdio.h>
 
-typedef struct _GolemFuncPrivate GolemFuncPrivate;
+/*typedef struct _GolemFuncPrivate GolemFuncPrivate;
 
 struct _GolemFuncPrivate
 {
@@ -333,4 +333,4 @@ golem_func_meta_data_resolve(GolemFuncMetaData * meta_data,GError ** error)
 	}
     }
   return done;
-}
+}*/

@@ -88,7 +88,7 @@ engine/golembuilderclass.o: ../engine/golembuilderclass.c \
  ../engine/golemconstant.h ../engine/golemnew.h \
  ../engine/golemdeclaration.h ../engine/goleminvoke.h \
  ../engine/golemexpressioncomplex.h ../engine/golemidentificator.h \
- ../engine/golemblock.h ../engine/golemjit.h ../engine/golemfunc.h \
+ ../engine/golemblock.h ../engine/golemjit.h ../engine/golemclosure.h \
  ../engine/golemclass.h ../engine/golembuilderclass.h \
  ../engine/golembuilderextern.h ../engine/golembuilderclosure.h \
  ../engine/golemcompiled.h
@@ -315,7 +315,7 @@ engine/golembuilderclass.o: ../engine/golembuilderclass.c \
 
 ../engine/golemjit.h:
 
-../engine/golemfunc.h:
+../engine/golemclosure.h:
 
 ../engine/golemclass.h:
 

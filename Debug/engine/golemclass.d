@@ -1,1 +1,1 @@
-engine/golemclass.d: ../engine/golemclass.c
+engine/golemclass.o: ../engine/golemclass.c

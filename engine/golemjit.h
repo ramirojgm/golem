@@ -31,7 +31,7 @@ GolemArgs * 	golem_args_new();
 void		golem_args_append(GolemArgs * args,const GValue * value);
 void		golem_args_append_string(GolemArgs * args,const gchar * str1);
 void		golem_args_append_type(GolemArgs * args,GType type);
-void		golem_args_append_pointer(GolemArgs * args,gconstpointer pointer);
+void		golem_args_append_pointer(GolemArgs * args,gpointer pointer);
 void		golem_args_free(GolemArgs * args);
 
 void		golem_invoke(gpointer address,GolemArgs * args);

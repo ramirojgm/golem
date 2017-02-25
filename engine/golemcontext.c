@@ -52,6 +52,7 @@ golem_context_dispose(GObject * object)
   g_clear_object(&(priv->instance));
   g_list_free_full(priv->variables,(GDestroyNotify)golem_context_variable_free);
   G_OBJECT_CLASS(golem_context_parent_class)->dispose(object);
+  g_mutex_clear(&(GOLEM_CONTEXT(object)->mutex));
 }
 
 static void
@@ -62,6 +63,7 @@ golem_context_init(GolemContext * self)
   priv->parent = NULL;
   priv->instance = NULL;
   priv->variables = NULL;
+  g_mutex_init(&(self->mutex));
 }
 
 static void
@@ -70,12 +72,33 @@ golem_context_class_init(GolemContextClass * klass)
   G_OBJECT_CLASS(klass)->dispose = golem_context_dispose;
 }
 
+gboolean
+golem_context_set_auto(GolemContext * context,const gchar * name,GValue *  value,GError ** error)
+{
+  if(golem_context_declare(context,name,G_VALUE_TYPE(value),error))
+    {
+      return golem_context_set(context,name,value,error);
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
+gboolean
+golem_context_set_function(GolemContext * context,const gchar * name,gpointer address,GType return_type,...)
+{
+  return FALSE;
+}
+
 
 gboolean
 golem_context_set(GolemContext * context,const gchar * name,GValue * value,GError ** error)
 {
   if(!context)
     return FALSE;
+  g_mutex_lock(&(context->mutex));
+
   GolemContextPrivate * priv;
   priv = golem_context_get_instance_private(context);
 
@@ -89,6 +112,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	      g_value_unset(&(variable->value));
 	      g_value_init(&(variable->value),value->g_type);
 	      g_value_copy(value,&(variable->value));
+	      g_mutex_unlock(&(context->mutex));
 	      return TRUE;
 	    }
 	  else if(g_value_type_transformable(value->g_type,variable->type))
@@ -96,6 +120,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	      g_value_unset(&(variable->value));
 	      g_value_init(&(variable->value),variable->type);
 	      g_value_transform(value, &(variable->value));
+	      g_mutex_unlock(&(context->mutex));
 	      return TRUE;
 	    }
 	  else
@@ -105,6 +130,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 			  "invalid cast from type \"%s\" to type \"%s\"",
 			  g_type_name(value->g_type),
 			  g_type_name(variable->value.g_type));
+	      g_mutex_unlock(&(context->mutex));
 	      return FALSE;
 	    }
 	}
@@ -119,6 +145,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	  if(value->g_type == property->value_type)
 	    {
 	      g_object_set_property(priv->instance,name,value);
+	      g_mutex_unlock(&(context->mutex));
 	      return TRUE;
 	    }
 	  else if(g_value_type_transformable(value->g_type,property->value_type))
@@ -128,6 +155,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	      g_value_transform(value,&property_value);
 	      g_object_set_property(priv->instance,name,&property_value);
 	      g_value_unset(&property_value);
+	      g_mutex_unlock(&(context->mutex));
 	      return TRUE;
 	    }
 	  else
@@ -137,6 +165,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 			  "invalid cast from type \"%s\" to type \"%s\"",
 			  g_type_name(value->g_type),
 			  g_type_name(property->value_type));
+	      g_mutex_unlock(&(context->mutex));
 	      return FALSE;
 	    }
 	}
@@ -144,6 +173,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 
   if(priv->parent)
     {
+      g_mutex_unlock(&(context->mutex));
       return golem_context_set(priv->parent,name,value,error);
     }
   else
@@ -153,6 +183,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
       		    "the variable \"%s\" not exists",
       		    name
       );
+      g_mutex_unlock(&(context->mutex));
       return FALSE;
     }
 }
@@ -160,6 +191,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 gboolean
 golem_context_declare(GolemContext * context,const gchar * name,GType type,GError ** error)
 {
+  g_mutex_lock(&(context->mutex));
   GolemContextPrivate * priv;
   GolemContextVariable * variable;
   priv = golem_context_get_instance_private(context);
@@ -173,6 +205,7 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
 		      "the variable \"%s\" already exists",
 		      name
 	  );
+	  g_mutex_unlock(&(context->mutex));
 	  return FALSE;
 	}
     }
@@ -183,12 +216,14 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
   g_value_unset(&(variable->value));
   g_value_init(&(variable->value),type);
   priv->variables = g_list_append(priv->variables,variable);
+  g_mutex_unlock(&(context->mutex));
   return TRUE;
 }
 
 gboolean
 golem_context_get(GolemContext * context,const gchar * name, GValue * value,GError ** error)
 {
+  g_mutex_lock(&(context->mutex));
   GolemContextPrivate * priv;
   GolemContextVariable * variable;
 
@@ -201,6 +236,7 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
 	  g_value_unset(value);
 	  g_value_init(value,variable->type);
 	  g_value_copy(&(variable->value),value);
+	  g_mutex_unlock(&(context->mutex));
 	  return TRUE;
 	}
     }
@@ -214,12 +250,14 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
 	    g_value_unset(value);
 	    g_value_init(value,property->value_type);
 	    g_object_get_property(priv->instance,name,value);
+	    g_mutex_unlock(&(context->mutex));
 	    return TRUE;
 	  }
       }
 
     if(priv->parent)
       {
+	g_mutex_unlock(&(context->mutex));
         return golem_context_get(priv->parent,name,value,error);
       }
     else
@@ -229,6 +267,7 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
 		    "the variable \"%s\" not exists",
 		    name
 	);
+	g_mutex_unlock(&(context->mutex));
         return FALSE;
       }
 }
@@ -239,6 +278,8 @@ golem_context_new(GolemContext * parent)
   GolemContext * self = GOLEM_CONTEXT(g_object_new(GOLEM_TYPE_CONTEXT,NULL));
   GolemContextPrivate * priv = golem_context_get_instance_private(self);
   if(parent)
-    priv->parent = GOLEM_CONTEXT(g_object_ref(parent));
+    {
+      priv->parent = GOLEM_CONTEXT(g_object_ref(parent));
+    }
   return self;
 }

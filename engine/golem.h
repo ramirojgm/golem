@@ -36,12 +36,15 @@
 #include "golemidentificator.h"
 #include "golemblock.h"
 #include "golemjit.h"
-#include "golemfunc.h"
+#include "golemclosure.h"
+//#include "golemfunc.h"
 #include "golemclass.h"
 #include "golembuilderclass.h"
 #include "golembuilderextern.h"
 #include "golembuilderclosure.h"
 #include "golemcompiled.h"
+
+#define GOLEM_TYPE_IMPORT
 
 #define GOLEM_ERROR	(golem_error_quark())
 
@@ -64,7 +67,7 @@ void		golem_throw_error(GError ** error,GError * err);
 
 void		golem_throw(GError ** error,GolemError code,const gchar * format,...);
 
-GType		golem_resolve_type_name(const gchar * name);
+GType		golem_resolve_type_name(GolemContext * context,const gchar * name);
 
 const gchar *	golem_type_get_prefix(const gchar * name);
 

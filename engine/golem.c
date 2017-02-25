@@ -53,7 +53,7 @@ golem_throw_error(GError ** error,GError * err)
 }
 
 GType
-golem_resolve_type_name(const gchar * name)
+golem_resolve_type_name(GolemContext * context,const gchar * name)
 {
   if(g_strcmp0(name,"void") == 0)
     return G_TYPE_NONE;
@@ -81,9 +81,7 @@ golem_resolve_type_name(const gchar * name)
       return G_TYPE_FLOAT;
   else if(g_strcmp0(name,"double") == 0)
       return G_TYPE_DOUBLE;
-  else if(g_strcmp0(name,"func") == 0)
-      return GOLEM_TYPE_FUNC;
-  else if(g_strcmp0(name,"closure") == 0)
+  else if(g_strcmp0(name,"function") == 0)
       return G_TYPE_CLOSURE;
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;
@@ -91,6 +89,7 @@ golem_resolve_type_name(const gchar * name)
       return GOLEM_TYPE_DEBUG_OBJECT;
   else
     {
+#ifdef GOLEM_TYPE_IMPORT
       GType type = g_type_from_name(name);
       static gchar type_named[256] = {0,};
       memset(type_named,0,256);
@@ -119,6 +118,20 @@ golem_resolve_type_name(const gchar * name)
 	  g_module_close(module);
 	}
       return type;
+#else
+      GType type = 0;
+      GValue type_value = G_VALUE_INIT;
+      GError * error = NULL;
+      if(golem_context_get(context,name,&type_value,&error))
+	{
+	  if(G_VALUE_TYPE(&type_value) == G_TYPE_GTYPE)
+	    type = g_value_get_gtype(&type_value);
+	}
+      g_value_unset(&type_value);
+      if(error)
+	g_error_free(error);
+      return type;
+#endif
     }
 }
 

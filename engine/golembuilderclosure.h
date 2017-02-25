@@ -37,8 +37,8 @@ struct _GolemBuilderClosure
 
 GType 			golem_builder_closure_get_type(void);
 
-gboolean 		golem_builder_closure_check(GolemParser * parser,GError ** error);
+gboolean 		golem_builder_closure_check(GolemParser * parser);
 
-GolemExpression * 	golem_builder_closure_parse(GolemParser * parser,GolemExpressionLimit limit,GError ** error);
+GolemExpression * 	golem_builder_closure_parse(GolemParser * parser,GError ** error);
 
 #endif /* GOLEMBUILDERCLOSURE_H_ */

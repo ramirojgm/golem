@@ -28,7 +28,6 @@ struct _GolemParameter
 struct _GolemNewPrivate
 {
   gchar * type_name;
-  GolemExpression * type_expression;
   GList * params;
 };
 
@@ -54,28 +53,11 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 
   if(self->priv->type_name)
     {
-      type = golem_resolve_type_name(self->priv->type_name);
+      type = golem_resolve_type_name(context,self->priv->type_name);
       if(type == 0)
 	{
 	  done = FALSE;
 	  golem_throw(error,GOLEM_UNKNOWN_TYPE_ERROR,"unknown type \"%s\"",self->priv->type_name);
-	}
-    }
-  else if(self->priv->type_expression)
-    {
-      GValue type_value = G_VALUE_INIT;
-      if((done = golem_expression_evaluate(self->priv->type_expression,context,&type_value,error)))
-	{
-	  if(G_VALUE_HOLDS_GTYPE(&type_value))
-	    {
-	      type = g_value_get_gtype(&type_value);
-	      g_value_unset(&type_value);
-	    }
-	  else
-	    {
-	      done = FALSE;
-	      golem_throw(error,GOLEM_UNKNOWN_TYPE_ERROR,"unknown type \"%s\"",self->priv->type_name);
-	    }
 	}
     }
   else
@@ -118,15 +100,7 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 	}
       if(done)
 	{
-	  GolemArgs * new_args = golem_args_new();
-	  golem_args_append_type(new_args,type);
-	  for(guint index = 0;index < params_construct_n;index ++)
-	    {
-	      golem_args_append_string(new_args,params_construct[index].name);
-	      golem_args_append(new_args,&(params_construct[index].value));
-	    }
-	  gpointer instance = golem_invoke_gpointer(g_object_new,new_args);
-	  golem_args_free(new_args);
+	  gpointer instance = g_object_newv(type,params_construct_n,params_construct);
 	  for(guint params_index = 0;params_index < params_data_n;params_index++)
 	    {
 	      if(!(params_data[params_index].name))
@@ -149,7 +123,6 @@ golem_new_init(GolemNew * self)
 {
   self->priv = golem_new_get_instance_private(self);
   self->priv->params = NULL;
-  self->priv->type_expression = NULL;
   self->priv->type_name = NULL;
 }
 
@@ -176,25 +149,6 @@ golem_new_parse(GolemParser * parser,GError ** error)
       if(golem_parser_check_is_named(parser))
 	{
 	  expression->priv->type_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
-	  expression->priv->type_expression = NULL;
-	}
-      else if(golem_parser_next_word_check(parser,"("))
-	{
-	  expression->priv->type_name = NULL;
-	  expression->priv->type_expression = golem_expression_complex_parse(parser,GOLEM_EXPRESSION_LIMIT_PARENTHESIS,error);
-	  if(!expression->priv->type_expression)
-	    {
-	      done = FALSE;
-	    }
-	  else
-	    {
-	      if(golem_parser_next_word_check(parser,")"))
-		{
-		  done = FALSE;
-		  //TODO: throw expected ')'
-		  g_print("throw expected ')'");
-		}
-	    }
 	}
       if(done)
 	{

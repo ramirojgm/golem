@@ -23,13 +23,19 @@ typedef struct _GolemSignal GolemSignal;
 typedef struct _GolemSymbol GolemSymbol;
 typedef struct _GolemFunction GolemFunction;
 typedef struct _GolemClosureInfo GolemClosureInfo;
+typedef struct _GolemClosureInfoPrivate GolemClosureInfoPrivate;
 typedef struct _GolemClosureParameter GolemClosureParameter;
 
 #define GOLEM_TYPE_CLOSURE_INFO	(golem_closure_info_get_type())
-#define GOLEM_TYPE_CLOSURE	(golem_closure_get_type())
-#define GOLEM_TYPE_SIGNAL 	(golem_signal_get_type())
-#define GOLEM_TYPE_SYMBOL 	(golem_symbol_get_type())
-#define GOLEM_TYPE_FUNCTION 	(golem_function_get_type())
+
+#define G_CLOSURE(c)		((GClosure*)c)
+#define GOLEM_CLOSURE(c)	((GolemClosure*)c)
+#define GOLEM_SYMBOL(c)		((GolemSymbol*)c)
+#define GOLEM_SIGNAL(c)		((GolemSignal*)c)
+#define GOLEM_FUNCTION(c)	((GolemFunction*)c)
+
+
+#define G_VALUE_HOLDS_CLOSURE(v) (G_VALUE_TYPE(v) == G_TYPE_CLOSURE)
 
 G_DECLARE_FINAL_TYPE(GolemClosureInfo,golem_closure_info,GOLEM,CLOSURE_INFO,GObject)
 
@@ -52,7 +58,7 @@ struct _GolemSignal
 struct _GolemSymbol
 {
   GolemClosure 	parent_boxed;
-  gconstpointer	symbol_address;
+  gpointer	symbol_address;
 };
 
 struct _GolemFunction
@@ -69,7 +75,6 @@ struct _GolemClosureParameter
   GType 	type;
   gboolean 	is_array: 1;
   gboolean	is_reference: 1;
-  gboolean	is_catch: 1;
 };
 
 struct _GolemClosureInfoClass
@@ -81,25 +86,18 @@ struct _GolemClosureInfoClass
 struct _GolemClosureInfo
 {
   GObject 	parent_instance;
-  gboolean	resolved: 1;
-  gchar *	name;
-  gchar *	return_type_name;
   GType 	return_type;
+  gboolean	return_const;
+  gint 		throw_at;
   GList * 	parameters;
+  GolemClosureInfoPrivate * priv;
 };
 
 GType			golem_closure_info_get_type(void);
 
-GType			golem_closure_get_type(void);
-
-GType			golem_symbol_get_type(void);
-
-GType			golem_function_get_type(void);
-
-
 GolemClosureInfo * 	golem_closure_info_parse(GolemParser * parser,GError ** error);
 
-GolemClosureInfo * 	golem_closure_info_parse_anonymus(GolemParser * parser,GError ** error);
+GolemClosureInfo * 	golem_closure_info_parse_anonymous(GolemParser * parser,GError ** error);
 
 gboolean		golem_closure_info_resolve(GolemClosureInfo * info,GolemContext * context,GError ** error);
 
@@ -109,5 +107,8 @@ GType			golem_closure_info_get_return_type(GolemClosureInfo * info);
 
 GList *			golem_closure_info_get_parameters(GolemClosureInfo * info);
 
+GolemClosure *		golem_symbol_new(GolemClosureInfo * info,gpointer symbol_address);
+
+GolemClosure *		golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemSentence * sentence);
 
 #endif /* GOLEMCLOSURE_H_ */

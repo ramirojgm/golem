@@ -18,57 +18,24 @@
 
 #include "golem.h"
 
-typedef struct _GolemClosure GolemClosure;
-
 struct _GolemBuilderClosurePrivate
 {
-  GList * names;
+  GolemClosureInfo * info;
   GolemBlock * block;
-};
-
-struct _GolemClosure
-{
-  GClosure closure;
-  GolemContext * parent;
-  GolemBuilderClosure * self;
-  GError * error;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClosure,golem_builder_closure,GOLEM_TYPE_EXPRESSION)
 
-static void
-_golem_closure_free(gpointer data,GClosure * closure)
-{
-  GolemClosure * self = (GolemClosure*)closure;
-  g_object_unref(self->self);
-  g_object_unref(self->parent);
-}
-
-static void
-_golem_closure_invoke(GClosure *closure,GValue *return_value,guint n_param_values,const GValue *param_values,gpointer invocation_hint,gpointer marshal_data)
-{
-  GError * error = NULL;
-  GolemClosure * self = (GolemClosure*)closure;
-  GolemContext * context = golem_context_new(self->parent);
-  if(golem_context_declare(context,"_@return_",G_TYPE_NONE,&error))
-    {
-
-    }
-  g_object_unref(context);
-}
 
 static gboolean
 _golem_builder_closure_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
 {
   GolemBuilderClosure * self = GOLEM_BUILDER_CLOSURE(expression);
-  GolemClosure * closure = (GolemClosure*)g_closure_new_simple(sizeof(GolemClosure),NULL);
-  closure->parent = GOLEM_CONTEXT(g_object_ref(context));
-  closure->self = GOLEM_BUILDER_CLOSURE(g_object_ref(self));
-  closure->error = NULL;
-  g_closure_set_marshal((GClosure*)closure,_golem_closure_invoke);
-  g_closure_add_finalize_notifier((GClosure*)closure,NULL,_golem_closure_free);
+  GolemBuilderClosurePrivate *priv = golem_builder_closure_get_instance_private(self);
+  GolemClosure * closure = golem_function_new(priv->info,context, GOLEM_SENTENCE(priv->block));
   g_value_init(result,G_TYPE_CLOSURE);
   g_value_set_boxed(result,closure);
+  g_print("builder_closure:(%p)\n",closure);
   return TRUE;
 }
 
@@ -85,3 +52,56 @@ golem_builder_closure_class_init(GolemBuilderClosureClass * klass)
   GOLEM_EXPRESSION_CLASS(klass)->evaluate = _golem_builder_closure_evaluate;
 }
 
+gboolean
+golem_builder_closure_check(GolemParser * parser)
+{
+  return golem_parser_is_next_word(parser,"func");
+}
+
+GolemExpression *
+golem_builder_closure_parse(GolemParser * parser,GError ** error)
+{
+  GolemBuilderClosure * self = GOLEM_BUILDER_CLOSURE(g_object_new(GOLEM_TYPE_BUILDER_CLOSURE,NULL));
+  gboolean done = TRUE;
+  if(golem_parser_next_word_check(parser,"func"))
+    {
+      if(golem_parser_is_next_word(parser,"("))
+	{
+	  self->priv->info = golem_closure_info_parse_anonymous(parser,error);
+	  if(self->priv->info)
+	    {
+	      if(golem_parser_is_next_word(parser,"{"))
+		{
+		  self->priv->block = golem_block_parse(parser,error);
+		  if(!self->priv->block)
+		    {
+		      //TODO: error
+		    }
+		}
+	      else
+		{
+		  //TODO: expected {
+
+		}
+	    }
+	  else
+	    {
+	      //TODO: error
+	    }
+	}
+      else
+	{
+	  //TODO:expected (
+	}
+    }
+  else
+    {
+      //TODO: expected func
+    }
+
+  if(!done)
+    {
+      //free all
+    }
+  return GOLEM_EXPRESSION(self);
+}
