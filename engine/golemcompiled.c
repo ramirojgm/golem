@@ -47,14 +47,14 @@ golem_compiled_class_init(GolemCompiledClass * klass)
 gboolean
 golem_compiled_add_string(GolemCompiled * compiled,const gchar * str,gssize length,GError ** error)
 {
-  GolemSentence * sentence;
+  GolemStatement * sentence;
   gboolean done = TRUE;
   GolemParser * parser = golem_parser_new();
   golem_parser_parse(parser,str,length);
   GList * sentences = NULL;
   while(!golem_parser_is_end(parser))
     {
-      sentence = golem_sentence_parse(parser,error);
+      sentence = golem_statement_parse(parser,error);
       if(sentence)
 	{
 	  sentences = g_list_append(sentences,sentence);
@@ -75,12 +75,12 @@ golem_compiled_add_string(GolemCompiled * compiled,const gchar * str,gssize leng
 gboolean
 golem_compiled_run(GolemCompiled * compiled,GolemContext * context,GError ** error)
 {
-  GolemSentence * sentence;
+  GolemStatement * sentence;
   gboolean done = TRUE;
   for(GList * iter = g_list_first(compiled->priv->sentences);iter;iter = g_list_next(iter))
     {
-      sentence = GOLEM_SENTENCE(iter->data);
-      done = golem_sentence_execute(sentence,context,error);
+      sentence = GOLEM_STATEMENT(iter->data);
+      done = golem_statement_execute(sentence,context,error);
       if(!done)
 	break;
 

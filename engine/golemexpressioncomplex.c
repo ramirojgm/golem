@@ -248,7 +248,19 @@ _golem_expression_complex_phase_evaluate(GolemExpressionComplexPhase * phase,Gol
 }
 
 gboolean
-golem_expression_complex_check_continue(GolemParser * parser,GolemExpressionLimit limit)
+golem_expression_complex_check_continue(GolemParser * parser)
+{
+  if(golem_parser_is_end(parser))
+    return FALSE;
+  const gchar * wd = golem_parser_next_word(parser,NULL,FALSE);
+  if((*wd != ';') && (*wd != ',') && (*wd != ')') && (*wd != ']') && (*wd != '}'))
+    return TRUE;
+  else
+    return FALSE;
+}
+
+gboolean
+golem_expression_complex_valid_end(GolemParser * parser,GolemExpressionLimit limit)
 {
   if(golem_parser_is_end(parser))
     return FALSE;
@@ -256,31 +268,35 @@ golem_expression_complex_check_continue(GolemParser * parser,GolemExpressionLimi
   switch(limit)
   {
     case GOLEM_EXPRESSION_LIMIT_PARENTHESIS_COMA:
-      if((*wd != ',') && (*wd != ')'))
+      if((*wd == ',') || (*wd == ')'))
     	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_PARENTHESIS:
-      if(*wd != ')')
+      if(*wd == ')')
 	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET_COMA:
-      if((*wd != ',') && (*wd != ']'))
+      if((*wd == ',') || (*wd == ']'))
 	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET:
-      if(*wd != ']')
+      if(*wd == ']')
 	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_BRACKET_COMA:
-      if((*wd != ',') && (*wd != '}'))
+      if((*wd == ',') || (*wd == '}'))
 	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_BRACKET:
-      if(*wd != '}')
+      if(*wd == '}')
 	return TRUE;
       break;
     case GOLEM_EXPRESSION_LIMIT_SEMICOLON:
-      if(*wd != ';')
+      if(*wd == ';')
+	return TRUE;
+      break;
+    case GOLEM_EXPRESSION_LIMIT_SEMICOLON_COMA:
+      if((*wd == ',')||(*wd == ';'))
 	return TRUE;
       break;
   }
@@ -357,7 +373,7 @@ golem_expression_complex_parse_subexpression(GolemParser * parser,GolemExpressio
   if(golem_invoke_check(parser))
     {
       result = golem_invoke_parse(parser,parent,error);
-      if(golem_expression_complex_check_continue(parser,limit))
+      if(golem_expression_complex_check_continue(parser))
 	{
 	  result = golem_expression_complex_parse_subexpression(parser,result,limit,error);
 	}
@@ -371,7 +387,7 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
   GolemExpressionComplex * expression = NULL;
   GolemOperator op = GOLEM_OPERATOR_NONE;
   GList * expression_parts = NULL;
-  while(golem_expression_complex_check_continue(parser,limit))
+  while(golem_expression_complex_check_continue(parser))
     {
       if(golem_parser_next_word_check(parser,"!"))
 	op = GOLEM_OPERATOR_NOT;
@@ -455,16 +471,24 @@ golem_expression_complex_parse(GolemParser * parser,GolemExpressionLimit limit, 
 	}
     }
 
-  if(g_list_length(g_list_first(expression_parts)) == 1)
+  if(golem_expression_complex_valid_end(parser,limit))
     {
-      expression = (GolemExpressionComplex*)((GolemExpressionComplexPart *)expression_parts->data)->expression;
+      if(g_list_length(g_list_first(expression_parts)) == 1)
+	{
+	  expression = (GolemExpressionComplex*)((GolemExpressionComplexPart *)expression_parts->data)->expression;
+	}
+      else
+	{
+	  expression = GOLEM_EXPRESSION_COMPLEX(g_object_new(GOLEM_TYPE_EXPRESSION_COMPLEX,NULL));
+	  expression->priv->phase = golem_expression_complex_phase_build(g_list_first(expression_parts),GOLEM_OPERATOR_NONE);
+	}
+      g_list_free(expression_parts);
     }
   else
     {
-      expression = GOLEM_EXPRESSION_COMPLEX(g_object_new(GOLEM_TYPE_EXPRESSION_COMPLEX,NULL));
-      expression->priv->phase = golem_expression_complex_phase_build(g_list_first(expression_parts),GOLEM_OPERATOR_NONE);
+      g_print("not expected %s at %d was expected %d",golem_parser_next_word(parser,NULL,FALSE),golem_parser_get_line(parser),limit);
+      abort();
     }
-  g_list_free(expression_parts);
   return GOLEM_EXPRESSION(expression);
 }
 

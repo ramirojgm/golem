@@ -15,24 +15,25 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMSENTENCE_H_
-#define GOLEMSENTENCE_H_
+#ifndef GOLEMSTATEMENT_H_
+#define GOLEMSTATEMENT_H_
 
-#define GOLEM_TYPE_SENTENCE (golem_sentence_get_type())
-G_DECLARE_DERIVABLE_TYPE(GolemSentence,golem_sentence,GOLEM,SENTENCE,GObject)
+#define GOLEM_TYPE_STATEMENT (golem_statement_get_type())
+
+G_DECLARE_DERIVABLE_TYPE(GolemStatement,golem_statement,GOLEM,STATEMENT,GObject)
 
 
-struct _GolemSentenceClass
+struct _GolemStatementClass
 {
   GObjectClass parent_class;
 
-  gboolean (*execute)(GolemSentence *,GolemContext *,GError ** );
+  gboolean (*execute)(GolemStatement *,GolemContext *,GError ** );
 };
 
-GType	golem_sentence_get_type(void);
+GType	golem_statement_get_type(void);
 
-gboolean golem_sentence_execute(GolemSentence * sentence,GolemContext * context,GError ** error);
+gboolean golem_statement_execute(GolemStatement * sentence,GolemContext * context,GError ** error);
 
-GolemSentence * golem_sentence_parse(GolemParser * parser,GError ** error);
+GolemStatement * golem_statement_parse(GolemParser * parser,GError ** error);
 
-#endif /* GOLEMSENTENCE_H_ */
+#endif /* GOLEMSTATEMENT_H_ */

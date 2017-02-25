@@ -19,11 +19,11 @@
 #define GOLEMBUILDERCLASS_H_
 
 #define GOLEM_TYPE_BUILDER_CLASS	(golem_builder_class_get_type())
-G_DECLARE_FINAL_TYPE(GolemBuilderClass,golem_builder_class,GOLEM,BUILDER_CLASS,GolemSentence)
+G_DECLARE_FINAL_TYPE(GolemBuilderClass,golem_builder_class,GOLEM,BUILDER_CLASS,GolemStatement)
 
 struct _GolemBuilderClassClass
 {
-  GolemSentenceClass parent_class;
+  GolemStatementClass parent_class;
 };
 
 GType	golem_builder_class_get_type(void);

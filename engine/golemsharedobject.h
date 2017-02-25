@@ -22,25 +22,25 @@ typedef struct _GolemSharedObjectPrivate GolemSharedObjectPrivate;
 
 #define GOLEM_TYPE_SHARED_OBJECT (golem_shared_object_get_type())
 
-G_DECLARE_FINAL_TYPE(GolemSharedObject,golem_shared_object,GOLEM,SHARED_OBJECT,GolemSentence)
+G_DECLARE_FINAL_TYPE(GolemSharedObject,golem_shared_object,GOLEM,SHARED_OBJECT,GolemStatement)
 
 struct _GolemSharedObjectClass
 {
-  GolemSentenceClass parent_class;
+  GolemStatementClass parent_class;
 };
 
 struct _GolemSharedObject
 {
-  GolemSentence	     parent_instance;
+  GolemStatement	     parent_instance;
   GolemSharedObjectPrivate * priv;
 };
 
-GType		golem_shared_object_get_type(void);
+GType		 golem_shared_object_get_type(void);
 
-gboolean	golem_shared_object_check(GolemParser * parser);
+gboolean	 golem_shared_object_check(GolemParser * parser);
 
-GolemSentence *	golem_shared_object_parse(GolemParser * parser,GError ** error);
+GolemStatement * golem_shared_object_parse(GolemParser * parser,GError ** error);
 
-gpointer	golem_shared_object_get_symbol(const gchar * name);
+gpointer	 golem_shared_object_get_symbol(const gchar * name);
 
 #endif /* GOLEMSHAREDOBJECT_H_ */

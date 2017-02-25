@@ -65,7 +65,7 @@ struct _GolemFunction
 {
   GolemClosure 	parent_boxed;
   GolemContext*	context;
-  GolemSentence*sentence;
+  GolemStatement * sentence;
 };
 
 struct _GolemClosureParameter
@@ -109,6 +109,6 @@ GList *			golem_closure_info_get_parameters(GolemClosureInfo * info);
 
 GolemClosure *		golem_symbol_new(GolemClosureInfo * info,gpointer symbol_address);
 
-GolemClosure *		golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemSentence * sentence);
+GolemClosure *		golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence);
 
 #endif /* GOLEMCLOSURE_H_ */

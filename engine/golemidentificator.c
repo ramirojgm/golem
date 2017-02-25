@@ -71,6 +71,7 @@ golem_identificator_parse(GolemParser * parser,GolemExpressionLimit limit,GError
 {
   GolemIdentificator * expression = GOLEM_IDENTIFICATOR(g_object_new(GOLEM_TYPE_IDENTIFICATOR,NULL));
   expression->priv->var_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+  g_print("next:%s\n",golem_parser_next_word(parser,NULL,FALSE));
   if(golem_parser_next_word_check(parser,"="))
     {
       expression->priv->value = golem_expression_complex_parse(parser,limit,NULL);

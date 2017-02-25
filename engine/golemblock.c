@@ -27,22 +27,22 @@ struct _GolemBlockPrivate
 
 struct _GolemBlock
 {
-  GolemSentence parent_instance;
+  GolemStatement parent_instance;
   GolemBlockPrivate * priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemBlock,golem_block,GOLEM_TYPE_SENTENCE)
+G_DEFINE_TYPE_WITH_PRIVATE(GolemBlock,golem_block,GOLEM_TYPE_STATEMENT)
 
 gboolean
-_golem_block_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+_golem_block_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
 {
   gboolean done = TRUE;
   GolemContext * block_context = golem_context_new(context);
   GList * sentences = GOLEM_BLOCK(sentence)->priv->sentences;
   for(GList * iter = g_list_first(sentences);iter;iter = g_list_next(iter))
     {
-      GolemSentence * sentence = GOLEM_SENTENCE(iter->data);
-      done = golem_sentence_execute(sentence,block_context,error);
+      GolemStatement * sentence = GOLEM_STATEMENT(iter->data);
+      done = golem_statement_execute(sentence,block_context,error);
       if(!done)
 	break;
     }
@@ -60,7 +60,7 @@ golem_block_init(GolemBlock * self)
 static void
 golem_block_class_init(GolemBlockClass * klass)
 {
-  GOLEM_SENTENCE_CLASS(klass)->execute = _golem_block_execute;
+  GOLEM_STATEMENT_CLASS(klass)->execute = _golem_block_execute;
 }
 
 gboolean
@@ -80,7 +80,7 @@ golem_block_parse(GolemParser * parser,GError ** error)
 	   if(golem_parser_next_word_check(parser,"}"))
 	     break;
 
-	   GolemSentence * sentence = golem_sentence_parse(parser,error);
+	   GolemStatement * sentence = golem_statement_parse(parser,error);
 	   if(sentence)
 	     {
 	       self->priv->sentences = g_list_append(self->priv->sentences,sentence);

@@ -29,17 +29,17 @@ struct _GolemBuilderClassPrivate
 
 struct _GolemBuilderClass
 {
-  GolemSentence parent_instance;
+  GolemStatement parent_instance;
 
   GolemBuilderClassPrivate * priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClass,golem_builder_class,GOLEM_TYPE_SENTENCE);
+G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClass,golem_builder_class,GOLEM_TYPE_STATEMENT);
 
 
 
 gboolean
-_golem_builder_class_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+_golem_builder_class_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
 {
 
   return TRUE;

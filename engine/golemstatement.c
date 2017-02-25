@@ -19,11 +19,10 @@
 #include "golem.h"
 #include "signal.h"
 
-G_DEFINE_ABSTRACT_TYPE(GolemSentence,golem_sentence,G_TYPE_OBJECT)
-
+G_DEFINE_ABSTRACT_TYPE(GolemStatement,golem_statement,G_TYPE_OBJECT)
 
 static gboolean
-_golem_sentence_execute_real(GolemSentence * self,GolemContext * context,GError ** error)
+_golem_statement_execute_real(GolemStatement * self,GolemContext * context,GError ** error)
 {
   golem_throw(error,
       GOLEM_NOT_IMPLEMENTED_ERROR,
@@ -33,43 +32,43 @@ _golem_sentence_execute_real(GolemSentence * self,GolemContext * context,GError 
 }
 
 static void
-golem_sentence_init(GolemSentence * self)
+golem_statement_init(GolemStatement * self)
 {
-  golem_sentence_get_instance_private(self);
+  golem_statement_get_instance_private(self);
 }
 
 static void
-golem_sentence_class_init(GolemSentenceClass * klass)
+golem_statement_class_init(GolemStatementClass * klass)
 {
-  klass->execute = _golem_sentence_execute_real;
+  klass->execute = _golem_statement_execute_real;
 }
 
 
 gboolean
-golem_sentence_execute(GolemSentence * self,GolemContext * context,GError ** error)
+golem_statement_execute(GolemStatement * self,GolemContext * context,GError ** error)
 {
-  GolemSentenceClass * klass = GOLEM_SENTENCE_GET_CLASS(self);
+  GolemStatementClass * klass = GOLEM_STATEMENT_GET_CLASS(self);
   return klass->execute(self,context,error);
 }
 
 
-GolemSentence *
-golem_sentence_parse(GolemParser * parser,GError ** error)
+GolemStatement *
+golem_statement_parse(GolemParser * parser,GError ** error)
 {
   if(golem_builder_class_check(parser))
-      return GOLEM_SENTENCE(golem_builder_class_parse(parser,error));
+      return GOLEM_STATEMENT(golem_builder_class_parse(parser,error));
   else if(golem_shared_object_check(parser))
-      return GOLEM_SENTENCE(golem_shared_object_parse(parser,error));
+      return GOLEM_STATEMENT(golem_shared_object_parse(parser,error));
   else if(golem_builder_extern_check(parser))
-    return GOLEM_SENTENCE(golem_builder_extern_parse(parser,error));
+    return GOLEM_STATEMENT(golem_builder_extern_parse(parser,error));
   else if(golem_declaration_check(parser))
-    return GOLEM_SENTENCE(golem_declaration_parse(parser,error));
+    return GOLEM_STATEMENT(golem_declaration_parse(parser,error));
   else if(golem_block_check(parser))
-    return GOLEM_SENTENCE(golem_block_parse(parser,error));
+    return GOLEM_STATEMENT(golem_block_parse(parser,error));
   else
     {
       GolemExpression * exp = golem_expression_parse(parser,error);
-      return GOLEM_SENTENCE(exp);
+      return GOLEM_STATEMENT(exp);
     }
 
 }

@@ -82,7 +82,7 @@ main.o: ../main.c /usr/include/glib-2.0/glib.h \
  /usr/include/glib-2.0/gobject/gvaluetypes.h \
  /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
  ../engine/golemdebugobject.h ../engine/golemparser.h \
- ../engine/golemcontext.h ../engine/golemsentence.h \
+ ../engine/golemcontext.h ../engine/golemstatement.h \
  ../engine/golemsharedobject.h ../engine/golemexpression.h \
  ../engine/golemconstant.h ../engine/golemnew.h \
  ../engine/golemdeclaration.h ../engine/goleminvoke.h \
@@ -292,7 +292,7 @@ main.o: ../main.c /usr/include/glib-2.0/glib.h \
 
 ../engine/golemcontext.h:
 
-../engine/golemsentence.h:
+../engine/golemstatement.h:
 
 ../engine/golemsharedobject.h:
 

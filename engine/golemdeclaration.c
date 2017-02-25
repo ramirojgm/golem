@@ -36,10 +36,10 @@ struct _GolemDeclarationPrivate
 };
 
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemDeclaration,golem_declaration,GOLEM_TYPE_SENTENCE)
+G_DEFINE_TYPE_WITH_PRIVATE(GolemDeclaration,golem_declaration,GOLEM_TYPE_STATEMENT)
 
 gboolean
-_golem_declaration_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+_golem_declaration_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
 {
   GolemDeclaration * self = GOLEM_DECLARATION(sentence);
   if(!self->priv->is_resolved)
@@ -86,7 +86,7 @@ golem_declaration_init(GolemDeclaration * self)
 static void
 golem_declaration_class_init(GolemDeclarationClass * klass)
 {
-  GOLEM_SENTENCE_CLASS(klass)->execute = _golem_declaration_execute;
+  GOLEM_STATEMENT_CLASS(klass)->execute = _golem_declaration_execute;
 }
 
 gboolean
@@ -107,7 +107,7 @@ golem_declaration_check(GolemParser * parser)
   return is_declaration;
 }
 
-GolemSentence *
+GolemStatement *
 golem_declaration_parse(GolemParser * parser,GError ** error)
 {
   GolemDeclaration * self = GOLEM_DECLARATION(g_object_new(GOLEM_TYPE_DECLARATION,NULL));
@@ -125,5 +125,5 @@ golem_declaration_parse(GolemParser * parser,GError ** error)
     {
       //TODO: throw exception not ;
     }
-  return GOLEM_SENTENCE(self);
+  return GOLEM_STATEMENT(self);
 }

@@ -21,12 +21,13 @@
 typedef enum _GolemExpressionLimit GolemExpressionLimit;
 
 #define GOLEM_TYPE_EXPRESSION	(golem_expression_get_type())
-G_DECLARE_DERIVABLE_TYPE(GolemExpression,golem_expression,GOLEM,EXPRESSION,GolemSentence)
+G_DECLARE_DERIVABLE_TYPE(GolemExpression,golem_expression,GOLEM,EXPRESSION,GolemStatement)
 
 
 enum _GolemExpressionLimit
 {
   GOLEM_EXPRESSION_LIMIT_SEMICOLON,
+  GOLEM_EXPRESSION_LIMIT_SEMICOLON_COMA,
   GOLEM_EXPRESSION_LIMIT_PARENTHESIS,
   GOLEM_EXPRESSION_LIMIT_PARENTHESIS_COMA,
   GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET,
@@ -38,7 +39,7 @@ enum _GolemExpressionLimit
 
 struct _GolemExpressionClass
 {
-  GolemSentenceClass parent_class;
+  GolemStatementClass parent_class;
   gboolean (*evaluate)(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error);
 
 };

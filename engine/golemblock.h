@@ -19,11 +19,11 @@
 #define GOLEMBLOCK_H_
 
 #define GOLEM_TYPE_BLOCK	(golem_block_get_type())
-G_DECLARE_FINAL_TYPE(GolemBlock,golem_block,GOLEM,BLOCK,GolemSentence)
+G_DECLARE_FINAL_TYPE(GolemBlock,golem_block,GOLEM,BLOCK,GolemStatement)
 
 struct _GolemBlockClass
 {
-  GolemSentenceClass parent_class;
+  GolemStatementClass parent_class;
 };
 
 GType		golem_block_get_type(void);

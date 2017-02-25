@@ -23,12 +23,12 @@ struct _GolemSharedObjectPrivate
   gchar * name;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemSharedObject,golem_shared_object,GOLEM_TYPE_SENTENCE)
+G_DEFINE_TYPE_WITH_PRIVATE(GolemSharedObject,golem_shared_object,GOLEM_TYPE_STATEMENT)
 
 static gboolean
-_golem_shared_object_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+_golem_shared_object_execute(GolemStatement * statement,GolemContext * context,GError ** error)
 {
-  GolemSharedObject * self = GOLEM_SHARED_OBJECT(sentence);
+  GolemSharedObject * self = GOLEM_SHARED_OBJECT(statement);
   if(!g_module_open(self->priv->name,0))
     {
 
@@ -46,7 +46,7 @@ golem_shared_object_init(GolemSharedObject * self)
 static void
 golem_shared_object_class_init(GolemSharedObjectClass * klass)
 {
-  GOLEM_SENTENCE_CLASS(klass)->execute = _golem_shared_object_execute;
+  GOLEM_STATEMENT_CLASS(klass)->execute = _golem_shared_object_execute;
   //TODO:add dispose
 }
 
@@ -56,17 +56,17 @@ golem_shared_object_check(GolemParser * parser)
   return golem_parser_is_next_word(parser,"sharedobject");
 }
 
-GolemSentence *
+GolemStatement *
 golem_shared_object_parse(GolemParser * parser,GError ** error)
 {
-  GolemSharedObject * sentence = GOLEM_SHARED_OBJECT(g_object_new(GOLEM_TYPE_SHARED_OBJECT,NULL));
+  GolemSharedObject * statement = GOLEM_SHARED_OBJECT(g_object_new(GOLEM_TYPE_SHARED_OBJECT,NULL));
   gboolean done = TRUE;
   if((done = golem_parser_next_word_check(parser,"sharedobject")))
     {
       if((done = golem_parser_check_is_string(parser)))
 	{
 	  const gchar * str = golem_parser_next_word(parser,NULL,TRUE);
-	  sentence->priv->name = g_strndup(str+1,g_utf8_strlen(str,-1) - 2);
+	  statement->priv->name = g_strndup(str+1,g_utf8_strlen(str,-1) - 2);
 	}
     }
   if(!done)
@@ -74,5 +74,5 @@ golem_shared_object_parse(GolemParser * parser,GError ** error)
       //TODO: free no complete sentence
 
     }
-  return GOLEM_SENTENCE(sentence);
+  return GOLEM_STATEMENT(statement);
 }

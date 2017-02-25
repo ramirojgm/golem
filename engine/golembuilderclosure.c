@@ -32,7 +32,7 @@ _golem_builder_closure_evaluate(GolemExpression * expression,GolemContext * cont
 {
   GolemBuilderClosure * self = GOLEM_BUILDER_CLOSURE(expression);
   GolemBuilderClosurePrivate *priv = golem_builder_closure_get_instance_private(self);
-  GolemClosure * closure = golem_function_new(priv->info,context, GOLEM_SENTENCE(priv->block));
+  GolemClosure * closure = golem_function_new(priv->info,context, GOLEM_STATEMENT(priv->block));
   g_value_init(result,G_TYPE_CLOSURE);
   g_value_set_boxed(result,closure);
   g_print("builder_closure:(%p)\n",closure);

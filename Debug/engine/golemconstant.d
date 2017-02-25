@@ -83,7 +83,7 @@ engine/golemconstant.o: ../engine/golemconstant.c ../engine/golem.h \
  /usr/include/glib-2.0/gobject/gvaluetypes.h \
  /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
  ../engine/golemdebugobject.h ../engine/golemparser.h \
- ../engine/golemcontext.h ../engine/golemsentence.h \
+ ../engine/golemcontext.h ../engine/golemstatement.h \
  ../engine/golemsharedobject.h ../engine/golemexpression.h \
  ../engine/golemconstant.h ../engine/golemnew.h \
  ../engine/golemdeclaration.h ../engine/goleminvoke.h \
@@ -293,7 +293,7 @@ engine/golemconstant.o: ../engine/golemconstant.c ../engine/golem.h \
 
 ../engine/golemcontext.h:
 
-../engine/golemsentence.h:
+../engine/golemstatement.h:
 
 ../engine/golemsharedobject.h:
 

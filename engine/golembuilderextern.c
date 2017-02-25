@@ -23,10 +23,10 @@ struct _GolemBuilderExternPrivate
   GolemClosureInfo * info;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderExtern,golem_builder_extern,GOLEM_TYPE_SENTENCE)
+G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderExtern,golem_builder_extern,GOLEM_TYPE_STATEMENT)
 
 gboolean
-golem_builder_extern_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+golem_builder_extern_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
 {
   GolemBuilderExtern * self = GOLEM_BUILDER_EXTERN(sentence);
   GModule * global_module = g_module_open(NULL,G_MODULE_BIND_LOCAL);
@@ -69,7 +69,7 @@ golem_builder_extern_init(GolemBuilderExtern * self)
 static void
 golem_builder_extern_class_init(GolemBuilderExternClass * klass)
 {
-  GOLEM_SENTENCE_CLASS(klass)->execute = golem_builder_extern_execute;
+  GOLEM_STATEMENT_CLASS(klass)->execute = golem_builder_extern_execute;
 }
 
 gboolean
@@ -93,6 +93,7 @@ golem_builder_extern_parse(GolemParser * parser,GError ** error)
 	  //TODO: throw error expected ';'
 	  g_clear_object(&self);
 	}
+      g_print("extern:%s\n",golem_parser_next_word(parser,NULL,FALSE));
     }
   else
     {

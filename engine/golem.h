@@ -25,7 +25,7 @@
 #include "golemdebugobject.h"
 #include "golemparser.h"
 #include "golemcontext.h"
-#include "golemsentence.h"
+#include "golemstatement.h"
 #include "golemsharedobject.h"
 #include "golemexpression.h"
 #include "golemconstant.h"
@@ -43,6 +43,7 @@
 #include "golembuilderextern.h"
 #include "golembuilderclosure.h"
 #include "golemcompiled.h"
+
 
 #define GOLEM_TYPE_IMPORT
 

@@ -309,7 +309,7 @@ void golem_function_invoke (GClosure *closure,
 	}
     }
 
-  if(golem_sentence_execute(self->sentence,this_context,&(self->parent_boxed.error)))
+  if(golem_statement_execute(self->sentence,this_context,&(self->parent_boxed.error)))
     {
       //return
     }
@@ -384,12 +384,12 @@ golem_symbol_static_new(GolemClosureInfo * info,gpointer symbol_address,GType ty
 }
 
 GolemClosure *
-golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemSentence * sentence)
+golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence)
 {
   GolemFunction  * func = GOLEM_FUNCTION(g_closure_new_simple(sizeof(GolemFunction),NULL));
   func->parent_boxed.info = GOLEM_CLOSURE_INFO(g_object_ref(info));
   func->context = GOLEM_CONTEXT(g_object_ref(context));
-  func->sentence = GOLEM_SENTENCE(g_object_ref(sentence));
+  func->sentence = GOLEM_STATEMENT(g_object_ref(sentence));
   func->parent_boxed.class_type = 0;
   func->parent_boxed.instance = NULL;
   g_closure_set_marshal(G_CLOSURE(func),golem_function_invoke);
@@ -398,13 +398,13 @@ golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemSentence 
 }
 
 GolemClosure *
-golem_function_instanced_new(GolemClosureInfo * info,GolemContext * context,GolemSentence * sentence,gpointer instance)
+golem_function_instanced_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence,gpointer instance)
 {
 
 }
 
 GolemClosure *
-golem_function_static_new(GolemClosureInfo * info,GolemContext * context,GolemSentence * sentence,GType type_class)
+golem_function_static_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence,GType type_class)
 {
 
 }

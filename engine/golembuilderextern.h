@@ -19,19 +19,19 @@
 #define GOLEMBUILDEREXTERN_H_
 
 #define GOLEM_TYPE_BUILDER_EXTERN	(golem_builder_extern_get_type())
-G_DECLARE_FINAL_TYPE(GolemBuilderExtern,golem_builder_extern,GOLEM,BUILDER_EXTERN,GolemSentence)
+G_DECLARE_FINAL_TYPE(GolemBuilderExtern,golem_builder_extern,GOLEM,BUILDER_EXTERN,GolemStatement)
 
 typedef struct _GolemBuilderExternPrivate GolemBuilderExternPrivate;
 
 struct _GolemBuilderExternClass
 {
-  GolemSentenceClass parent_class;
+  GolemStatementClass parent_class;
 
 };
 
 struct _GolemBuilderExtern
 {
-  GolemSentence parent_instance;
+  GolemStatement parent_instance;
   GolemBuilderExternPrivate * priv;
 };
 

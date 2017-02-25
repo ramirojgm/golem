@@ -20,16 +20,16 @@
 typedef struct _GolemDeclarationPrivate GolemDeclarationPrivate;
 
 #define GOLEM_TYPE_DECLARATION (golem_declaration_get_type())
-G_DECLARE_FINAL_TYPE(GolemDeclaration,golem_declaration,GOLEM,DECLARATION,GolemSentence)
+G_DECLARE_FINAL_TYPE(GolemDeclaration,golem_declaration,GOLEM,DECLARATION,GolemStatement)
 
 struct _GolemDeclarationClass
 {
-  GolemSentenceClass parent_class;
+  GolemStatementClass parent_class;
 };
 
 struct _GolemDeclaration
 {
-  GolemSentence 		parent_instance;
+  GolemStatement 		parent_instance;
   GolemDeclarationPrivate * 	priv;
 };
 
@@ -37,6 +37,6 @@ GType			golem_declaration_get_type(void);
 
 gboolean		golem_declaration_check(GolemParser * parser);
 
-GolemSentence *		golem_declaration_parse(GolemParser * parser,GError ** error);
+GolemStatement *		golem_declaration_parse(GolemParser * parser,GError ** error);
 
 #endif /* ENGINE_GOLEMDECLARATION_H_ */

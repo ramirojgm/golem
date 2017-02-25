@@ -16,7 +16,7 @@
  */
 #include "golem.h"
 
-G_DEFINE_TYPE_WITH_CODE(GolemExpression,golem_expression,GOLEM_TYPE_SENTENCE,{})
+G_DEFINE_TYPE_WITH_CODE(GolemExpression,golem_expression,GOLEM_TYPE_STATEMENT,{})
 
 static gboolean
 _golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
@@ -26,7 +26,7 @@ _golem_expression_evaluate(GolemExpression * expression,GolemContext * context,G
 }
 
 static gboolean
-_golem_expression_execute(GolemSentence * sentence,GolemContext * context,GError ** error)
+_golem_expression_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
 {
   GValue result = G_VALUE_INIT;
   gboolean done = golem_expression_evaluate(GOLEM_EXPRESSION(sentence),context,&result,error);
@@ -44,7 +44,7 @@ static void
 golem_expression_class_init(GolemExpressionClass * klass)
 {
   klass->evaluate = _golem_expression_evaluate;
-  GOLEM_SENTENCE_CLASS(klass)->execute = _golem_expression_execute;
+  GOLEM_STATEMENT_CLASS(klass)->execute = _golem_expression_execute;
 }
 
 gboolean

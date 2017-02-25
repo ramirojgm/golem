@@ -24,8 +24,8 @@ C_SRCS += \
 ../engine/golemjit.c \
 ../engine/golemnew.c \
 ../engine/golemparser.c \
-../engine/golemsentence.c \
-../engine/golemsharedobject.c 
+../engine/golemsharedobject.c \
+../engine/golemstatement.c 
 
 OBJS += \
 ./engine/golem.o \
@@ -48,8 +48,8 @@ OBJS += \
 ./engine/golemjit.o \
 ./engine/golemnew.o \
 ./engine/golemparser.o \
-./engine/golemsentence.o \
-./engine/golemsharedobject.o 
+./engine/golemsharedobject.o \
+./engine/golemstatement.o 
 
 C_DEPS += \
 ./engine/golem.d \
@@ -72,8 +72,8 @@ C_DEPS += \
 ./engine/golemjit.d \
 ./engine/golemnew.d \
 ./engine/golemparser.d \
-./engine/golemsentence.d \
-./engine/golemsharedobject.d 
+./engine/golemsharedobject.d \
+./engine/golemstatement.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
