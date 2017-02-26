@@ -81,7 +81,7 @@ void golem_symbol_invoke (GClosure *closure,
 	  //declared parameter
 	  if(param_info->is_reference)
 	    {
-	      golem_args_append_pointer(args,&(param_value->data[1].v_pointer));
+	      golem_args_append_pointer(args,&(param_value->data[0].v_pointer));
 	    }
 	  else if((G_VALUE_TYPE(param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(param_value),param_info->type)))
 	    {

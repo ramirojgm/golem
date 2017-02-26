@@ -43,34 +43,11 @@
 #include "golembuilderextern.h"
 #include "golembuilderclosure.h"
 #include "golemcompiled.h"
+#include "golemerror.h"
+#include "golemutils.h"
 
 
 #define GOLEM_TYPE_IMPORT
-
-#define GOLEM_ERROR	(golem_error_quark())
-
-typedef struct _GolemCompiled GolemCompiled;
-typedef enum GolemError GolemError;
-
-enum GolemError
-{
-  GOLEM_NOT_IMPLEMENTED_ERROR,
-  GOLEM_SYNTAXIS_ERROR,
-  GOLEM_INVALID_CAST_ERROR,
-  GOLEM_NOT_EXISTS_ERROR,
-  GOLEM_ALREADY_EXISTS_ERROR,
-  GOLEM_UNKNOWN_TYPE_ERROR,
-};
-
-GQuark		golem_error_quark(void);
-
-void		golem_throw_error(GError ** error,GError * err);
-
-void		golem_throw(GError ** error,GolemError code,const gchar * format,...);
-
-GType		golem_resolve_type_name(GolemContext * context,const gchar * name);
-
-const gchar *	golem_type_get_prefix(const gchar * name);
 
 #endif /* GOLEM_H_ */
 

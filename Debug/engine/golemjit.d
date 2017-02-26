@@ -91,7 +91,7 @@ engine/golemjit.o: ../engine/golemjit.c ../engine/golem.h \
  ../engine/golemblock.h ../engine/golemjit.h ../engine/golemclosure.h \
  ../engine/golemclass.h ../engine/golembuilderclass.h \
  ../engine/golembuilderextern.h ../engine/golembuilderclosure.h \
- ../engine/golemcompiled.h
+ ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemutils.h
 
 ../engine/golem.h:
 
@@ -326,3 +326,7 @@ engine/golemjit.o: ../engine/golemjit.c ../engine/golem.h \
 ../engine/golembuilderclosure.h:
 
 ../engine/golemcompiled.h:
+
+../engine/golemerror.h:
+
+../engine/golemutils.h:

@@ -16,6 +16,7 @@ C_SRCS += \
 ../engine/golemcontext.c \
 ../engine/golemdebugobject.c \
 ../engine/golemdeclaration.c \
+../engine/golemerror.c \
 ../engine/golemexpression.c \
 ../engine/golemexpressioncomplex.c \
 ../engine/golemfunc.c \
@@ -25,7 +26,8 @@ C_SRCS += \
 ../engine/golemnew.c \
 ../engine/golemparser.c \
 ../engine/golemsharedobject.c \
-../engine/golemstatement.c 
+../engine/golemstatement.c \
+../engine/golemutils.c 
 
 OBJS += \
 ./engine/golem.o \
@@ -40,6 +42,7 @@ OBJS += \
 ./engine/golemcontext.o \
 ./engine/golemdebugobject.o \
 ./engine/golemdeclaration.o \
+./engine/golemerror.o \
 ./engine/golemexpression.o \
 ./engine/golemexpressioncomplex.o \
 ./engine/golemfunc.o \
@@ -49,7 +52,8 @@ OBJS += \
 ./engine/golemnew.o \
 ./engine/golemparser.o \
 ./engine/golemsharedobject.o \
-./engine/golemstatement.o 
+./engine/golemstatement.o \
+./engine/golemutils.o 
 
 C_DEPS += \
 ./engine/golem.d \
@@ -64,6 +68,7 @@ C_DEPS += \
 ./engine/golemcontext.d \
 ./engine/golemdebugobject.d \
 ./engine/golemdeclaration.d \
+./engine/golemerror.d \
 ./engine/golemexpression.d \
 ./engine/golemexpressioncomplex.d \
 ./engine/golemfunc.d \
@@ -73,7 +78,8 @@ C_DEPS += \
 ./engine/golemnew.d \
 ./engine/golemparser.d \
 ./engine/golemsharedobject.d \
-./engine/golemstatement.d 
+./engine/golemstatement.d \
+./engine/golemutils.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

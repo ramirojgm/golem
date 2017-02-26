@@ -15,3 +15,15 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef GOLEMUTILS_H_
+#define GOLEMUTILS_H_
+
+GType		golem_resolve_type_name(GolemContext * context,const gchar * name);
+
+const gchar *	golem_type_get_prefix(const gchar * name);
+
+gboolean	golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error);
+
+gboolean	golem_set_item(GValue * value,const gchar * item,GValue * src,GError ** error);
+
+#endif /* GOLEMUTILS_H_ */

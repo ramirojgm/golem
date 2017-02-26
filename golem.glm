@@ -2,11 +2,56 @@ sharedobject "libgtk-3.so"
 
 extern void g_print(string format);
 
-function f;
+extern void gtk_init(int & argc,pointer & argv);
+extern void gtk_main();
+extern void gtk_main_quit();
 
-f = func(int x,int y,int width,int height)
-{
-	g_print("cubo:{\n\tx:%d,\n\ty:%d,\n\twidth:%d,\n\theight:%d\n}",x,y,width,height);
+extern void gtk_container_add(GtkContainer container,GtkWidget child);
+
+extern long g_signal_connect_closure(object instance,string details,function closure,bool after);
+
+gtk_init(0,0);
+
+GtkEntry num1 = new GtkEntry {
+	text: "0",
+	placeholder_text: "Primer numero",
+	visible: true
 };
 
-f(0,0,20,30);
+GtkEntry num2 = new GtkEntry {
+	text: "0",
+	placeholder_text: "Segundo numero",
+	visible: true
+};
+
+GtkBox container = new GtkBox {
+	spacing: 5,
+	padding: 0,
+	orientation: 1,
+	visible: true
+};
+
+GtkWindow w = new GtkWindow {
+	visible: true,
+	border_width: 5,
+	title: "Calcular la suma de dos numeros"
+};
+
+GtkButton button = new GtkButton {
+	label: "Calcular",
+	visible: true
+};
+
+gtk_container_add(w,container);
+
+gtk_container_add(container,num1);
+gtk_container_add(container,num2);
+gtk_container_add(container,button);
+
+g_signal_connect_closure(w,"delete-event",func(){ gtk_main_quit(); },false);
+
+g_signal_connect_closure(button,"clicked",func(){
+	gtk_main_quit();
+},false);
+
+gtk_main();

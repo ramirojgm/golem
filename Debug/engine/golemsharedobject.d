@@ -91,7 +91,8 @@ engine/golemsharedobject.o: ../engine/golemsharedobject.c \
  ../engine/golemblock.h ../engine/golemjit.h ../engine/golemclosure.h \
  ../engine/golemclass.h ../engine/golembuilderclass.h \
  ../engine/golembuilderextern.h ../engine/golembuilderclosure.h \
- ../engine/golemcompiled.h /usr/include/glib-2.0/gmodule.h
+ ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemutils.h \
+ /usr/include/glib-2.0/gmodule.h
 
 ../engine/golem.h:
 
@@ -326,5 +327,9 @@ engine/golemsharedobject.o: ../engine/golemsharedobject.c \
 ../engine/golembuilderclosure.h:
 
 ../engine/golemcompiled.h:
+
+../engine/golemerror.h:
+
+../engine/golemutils.h:
 
 /usr/include/glib-2.0/gmodule.h:
