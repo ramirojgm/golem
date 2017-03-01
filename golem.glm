@@ -51,7 +51,7 @@ gtk_container_add(container,button);
 g_signal_connect_closure(w,"delete-event",func(){ gtk_main_quit(); },false);
 
 g_signal_connect_closure(button,"clicked",func(){
-	gtk_main_quit();
+	g_print("Hola Mundo");
 },false);
 
 gtk_main();

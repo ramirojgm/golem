@@ -25,7 +25,6 @@ struct _GolemContextPrivate
   GolemContext * parent;
   GObject * instance;
   GList * variables;
-
 };
 
 struct _GolemContextVariable{
@@ -220,6 +219,7 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
   return TRUE;
 }
 
+
 gboolean
 golem_context_get(GolemContext * context,const gchar * name, GValue * value,GError ** error)
 {
@@ -283,3 +283,4 @@ golem_context_new(GolemContext * parent)
     }
   return self;
 }
+
