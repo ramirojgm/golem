@@ -33,7 +33,7 @@ GtkBox container = new GtkBox {
 
 GtkWindow w = new GtkWindow {
 	visible: true,
-	border_width: 5,
+	border_width: 20,
 	title: "Calcular la suma de dos numeros"
 };
 

@@ -121,3 +121,62 @@ golem_type_get_prefix(const gchar * name)
   prefix[offset] = 0;
   return prefix;
 }
+
+gboolean
+golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error)
+{
+  gboolean done = FALSE;
+  GType value_type = G_VALUE_TYPE(value);
+  if(g_type_is_a(value_type,G_TYPE_OBJECT))
+    {
+      GObject * self = g_value_get_object(value);
+      GObjectClass * klass = G_OBJECT_CLASS(g_type_class_ref(value_type));
+      GParamSpec * property = g_object_class_find_property(klass,item);
+      //TODO:MISING CLASS FUNCTION SEARCH
+      if(property)
+	{
+
+	  done = TRUE;
+	  g_value_init(dest,property->value_type);
+	  g_object_get_property(self,property->name,dest);
+	}
+      else
+	{
+	  GValue * data_value = (GValue*)(g_object_get_data(self,item));
+	  if(data_value)
+	    {
+	      g_value_init(dest,G_VALUE_TYPE(data_value));
+	      g_value_copy(data_value,dest);
+	    }
+	  else
+	    {
+	      //TODO: throw error
+	    }
+	}
+      g_type_class_unref(klass);
+    }
+  else if(value_type == G_TYPE_GTYPE)
+    {
+      if(g_strcmp0(item,"name") == 0)
+	{
+
+	}
+      else
+	{
+	  //TODO: throw error
+
+	}
+    }
+  else
+    {
+      //TODO: throw error
+
+    }
+  return done;
+}
+
+gboolean
+golem_set_item(GValue * value,const gchar * item,GValue * src,GError ** error)
+{
+
+}
