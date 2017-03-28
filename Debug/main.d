@@ -86,11 +86,12 @@ main.o: ../main.c /usr/include/glib-2.0/glib.h \
  ../engine/golemsharedobject.h ../engine/golemexpression.h \
  ../engine/golemconstant.h ../engine/golemnew.h \
  ../engine/golemdeclaration.h ../engine/goleminvoke.h \
- ../engine/golemexpressioncomplex.h ../engine/golemidentificator.h \
- ../engine/golemblock.h ../engine/golemjit.h ../engine/golemclosure.h \
- ../engine/golemclass.h ../engine/golembuilderclass.h \
- ../engine/golembuilderextern.h ../engine/golembuilderclosure.h \
- ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemutils.h
+ ../engine/golemmember.h ../engine/golemexpressioncomplex.h \
+ ../engine/golemidentificator.h ../engine/golemblock.h \
+ ../engine/golemjit.h ../engine/golemclosure.h \
+ ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
+ ../engine/golembuilderclosure.h ../engine/golemcompiled.h \
+ ../engine/golemerror.h ../engine/golemtypeinfo.h ../engine/golemutils.h
 
 /usr/include/glib-2.0/glib.h:
 
@@ -306,6 +307,8 @@ main.o: ../main.c /usr/include/glib-2.0/glib.h \
 
 ../engine/goleminvoke.h:
 
+../engine/golemmember.h:
+
 ../engine/golemexpressioncomplex.h:
 
 ../engine/golemidentificator.h:
@@ -316,8 +319,6 @@ main.o: ../main.c /usr/include/glib-2.0/glib.h \
 
 ../engine/golemclosure.h:
 
-../engine/golemclass.h:
-
 ../engine/golembuilderclass.h:
 
 ../engine/golembuilderextern.h:
@@ -327,5 +328,7 @@ main.o: ../main.c /usr/include/glib-2.0/glib.h \
 ../engine/golemcompiled.h:
 
 ../engine/golemerror.h:
+
+../engine/golemtypeinfo.h:
 
 ../engine/golemutils.h:

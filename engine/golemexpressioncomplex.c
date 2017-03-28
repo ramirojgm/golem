@@ -378,6 +378,14 @@ golem_expression_complex_parse_subexpression(GolemParser * parser,GolemExpressio
 	  result = golem_expression_complex_parse_subexpression(parser,result,limit,error);
 	}
     }
+  else if(golem_member_check(parser))
+    {
+      result = golem_member_parse(parser,parent,limit,error);
+      if(golem_expression_complex_check_continue(parser))
+    	{
+    	  result = golem_expression_complex_parse_subexpression(parser,result,limit,error);
+    	}
+    }
   return result;
 }
 

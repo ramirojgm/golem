@@ -9,7 +9,6 @@ C_SRCS += \
 ../engine/golembuilderclass.c \
 ../engine/golembuilderclosure.c \
 ../engine/golembuilderextern.c \
-../engine/golemclass.c \
 ../engine/golemclosure.c \
 ../engine/golemcompiled.c \
 ../engine/golemconstant.c \
@@ -23,10 +22,12 @@ C_SRCS += \
 ../engine/golemidentificator.c \
 ../engine/goleminvoke.c \
 ../engine/golemjit.c \
+../engine/golemmember.c \
 ../engine/golemnew.c \
 ../engine/golemparser.c \
 ../engine/golemsharedobject.c \
 ../engine/golemstatement.c \
+../engine/golemtypeinfo.c \
 ../engine/golemutils.c 
 
 OBJS += \
@@ -35,7 +36,6 @@ OBJS += \
 ./engine/golembuilderclass.o \
 ./engine/golembuilderclosure.o \
 ./engine/golembuilderextern.o \
-./engine/golemclass.o \
 ./engine/golemclosure.o \
 ./engine/golemcompiled.o \
 ./engine/golemconstant.o \
@@ -49,10 +49,12 @@ OBJS += \
 ./engine/golemidentificator.o \
 ./engine/goleminvoke.o \
 ./engine/golemjit.o \
+./engine/golemmember.o \
 ./engine/golemnew.o \
 ./engine/golemparser.o \
 ./engine/golemsharedobject.o \
 ./engine/golemstatement.o \
+./engine/golemtypeinfo.o \
 ./engine/golemutils.o 
 
 C_DEPS += \
@@ -61,7 +63,6 @@ C_DEPS += \
 ./engine/golembuilderclass.d \
 ./engine/golembuilderclosure.d \
 ./engine/golembuilderextern.d \
-./engine/golemclass.d \
 ./engine/golemclosure.d \
 ./engine/golemcompiled.d \
 ./engine/golemconstant.d \
@@ -75,10 +76,12 @@ C_DEPS += \
 ./engine/golemidentificator.d \
 ./engine/goleminvoke.d \
 ./engine/golemjit.d \
+./engine/golemmember.d \
 ./engine/golemnew.d \
 ./engine/golemparser.d \
 ./engine/golemsharedobject.d \
 ./engine/golemstatement.d \
+./engine/golemtypeinfo.d \
 ./engine/golemutils.d 
 
 

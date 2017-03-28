@@ -28,14 +28,26 @@ struct _GolemClosureInfoPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemClosureInfo,golem_closure_info,G_TYPE_OBJECT)
 
-void golem_symbol_invoke (GClosure *closure,
+static void
+golem_closure_marshal(GClosure *closure,
                     GValue *return_value,
                     guint n_param_values,
                     const GValue *param_values,
                     gpointer invocation_hint,
                     gpointer marshal_data)
 {
-  GolemSymbol * self = (GolemSymbol*)closure;
+  GolemClosure * self = GOLEM_CLOSURE(closure);
+  self->callback(self,return_value,n_param_values,param_values,(GError **)invocation_hint);
+}
+
+static void
+golem_symbol_invoke (GolemClosure *closure,
+                    GValue *return_value,
+                    guint n_param_values,
+                    const GValue *param_values,
+                    GError ** error)
+{
+  GolemSymbol * self = GOLEM_SYMBOL(closure);
   gboolean 	done = TRUE;
   GObjectClass * klass = NULL;
   GType 	return_type = golem_closure_info_get_return_type(self->parent_boxed.info);
@@ -47,17 +59,18 @@ void golem_symbol_invoke (GClosure *closure,
   guint param_index = 0;
 
   //use first parameter for instance
-  if(self->parent_boxed.instance)
+  if(self->parent_boxed.context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
     {
-      golem_args_append_pointer(args,self->parent_boxed.instance);
+      golem_args_append_pointer(args,self->parent_boxed.context.instance);
     }
 
   //use first parameter for class
-  if(self->parent_boxed.class_type != 0)
+  if(self->parent_boxed.context_type == GOLEM_CLOSURE_CONTEXT_CLASSED)
     {
-      klass = g_type_class_ref(self->parent_boxed.class_type);
+      klass = g_type_class_ref(self->parent_boxed.context.class_type);
       golem_args_append_pointer(args,klass);
     }
+
   //set parameters
   for(param_index = 0;param_index < n_param_values;param_index ++)
     {
@@ -68,7 +81,7 @@ void golem_symbol_invoke (GClosure *closure,
 	  cur_param = g_list_next(cur_param);
 	  if(param_index == self->parent_boxed.info->throw_at)
 	    {
-	      golem_args_append_pointer(args,&(self->parent_boxed.error));
+		golem_args_append_pointer(args,error);
 	    }
 	}
       else
@@ -110,8 +123,7 @@ void golem_symbol_invoke (GClosure *closure,
 	  else
 	    {
 	      done = FALSE;
-	      self->parent_boxed.error = g_error_new(
-		  GOLEM_ERROR,
+	      golem_throw(error,
 		  GOLEM_INVALID_CAST_ERROR,
 		  "can't transform from '%s' to '%s'",
 		  g_type_name(G_VALUE_TYPE(param_value)),
@@ -131,7 +143,7 @@ void golem_symbol_invoke (GClosure *closure,
     {
       if(param_index == self->parent_boxed.info->throw_at)
 	{
-	  golem_args_append_pointer(args,&(self->parent_boxed.error));
+	  golem_args_append_pointer(args,error);
 	}
       param_info = (GolemClosureParameter*)cur_param->data;
       GValue empty_pass = G_VALUE_INIT;
@@ -144,7 +156,7 @@ void golem_symbol_invoke (GClosure *closure,
   //check last parameter is throw at
   if(param_index == self->parent_boxed.info->throw_at)
     {
-      golem_args_append_pointer(args,&(self->parent_boxed.error));
+      golem_args_append_pointer(args,error);
     }
 
   if(done)
@@ -221,21 +233,19 @@ void golem_symbol_invoke (GClosure *closure,
 void golem_symbol_finalizer(gpointer data,GClosure * closure)
 {
   GolemSymbol * self = GOLEM_SYMBOL(closure);
-  if(self->parent_boxed.error)
-    g_error_free(self->parent_boxed.error);
-
-  if(self->parent_boxed.instance)
-    g_object_unref(self->parent_boxed.instance);
-
+  if(self->parent_boxed.context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
+    {
+      g_object_unref(self->parent_boxed.context.instance);
+    }
   g_object_unref(self->parent_boxed.info);
 }
 
-void golem_function_invoke (GClosure *closure,
+static void
+golem_function_invoke (GolemClosure *closure,
                     GValue *return_value,
                     guint n_param_values,
                     const GValue *param_values,
-                    gpointer invocation_hint,
-                    gpointer marshal_data)
+                    GError ** error)
 {
   GolemFunction * self = GOLEM_FUNCTION(closure);
   GolemContext * this_context = golem_context_new(self->context);
@@ -245,7 +255,6 @@ void golem_function_invoke (GClosure *closure,
   GolemClosureParameter * param_info = NULL;
   guint param_index = 0;
 
-  g_print(":::::::::::::::::::invoking:::::::::::::::::\n");
   golem_context_declare(this_context,"::return::",G_TYPE_VALUE,NULL);
   //set parameters
 
@@ -267,16 +276,16 @@ void golem_function_invoke (GClosure *closure,
 	//declared parameter
 	if(param_info->is_reference)
 	  {
-	    g_print("transform param:%s\n",param_info->name);
+
 	  }
 	else if((G_VALUE_TYPE(param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(param_value),param_info->type)))
 	  {
-	    g_print("param:%s\n",param_info->name);
+
 	    golem_context_set_auto(this_context,param_info->name,param_value,NULL);
 	  }
 	else if(param_info->type == G_TYPE_VALUE)
 	  {
-	    g_print("param_n:%d\n",n_param_values);
+
 	    GValue * new_value = g_new0(GValue,0);
 	    g_value_init(new_value,G_VALUE_TYPE(param_value));
 	    g_value_copy(param_value,new_value);
@@ -287,7 +296,6 @@ void golem_function_invoke (GClosure *closure,
 	  }
 	else if(g_value_type_transformable(G_VALUE_TYPE(param_value), param_info->type))
 	  {
-	    g_print("transform param:%s\n",param_info->name);
 	    GValue transformed = G_VALUE_INIT;
 	    g_value_init(&transformed,param_info->type);
 	    g_value_transform(param_value,&transformed);
@@ -298,11 +306,7 @@ void golem_function_invoke (GClosure *closure,
 	  }
 	else
 	  {
-	    g_print("can't transform from '%s' to '%s'",
-		g_type_name(G_VALUE_TYPE(param_value)),
-		g_type_name(param_info->type));
-	    self->parent_boxed.error = g_error_new(
-		GOLEM_ERROR,
+	    golem_throw(error,
 		GOLEM_INVALID_CAST_ERROR,
 		"can't transform from '%s' to '%s'",
 		g_type_name(G_VALUE_TYPE(param_value)),
@@ -317,17 +321,13 @@ void golem_function_invoke (GClosure *closure,
 	}
     }
 
-  if(golem_statement_execute(self->sentence,this_context,&(self->parent_boxed.error)))
+  if(golem_statement_execute(self->sentence,this_context,error))
     {
 
 
     }
 
 
-  if(self->parent_boxed.error)
-    {
-      golem_throw_error(NULL,self->parent_boxed.error);
-    }
   //TODO: free param values
   g_object_unref(this_context);
 }
@@ -335,12 +335,8 @@ void golem_function_invoke (GClosure *closure,
 void golem_function_finalizer(gpointer data,GClosure * closure)
 {
   GolemFunction * self = GOLEM_FUNCTION(closure);
-  if(self->parent_boxed.error)
-    g_error_free(self->parent_boxed.error);
-
-  if(self->parent_boxed.instance)
-    g_object_unref(self->parent_boxed.instance);
-
+  if(self->parent_boxed.context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
+      g_object_unref(self->parent_boxed.context.instance);
   g_object_unref(self->parent_boxed.info);
 }
 
@@ -359,15 +355,20 @@ void golem_signal_finalizer(gpointer data,GClosure * closure)
 
 }
 
+
+
 GolemClosure *
 golem_symbol_new(GolemClosureInfo * info,gpointer symbol_address)
 {
   GolemSymbol  * symbol = GOLEM_SYMBOL(g_closure_new_simple(sizeof(GolemSymbol),NULL));
   symbol->parent_boxed.info = GOLEM_CLOSURE_INFO(g_object_ref(info));
   symbol->symbol_address = symbol_address;
-  symbol->parent_boxed.class_type = 0;
-  symbol->parent_boxed.instance = NULL;
-  g_closure_set_marshal(G_CLOSURE(symbol),golem_symbol_invoke);
+  symbol->parent_boxed.type = GOLEM_CLOSURE_SYMBOL;
+  symbol->parent_boxed.context_type = GOLEM_CLOSURE_CONTEXT_NONE;
+  symbol->parent_boxed.context.class_type = G_TYPE_NONE;
+  symbol->parent_boxed.context.instance = NULL;
+  symbol->parent_boxed.callback = golem_symbol_invoke;
+  g_closure_set_marshal(G_CLOSURE(symbol),golem_closure_marshal);
   g_closure_add_finalize_notifier(G_CLOSURE(symbol),NULL,golem_symbol_finalizer);
   return GOLEM_CLOSURE(symbol);
 }
@@ -378,9 +379,12 @@ golem_symbol_instanced_new(GolemClosureInfo * info,gpointer symbol_address,gpoin
   GolemSymbol  * symbol = GOLEM_SYMBOL(g_closure_new_simple(sizeof(GolemSymbol),NULL));
   symbol->parent_boxed.info = GOLEM_CLOSURE_INFO(g_object_ref(info));
   symbol->symbol_address = symbol_address;
-  symbol->parent_boxed.class_type = 0;
-  symbol->parent_boxed.instance = g_object_ref(instance);
-  g_closure_set_marshal(G_CLOSURE(symbol),golem_symbol_invoke);
+  symbol->parent_boxed.type = GOLEM_CLOSURE_SYMBOL;
+  symbol->parent_boxed.context_type = GOLEM_CLOSURE_CONTEXT_INSTANCED;
+  symbol->parent_boxed.context.class_type = G_TYPE_NONE;
+  symbol->parent_boxed.context.instance = g_object_ref(instance);
+  symbol->parent_boxed.callback = golem_symbol_invoke;
+  g_closure_set_marshal(G_CLOSURE(symbol),golem_closure_marshal);
   g_closure_add_finalize_notifier(G_CLOSURE(symbol),NULL,golem_symbol_finalizer);
   return GOLEM_CLOSURE(symbol);
 }
@@ -391,12 +395,74 @@ golem_symbol_static_new(GolemClosureInfo * info,gpointer symbol_address,GType ty
   GolemSymbol  * symbol = GOLEM_SYMBOL(g_closure_new_simple(sizeof(GolemSymbol),NULL));
   symbol->parent_boxed.info = GOLEM_CLOSURE_INFO(g_object_ref(info));
   symbol->symbol_address = symbol_address;
-  symbol->parent_boxed.class_type = type_class;
-  symbol->parent_boxed.instance = NULL;
-  g_closure_set_marshal(G_CLOSURE(symbol),golem_symbol_invoke);
+  symbol->parent_boxed.type = GOLEM_CLOSURE_SYMBOL;
+  symbol->parent_boxed.context_type = GOLEM_CLOSURE_CONTEXT_CLASSED;
+  symbol->parent_boxed.context.class_type = type_class;
+  symbol->parent_boxed.context.instance = NULL;
+  symbol->parent_boxed.callback = golem_symbol_invoke;
+  g_closure_set_marshal(G_CLOSURE(symbol),golem_closure_marshal);
   g_closure_add_finalize_notifier(G_CLOSURE(symbol),NULL,golem_symbol_finalizer);
   return GOLEM_CLOSURE(symbol);
 }
+
+
+static void
+golem_closure_finalizer(gpointer data,GClosure * closure)
+{
+  GolemClosure * self = GOLEM_CLOSURE(closure);
+  if(self->context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
+      g_object_unref(self->context.instance);
+  g_object_unref(self->info);
+}
+
+GolemClosure *
+golem_closure_new(GolemClosureCallback * callback)
+{
+  GolemClosure  * closure = GOLEM_CLOSURE(g_closure_new_simple(sizeof(GolemClosure),NULL));
+  closure->info = NULL;
+  closure->type = GOLEM_CLOSURE_EXTERNAL;
+  closure->context_type = GOLEM_CLOSURE_CONTEXT_NONE;
+  closure->context.class_type = G_TYPE_NONE;
+  closure->context.instance = NULL;
+  closure->callback = callback;
+  g_closure_set_marshal(G_CLOSURE(closure),golem_closure_marshal);
+  g_closure_add_finalize_notifier(G_CLOSURE(closure),NULL,golem_closure_finalizer);
+  return closure;
+}
+
+GolemClosure *
+golem_closure_instanced_new(gpointer instance,GolemClosureCallback * callback)
+{
+  GolemClosure  * closure = GOLEM_CLOSURE(g_closure_new_simple(sizeof(GolemClosure),NULL));
+  closure->info = NULL;
+  closure->type = GOLEM_CLOSURE_EXTERNAL;
+  closure->context_type = GOLEM_CLOSURE_CONTEXT_INSTANCED;
+  closure->context.class_type = G_TYPE_NONE;
+  closure->context.instance = g_object_ref(instance);
+  closure->callback = callback;
+  g_closure_set_marshal(G_CLOSURE(closure),golem_closure_marshal);
+  g_closure_add_finalize_notifier(G_CLOSURE(closure),NULL,golem_closure_finalizer);
+  return GOLEM_CLOSURE(closure);
+}
+
+gpointer
+golem_closure_get_instance(GolemClosure * closure)
+{
+  return closure->context.instance;
+}
+
+GTypeClass *
+golem_closure_get_class(GolemClosure * closure)
+{
+  return g_type_class_peek(closure->context.class_type);
+}
+
+GolemClosureType
+golem_closure_get_type(GolemClosure * closure)
+{
+  return closure->type;
+}
+
 
 GolemClosure *
 golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence)
@@ -405,9 +471,12 @@ golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement
   func->parent_boxed.info = GOLEM_CLOSURE_INFO(g_object_ref(info));
   func->context = GOLEM_CONTEXT(g_object_ref(context));
   func->sentence = GOLEM_STATEMENT(g_object_ref(sentence));
-  func->parent_boxed.class_type = 0;
-  func->parent_boxed.instance = NULL;
-  g_closure_set_marshal(G_CLOSURE(func),golem_function_invoke);
+  func->parent_boxed.type = GOLEM_CLOSURE_FUNCTION;
+  func->parent_boxed.context_type = GOLEM_CLOSURE_CONTEXT_NONE;
+  func->parent_boxed.context.class_type = G_TYPE_NONE;
+  func->parent_boxed.context.instance = NULL;
+  func->parent_boxed.callback = golem_function_invoke;
+  g_closure_set_marshal(G_CLOSURE(func),golem_closure_marshal);
   g_closure_add_finalize_notifier(G_CLOSURE(func),NULL,golem_function_finalizer);
   return GOLEM_CLOSURE(func);
 }
@@ -415,7 +484,18 @@ golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement
 GolemClosure *
 golem_function_instanced_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence,gpointer instance)
 {
-
+  GolemFunction  * func = GOLEM_FUNCTION(g_closure_new_simple(sizeof(GolemFunction),NULL));
+  func->parent_boxed.info = GOLEM_CLOSURE_INFO(g_object_ref(info));
+  func->context = GOLEM_CONTEXT(g_object_ref(context));
+  func->sentence = GOLEM_STATEMENT(g_object_ref(sentence));
+  func->parent_boxed.type = GOLEM_CLOSURE_FUNCTION;
+  func->parent_boxed.context_type = GOLEM_CLOSURE_CONTEXT_INSTANCED;
+  func->parent_boxed.context.class_type = G_TYPE_NONE;
+  func->parent_boxed.context.instance = g_object_ref(instance);
+  func->parent_boxed.callback = golem_function_invoke;
+  g_closure_set_marshal(G_CLOSURE(func),golem_closure_marshal);
+  g_closure_add_finalize_notifier(G_CLOSURE(func),NULL,golem_function_finalizer);
+  return GOLEM_CLOSURE(func);
 }
 
 GolemClosure *

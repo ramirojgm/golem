@@ -122,8 +122,36 @@ golem_type_get_prefix(const gchar * name)
   return prefix;
 }
 
+static void
+golem_gobject_signal_on(GolemClosure * closure,
+			GValue * return_value,
+			guint n_param_values,
+			const GValue *param_values,
+			GError ** error)
+{
+  g_value_init(return_value,G_TYPE_UINT64);
+  g_value_set_uint64(return_value,0);
+
+  if(n_param_values == 2)
+    {
+      const GValue * details = &(param_values[0]);
+      const GValue * func = &(param_values[1]);
+
+      if(G_VALUE_TYPE(details) == G_TYPE_STRING && G_VALUE_TYPE(func) == G_TYPE_CLOSURE)
+	{
+	  guint64 signal_handler =  g_signal_connect_closure(
+	      golem_closure_get_instance(closure),
+	      g_value_get_string(details),
+	      g_value_get_boxed(func),
+	      FALSE);
+
+	  g_value_set_uint64(return_value,signal_handler);
+	}
+    }
+}
+
 gboolean
-golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error)
+golem_member_get(GValue * value,const gchar * member_name,GValue * dest,GError ** error)
 {
   gboolean done = FALSE;
   GType value_type = G_VALUE_TYPE(value);
@@ -131,9 +159,16 @@ golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error)
     {
       GObject * self = g_value_get_object(value);
       GObjectClass * klass = G_OBJECT_CLASS(g_type_class_ref(value_type));
-      GParamSpec * property = g_object_class_find_property(klass,item);
+      GParamSpec * property = g_object_class_find_property(klass,member_name);
+
       //TODO:MISING CLASS FUNCTION SEARCH
-      if(property)
+      if(g_strcmp0(member_name,"on") == 0)
+	{
+	  done = TRUE;
+	  g_value_init(dest,G_TYPE_CLOSURE);
+	  g_value_set_boxed(dest,golem_closure_instanced_new(self,golem_gobject_signal_on));
+	}
+      else if(property)
 	{
 
 	  done = TRUE;
@@ -142,7 +177,7 @@ golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error)
 	}
       else
 	{
-	  GValue * data_value = (GValue*)(g_object_get_data(self,item));
+	  GValue * data_value = (GValue*)(g_object_get_data(self,member_name));
 	  if(data_value)
 	    {
 	      g_value_init(dest,G_VALUE_TYPE(data_value));
@@ -151,13 +186,14 @@ golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error)
 	  else
 	    {
 	      //TODO: throw error
+	      g_print("NOT FOUND %s\n",member_name);
 	    }
 	}
       g_type_class_unref(klass);
     }
   else if(value_type == G_TYPE_GTYPE)
     {
-      if(g_strcmp0(item,"name") == 0)
+      if(g_strcmp0(member_name,"name") == 0)
 	{
 
 	}
@@ -176,7 +212,7 @@ golem_get_item(GValue * value,const gchar * item,GValue * dest,GError ** error)
 }
 
 gboolean
-golem_set_item(GValue * value,const gchar * item,GValue * src,GError ** error)
+golem_member_set(GValue * value,const gchar * item,GValue * src,GError ** error)
 {
 
 }

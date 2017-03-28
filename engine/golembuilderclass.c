@@ -24,7 +24,7 @@ typedef struct _GolemBuilderClassPrivate GolemBuilderClassPrivate;
 
 struct _GolemBuilderClassPrivate
 {
-  GolemClass * class;
+  GolemTypeInfo * type_info;
 };
 
 struct _GolemBuilderClass

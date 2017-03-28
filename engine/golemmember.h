@@ -18,6 +18,28 @@
 #ifndef GOLEMMEMBER_H_
 #define GOLEMMEMBER_H_
 
+#define GOLEM_TYPE_MEMBER	(golem_member_get_type())
+G_DECLARE_FINAL_TYPE(GolemMember,golem_member,GOLEM,MEMBER,GolemExpression)
+
+typedef struct _GolemMemberPrivate GolemMemberPrivate;
+
+struct _GolemMemberClass
+{
+  GolemExpressionClass parent_class;
+
+};
+
+struct _GolemMember
+{
+  GolemExpression parent_instance;
+  GolemMemberPrivate * priv;
+};
+
+GType		golem_member_get_type(void);
+
+gboolean 	golem_member_check(GolemParser * parser);
+
+GolemExpression* golem_member_parse(GolemParser * parser,GolemExpression * instance,GolemExpressionLimit limit,GError ** error);
 
 
 #endif /* GOLEMMEMBER_H_ */

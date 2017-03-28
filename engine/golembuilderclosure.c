@@ -26,7 +26,6 @@ struct _GolemBuilderClosurePrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClosure,golem_builder_closure,GOLEM_TYPE_EXPRESSION)
 
-
 static gboolean
 _golem_builder_closure_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
 {
@@ -59,7 +58,7 @@ golem_builder_closure_class_init(GolemBuilderClosureClass * klass)
 gboolean
 golem_builder_closure_check(GolemParser * parser)
 {
-  return golem_parser_is_next_word(parser,"func");
+  return golem_parser_is_next_word(parser,"do");
 }
 
 GolemExpression *
@@ -67,7 +66,7 @@ golem_builder_closure_parse(GolemParser * parser,GError ** error)
 {
   GolemBuilderClosure * self = GOLEM_BUILDER_CLOSURE(g_object_new(GOLEM_TYPE_BUILDER_CLOSURE,NULL));
   gboolean done = TRUE;
-  if(golem_parser_next_word_check(parser,"func"))
+  if(golem_parser_next_word_check(parser,"do"))
     {
       if(golem_parser_is_next_word(parser,"("))
 	{

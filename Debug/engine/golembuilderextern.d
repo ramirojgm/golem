@@ -87,11 +87,12 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
  ../engine/golemsharedobject.h ../engine/golemexpression.h \
  ../engine/golemconstant.h ../engine/golemnew.h \
  ../engine/golemdeclaration.h ../engine/goleminvoke.h \
- ../engine/golemexpressioncomplex.h ../engine/golemidentificator.h \
- ../engine/golemblock.h ../engine/golemjit.h ../engine/golemclosure.h \
- ../engine/golemclass.h ../engine/golembuilderclass.h \
- ../engine/golembuilderextern.h ../engine/golembuilderclosure.h \
- ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemutils.h \
+ ../engine/golemmember.h ../engine/golemexpressioncomplex.h \
+ ../engine/golemidentificator.h ../engine/golemblock.h \
+ ../engine/golemjit.h ../engine/golemclosure.h \
+ ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
+ ../engine/golembuilderclosure.h ../engine/golemcompiled.h \
+ ../engine/golemerror.h ../engine/golemtypeinfo.h ../engine/golemutils.h \
  /usr/include/glib-2.0/gmodule.h
 
 ../engine/golem.h:
@@ -308,6 +309,8 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
 
 ../engine/goleminvoke.h:
 
+../engine/golemmember.h:
+
 ../engine/golemexpressioncomplex.h:
 
 ../engine/golemidentificator.h:
@@ -318,8 +321,6 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
 
 ../engine/golemclosure.h:
 
-../engine/golemclass.h:
-
 ../engine/golembuilderclass.h:
 
 ../engine/golembuilderextern.h:
@@ -329,6 +330,8 @@ engine/golembuilderextern.o: ../engine/golembuilderextern.c \
 ../engine/golemcompiled.h:
 
 ../engine/golemerror.h:
+
+../engine/golemtypeinfo.h:
 
 ../engine/golemutils.h:
 
