@@ -20,6 +20,7 @@
 
 typedef struct _GolemTypeInfoPrivate GolemTypeInfoPrivate;
 typedef struct _GolemMethod GolemMethod;
+typedef struct _GolemProperty GolemProperty;
 typedef enum _GolemMethodType GolemMethodType;
 
 #define GOLEM_TYPE_TYPE_INFO	(golem_type_info_get_type())
@@ -47,13 +48,6 @@ enum _GolemMethodType
   GOLEM_METHOD_MODIFICATOR
 };
 
-struct _GolemMethod
-{
-  GolemMethodType type;
-  GolemClosureInfo * info;
-  goffset offset;
-  GCallback callback;
-};
 
 
 GType 		golem_type_info_get_type(void);
@@ -62,26 +56,44 @@ GolemTypeInfo* 	golem_type_info_new();
 
 GolemTypeInfo*	golem_type_info_from_gtype(GType type);
 
-GType		golem_type_info_register(GolemTypeInfo * type_info,GError ** error);
+gboolean	golem_type_info_register(GolemTypeInfo * type_info,GolemContext * context,GError ** error);
 
-void		golem_type_info_get_name(GolemTypeInfo * type_info);
+const gchar *	golem_type_info_get_name(GolemTypeInfo * type_info);
 
-const gchar *	golem_type_info_set_name(GolemTypeInfo * type_info);
+void		golem_type_info_set_name(GolemTypeInfo * type_info,const gchar * name);
+
+void		golem_type_info_set_init(GolemTypeInfo * type_info,GolemStatement * statement);
+
+GolemStatement* golem_type_info_get_init(GolemTypeInfo * type_info);
+
+void		golem_type_info_set_complete(GolemTypeInfo * type_info,GolemStatement * statement);
+
+GolemStatement* golem_type_info_get_init(GolemTypeInfo * type_info);
+
+void		golem_type_info_set_constructed(GolemTypeInfo * type_info,GolemStatement * statement);
+
+GolemStatement* golem_type_info_get_constructed(GolemTypeInfo * type_info);
+
+void		golem_type_info_set_dispose(GolemTypeInfo * type_info,GolemStatement * statement);
+
+GolemStatement* golem_type_info_get_dispose(GolemTypeInfo * type_info);
 
 void		golem_type_info_add_method(GolemTypeInfo * type_info,GolemMethod * method);
 
-void		golem_type_info_add_property(GolemTypeInfo * type_info,GParamSpec * param);
+void		golem_type_info_add_property(GolemTypeInfo * type_info,GolemProperty * property);
 
-void		golem_type_info_add_private(GolemTypeInfo * type_info,GParamSpec * param);
-
-gboolean	golem_type_info_static(GType type,const gchar * name,GValue * dest,GError ** error);
+gboolean	golem_type_info_get_static(GType type,const gchar * name,GValue * dest,GError ** error);
 
 gboolean	golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError ** error);
 
 gboolean	golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GError ** error);
 
+GolemProperty *	golem_property_new(GParamSpec * property,GolemStatement *  get,GolemStatement * set);
+
+void		golem_property_free(GolemProperty *  property);
 
 GolemMethod *	golem_method_new(GolemMethodType type,GolemClosureInfo * info,GCallback callback,goffset offset);
 
+void		golem_method_free(GolemMethod * method);
 
 #endif /* GOLEMTYPEINFO_H_ */

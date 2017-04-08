@@ -67,7 +67,7 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 
   if(done)
     {
-      GObjectClass * klass = G_OBJECT_CLASS(g_type_class_peek(type));
+      GObjectClass * klass = G_OBJECT_CLASS(g_type_class_ref(type));
       params_construct_n = 0;
       params_data_n = 0;
       params_construct = g_new0(GParameter,g_list_length(self->priv->params));
@@ -76,10 +76,10 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
       for(GList * param_iter = g_list_first(self->priv->params);param_iter;param_iter = g_list_next(param_iter))
 	{
 	  GolemParameter * param_exp = (GolemParameter*)(param_iter->data);
-	  GParamSpec * param;
+	  GParamSpec * param = NULL;
 	  if(klass)
 	    param = g_object_class_find_property(klass,param_exp->name);
-	  if(param || !klass)
+	  if(param && klass)
 	    {
 	      params_construct[params_construct_n].name = g_strdup(param_exp->name);
 	      if(!(done = golem_expression_evaluate(param_exp->value,context,&(params_construct[params_construct_n].value),error)))

@@ -180,6 +180,7 @@ golem_member_get(GValue * value,const gchar * member_name,GValue * dest,GError *
 	  GValue * data_value = (GValue*)(g_object_get_data(self,member_name));
 	  if(data_value)
 	    {
+	      done = TRUE;
 	      g_value_init(dest,G_VALUE_TYPE(data_value));
 	      g_value_copy(data_value,dest);
 	    }
