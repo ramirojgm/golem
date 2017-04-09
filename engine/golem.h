@@ -36,7 +36,6 @@
 #include "golemexpressioncomplex.h"
 #include "golemidentificator.h"
 #include "golemblock.h"
-#include "golemjit.h"
 #include "golemclosure.h"
 //#include "golemfunc.h"
 #include "golembuilderclass.h"
@@ -44,6 +43,7 @@
 #include "golembuilderclosure.h"
 #include "golemcompiled.h"
 #include "golemerror.h"
+#include "golemllm.h"
 #include "golemtypeinfo.h"
 #include "golemutils.h"
 

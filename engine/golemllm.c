@@ -20,6 +20,36 @@
 #include <errno.h>
 #include <memory.h>
 
+typedef union
+{
+  guint8 uint8;
+  gint8 int8;
+  guint32 uint32;
+  gint32 int32;
+  guint64 uint64;
+  gint64 int64;
+  gfloat float32;
+  gdouble double64;
+  gpointer pointer;
+}_InvokeReturn;
+
+
+_InvokeReturn golem_symbol_invoke_1(gpointer symbol,GolemArgs * args)
+{
+
+
+}
+
+_InvokeReturn golem_symbol_invoke_2(gpointer symbol,GolemArgs * args)
+{
+
+}
+
+_InvokeReturn golem_symbol_invoke_3(gpointer symbol,GolemArgs * args)
+{
+
+}
+
 typedef struct {guint8 padding[1];} _InvokeArgs_1;
 typedef struct {guint8 padding[2];} _InvokeArgs_2;
 typedef struct {guint8 padding[3];} _InvokeArgs_3;

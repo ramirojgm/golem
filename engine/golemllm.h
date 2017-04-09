@@ -15,8 +15,8 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMJIT_H_
-#define GOLEMJIT_H_
+#ifndef GOLEMLLM_H_
+#define GOLEMLLM_H_
 
 typedef struct _GolemArgs GolemArgs;
 
@@ -50,4 +50,4 @@ gpointer	golem_invoke_boxed(gpointer address,GolemArgs * args);
 GObject *	golem_invoke_gobject(gpointer address,GolemArgs * args);
 gchar *		golem_invoke_string(gpointer address,GolemArgs * args);
 
-#endif /* GOLEMJIT_H_ */
+#endif /* GOLEMLLM_H_ */

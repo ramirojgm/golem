@@ -13,40 +13,6 @@ extern void gtk_grid_attach (GtkGrid grid,
                  int width,
                  int height);
 
-extern class GtkWidget 
-{
-  static GtkWidget new(type widget_type);
-  
-  
-  void show() = sizeof(pointer) + 5;
-  
-  virtual void destroy();
-}
-
-class MyWidget : GtkWidget {
-  
-  init {
-    priv.age = 0;
-  }
-  
-  complete {
-     Json data = Json.data_extract(this);
-     
-  }
-  
-  virtual void destroy() 
-  {
-    
-    GtkWidget.destroy(this);
-  }
-  
-  property int age {
-    get priv.age;
-    set priv.age;
-  }
-  
-  
-}
 
 extern void gtk_header_bar_pack_start(GtkHeaderBar header,GtkWidget child);
 
@@ -105,6 +71,9 @@ myapp.on("activate", do() {
     "visible": true
   };
   
+  btn_connect.on("clicked",do () {
+      g_print("clicked");
+  });
  
   gtk_container_add(main_window,notebook);
   gtk_header_bar_pack_start(header_bar,btn_connect);
