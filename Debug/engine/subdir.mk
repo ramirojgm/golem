@@ -21,7 +21,7 @@ C_SRCS += \
 ../engine/golemfunc.c \
 ../engine/golemidentificator.c \
 ../engine/goleminvoke.c \
-../engine/golemjit.c \
+../engine/golemllm.c \
 ../engine/golemmember.c \
 ../engine/golemnew.c \
 ../engine/golemparser.c \
@@ -48,7 +48,7 @@ OBJS += \
 ./engine/golemfunc.o \
 ./engine/golemidentificator.o \
 ./engine/goleminvoke.o \
-./engine/golemjit.o \
+./engine/golemllm.o \
 ./engine/golemmember.o \
 ./engine/golemnew.o \
 ./engine/golemparser.o \
@@ -75,7 +75,7 @@ C_DEPS += \
 ./engine/golemfunc.d \
 ./engine/golemidentificator.d \
 ./engine/goleminvoke.d \
-./engine/golemjit.d \
+./engine/golemllm.d \
 ./engine/golemmember.d \
 ./engine/golemnew.d \
 ./engine/golemparser.d \
@@ -89,7 +89,7 @@ C_DEPS += \
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	gcc -std=c11 -I/usr/lib/i386-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	clang -std=c11 -I/usr/lib/i386-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

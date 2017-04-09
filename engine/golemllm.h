@@ -18,36 +18,34 @@
 #ifndef GOLEMLLM_H_
 #define GOLEMLLM_H_
 
-typedef struct _GolemArgs GolemArgs;
+typedef struct _GolemStructBuilder GolemStructBuilder;
 
-struct _GolemArgs
+struct _GolemStructBuilder
 {
   guint8 * mem;
-  guint16 offset;
+  guint8 offset;
+  guint8 size;
 };
 
-GolemArgs * 	golem_args_new();
+GolemStructBuilder * golem_struct_builder_new(void);
 
-void		golem_args_append(GolemArgs * args,const GValue * value);
-void		golem_args_append_string(GolemArgs * args,const gchar * str1);
-void		golem_args_append_type(GolemArgs * args,GType type);
-void		golem_args_append_pointer(GolemArgs * args,gpointer pointer);
-void		golem_args_free(GolemArgs * args);
+void		golem_struct_builder_append(GolemStructBuilder * struct_builder,const GValue * value);
+void		golem_struct_builder_append_string(GolemStructBuilder * struct_builder,const gchar * str1);
+void		golem_struct_builder_append_type(GolemStructBuilder * struct_builder,GType type);
+void		golem_struct_builder_append_pointer(GolemStructBuilder * struct_builder,gpointer pointer);
+void		golem_struct_builder_free(GolemStructBuilder * struct_builder);
 
-void		golem_invoke(gpointer address,GolemArgs * args);
-guint8		golem_invoke_guint8(gpointer address,GolemArgs * args);
-guint		golem_invoke_guint(gpointer address,GolemArgs * args);
-guint64		golem_invoke_guint64(gpointer address,GolemArgs * args);
-gulong		golem_invoke_gulong(gpointer address,GolemArgs * args);
-gint8		golem_invoke_gint8(gpointer address,GolemArgs * args);
-gint		golem_invoke_gint(gpointer address,GolemArgs * args);
-gint64		golem_invoke_gint64(gpointer address,GolemArgs * args);
-glong		golem_invoke_glong(gpointer address,GolemArgs * args);
-gpointer	golem_invoke_gpointer(gpointer address,GolemArgs * args);
-gfloat		golem_invoke_gfloat(gpointer address,GolemArgs * args);
-gdouble		golem_invoke_gdouble(gpointer address,GolemArgs * args);
-gpointer	golem_invoke_boxed(gpointer address,GolemArgs * args);
-GObject *	golem_invoke_gobject(gpointer address,GolemArgs * args);
-gchar *		golem_invoke_string(gpointer address,GolemArgs * args);
+void		golem_invoke(gpointer address,GolemStructBuilder * args);
+guint8		golem_invoke_guint8(gpointer address,GolemStructBuilder * args);
+guint		golem_invoke_guint(gpointer address,GolemStructBuilder * args);
+guint64		golem_invoke_guint64(gpointer address,GolemStructBuilder * args);
+gulong		golem_invoke_gulong(gpointer address,GolemStructBuilder * args);
+gint8		golem_invoke_gint8(gpointer address,GolemStructBuilder * args);
+gint		golem_invoke_gint(gpointer address,GolemStructBuilder * args);
+gint64		golem_invoke_gint64(gpointer address,GolemStructBuilder * args);
+glong		golem_invoke_glong(gpointer address,GolemStructBuilder * args);
+gfloat		golem_invoke_gfloat(gpointer address,GolemStructBuilder * args);
+gdouble		golem_invoke_gdouble(gpointer address,GolemStructBuilder * args);
+gpointer	golem_invoke_gpointer(gpointer address,GolemStructBuilder * args);
 
 #endif /* GOLEMLLM_H_ */

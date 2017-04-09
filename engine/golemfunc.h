@@ -23,7 +23,7 @@ G_DECLARE_DERIVABLE_TYPE(GolemFunc,golem_func,GOLEM,FUNC,GObject)
 
 typedef struct _GolemFuncMetaData GolemFuncMetaData;
 typedef struct _GolemFuncParam GolemFuncParam;
-typedef struct _GolemArgs GolemArgs;
+typedef struct _GolemStructBuilder GolemStructBuilder;
 
 /*struct _GolemArgs{
   guint8 padding[16];

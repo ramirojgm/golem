@@ -21,6 +21,30 @@
 
 #include "engine/golem.h"
 
+typedef union
+{
+  guint8 uint8;
+  gint8 int8;
+  guint32 uint32;
+  gint32 int32;
+  guint64 uint64;
+  gint64 int64;
+  gulong ulong64;
+  glong long64;
+  gfloat float32;
+  gdouble double64;
+  gpointer pointer;
+}_InvokeReturn;
+
+G_BEGIN_DECLS
+
+gdouble func_return_double(gint a,gint b)
+{
+  return 2.3569;
+}
+
+G_END_DECLS
+
 gint
 main(gint argc,gchar * argv[])
 {

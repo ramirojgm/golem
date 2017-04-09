@@ -52,7 +52,7 @@ golem_symbol_invoke (GolemClosure *closure,
   GObjectClass * klass = NULL;
   GType 	return_type = golem_closure_info_get_return_type(self->parent_boxed.info);
   GType 	fundamental_return_type = G_TYPE_FUNDAMENTAL(return_type);
-  GolemArgs * 	args = golem_args_new();
+  GolemStructBuilder * 	args = golem_struct_builder_new();
   GList * 	cur_param = g_list_first(golem_closure_info_get_parameters(self->parent_boxed.info));
   GValue * param_value = NULL;
   GolemClosureParameter * param_info = NULL;
@@ -61,14 +61,14 @@ golem_symbol_invoke (GolemClosure *closure,
   //use first parameter for instance
   if(self->parent_boxed.context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
     {
-      golem_args_append_pointer(args,self->parent_boxed.context.instance);
+      golem_struct_builder_append_pointer(args,self->parent_boxed.context.instance);
     }
 
   //use first parameter for class
   if(self->parent_boxed.context_type == GOLEM_CLOSURE_CONTEXT_CLASSED)
     {
       klass = g_type_class_ref(self->parent_boxed.context.class_type);
-      golem_args_append_pointer(args,klass);
+      golem_struct_builder_append_pointer(args,klass);
     }
 
   //set parameters
@@ -81,7 +81,7 @@ golem_symbol_invoke (GolemClosure *closure,
 	  cur_param = g_list_next(cur_param);
 	  if(param_index == self->parent_boxed.info->throw_at)
 	    {
-		golem_args_append_pointer(args,error);
+		golem_struct_builder_append_pointer(args,error);
 	    }
 	}
       else
@@ -94,11 +94,11 @@ golem_symbol_invoke (GolemClosure *closure,
 	  //declared parameter
 	  if(param_info->is_reference)
 	    {
-	      golem_args_append_pointer(args,&(param_value->data[0].v_pointer));
+	      golem_struct_builder_append_pointer(args,&(param_value->data[0].v_pointer));
 	    }
 	  else if((G_VALUE_TYPE(param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(param_value),param_info->type)))
 	    {
-	      golem_args_append(args,param_value);
+	      golem_struct_builder_append(args,param_value);
 	    }
 	  else if(param_info->type == G_TYPE_VALUE)
 	    {
@@ -108,7 +108,7 @@ golem_symbol_invoke (GolemClosure *closure,
 	      g_value_unset(param_value);
 	      g_value_init(param_value,G_TYPE_VALUE);
 	      g_value_take_boxed(param_value,new_value);
-	      golem_args_append(args,param_value);
+	      golem_struct_builder_append(args,param_value);
 	    }
 	  else if(g_value_type_transformable(G_VALUE_TYPE(param_value), param_info->type))
 	    {
@@ -118,7 +118,7 @@ golem_symbol_invoke (GolemClosure *closure,
 	      g_value_unset(param_value);
 	      g_value_copy(&transformed,param_value);
 	      g_value_unset(&transformed);
-	      golem_args_append(args,param_value);
+	      golem_struct_builder_append(args,param_value);
 	    }
 	  else
 	    {
@@ -134,7 +134,7 @@ golem_symbol_invoke (GolemClosure *closure,
       else
 	{
 	  //extra parameter
-	  golem_args_append(args,param_value);
+	  golem_struct_builder_append(args,param_value);
 	}
     }
 
@@ -143,12 +143,12 @@ golem_symbol_invoke (GolemClosure *closure,
     {
       if(param_index == self->parent_boxed.info->throw_at)
 	{
-	  golem_args_append_pointer(args,error);
+	  golem_struct_builder_append_pointer(args,error);
 	}
       param_info = (GolemClosureParameter*)cur_param->data;
       GValue empty_pass = G_VALUE_INIT;
       g_value_init(&empty_pass,param_info->type);
-      golem_args_append(args,&empty_pass);
+      golem_struct_builder_append(args,&empty_pass);
       cur_param = g_list_next(cur_param);
       param_index++;
     }
@@ -156,7 +156,7 @@ golem_symbol_invoke (GolemClosure *closure,
   //check last parameter is throw at
   if(param_index == self->parent_boxed.info->throw_at)
     {
-      golem_args_append_pointer(args,error);
+      golem_struct_builder_append_pointer(args,error);
     }
 
   if(done)
@@ -224,7 +224,7 @@ golem_symbol_invoke (GolemClosure *closure,
 	  golem_invoke(self->symbol_address,args);
       }
     }
-  golem_args_free(args);
+  golem_struct_builder_free(args);
 
   if(klass)
     g_type_class_unref(klass);

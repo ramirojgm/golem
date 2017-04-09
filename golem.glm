@@ -37,7 +37,7 @@ extern string g_strdup_printf(string format);
 GtkApplication myapp = new GtkApplication {
   "application-id":"gnome.desktop.golem.testapp",
   "run": do () {
-      g_application_run(myapp,0,"testapp");
+      g_application_run(myapp,0,"nocontest");
   },
   "add_window": do (GtkWindow window) {
       gtk_application_add_window(myapp,window);    
@@ -72,7 +72,7 @@ myapp.on("activate", do() {
   };
   
   btn_connect.on("clicked",do () {
-      g_print("clicked");
+      g_print("clicked\n");
   });
  
   gtk_container_add(main_window,notebook);
@@ -81,6 +81,5 @@ myapp.on("activate", do() {
   myapp.add_window(main_window);
   
 });
-
 
 myapp.run();
