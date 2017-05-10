@@ -6,6 +6,8 @@ int size;
 
 size = 10;
 
+assert(x <= 30);
+
 if(size == 10 + 1)
 	print("Hola Mundo");
 else
