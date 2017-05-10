@@ -21,6 +21,8 @@
 #define GOLEM_TYPE_CONTEXT (golem_context_get_type())
 G_DECLARE_FINAL_TYPE(GolemContext,golem_context,GOLEM,CONTEXT,GObject)
 
+typedef struct _GolemClosure GolemClosure;
+
 struct _GolemContextClass
 {
   GObjectClass parent_class;
@@ -48,7 +50,7 @@ gboolean	golem_context_set(GolemContext * context,const gchar * name,GValue * va
 
 gboolean	golem_context_set_auto(GolemContext * context,const gchar * name,GValue *  value,GError ** error);
 
-gboolean	golem_context_set_function(GolemContext * context,const gchar * name,gpointer address,GType return_type,...);
+void		golem_context_add_function(GolemContext * context,const gchar * name,GolemClosure * closure);
 
 gboolean	golem_context_get(GolemContext * context,const gchar * name, GValue * value,GError ** error);
 

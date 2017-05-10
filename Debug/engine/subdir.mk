@@ -18,7 +18,6 @@ C_SRCS += \
 ../engine/golemerror.c \
 ../engine/golemexpression.c \
 ../engine/golemexpressioncomplex.c \
-../engine/golemfunc.c \
 ../engine/golemidentificator.c \
 ../engine/goleminvoke.c \
 ../engine/golemllm.c \
@@ -45,7 +44,6 @@ OBJS += \
 ./engine/golemerror.o \
 ./engine/golemexpression.o \
 ./engine/golemexpressioncomplex.o \
-./engine/golemfunc.o \
 ./engine/golemidentificator.o \
 ./engine/goleminvoke.o \
 ./engine/golemllm.o \
@@ -72,7 +70,6 @@ C_DEPS += \
 ./engine/golemerror.d \
 ./engine/golemexpression.d \
 ./engine/golemexpressioncomplex.d \
-./engine/golemfunc.d \
 ./engine/golemidentificator.d \
 ./engine/goleminvoke.d \
 ./engine/golemllm.d \
@@ -89,7 +86,7 @@ C_DEPS += \
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	clang -std=c11 -I/usr/lib/i386-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	clang -std=c99 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -22,39 +22,28 @@ typedef enum _GolemClosureType GolemClosureType;
 typedef enum _GolemClosureContext GolemClosureContext;
 
 typedef struct _GolemClosure GolemClosure;
-typedef struct _GolemSignal GolemSignal;
-typedef struct _GolemSymbol GolemSymbol;
-typedef struct _GolemFunction GolemFunction;
-typedef struct _GolemClosureInfo GolemClosureInfo;
+
 typedef struct _GolemClosureInfoPrivate GolemClosureInfoPrivate;
 typedef struct _GolemClosureParameter GolemClosureParameter;
+typedef struct _GolemClosureInvoke GolemClosureInvoke;
 
-typedef void (*GolemClosureCallback)(GolemClosure *closure,
-		                    GValue *return_value,
-		                    guint n_param_values,
-		                    const GValue *param_values,
-		                    GError ** error);
+typedef gboolean (*GolemClosureInvokeFunc)(GolemClosure * closure,GolemClosureInvoke * invoke,gpointer data);
+typedef void	 (*GolemClosureFinalizeFunc)(GolemClosure * closure,gpointer data);
+
+typedef gpointer (*GolemClosureHoldNativeAddressFunc)(GolemClosure * closure,gpointer data);
+typedef void	 (*GolemClosureReleaseNativeAddressFunc)(GolemClosure * closure,gpointer data,gpointer native_address);
+
+
 
 #define GOLEM_TYPE_CLOSURE_INFO	(golem_closure_info_get_type())
+#define GOLEM_TYPE_CLOSURE	(golem_closure_get_type())
 
 #define G_CLOSURE(c)		((GClosure*)c)
 #define GOLEM_CLOSURE(c)	((GolemClosure*)c)
-#define GOLEM_SYMBOL(c)		((GolemSymbol*)c)
-#define GOLEM_SIGNAL(c)		((GolemSignal*)c)
-#define GOLEM_FUNCTION(c)	((GolemFunction*)c)
 
-
-#define G_VALUE_HOLDS_CLOSURE(v) (G_VALUE_TYPE(v) == G_TYPE_CLOSURE)
+#define G_VALUE_HOLDS_CLOSURE(v) (G_VALUE_TYPE(v) == G_TYPE_CLOSURE || G_VALUE_TYPE(v) == GOLEM_TYPE_CLOSURE)
 
 G_DECLARE_FINAL_TYPE(GolemClosureInfo,golem_closure_info,GOLEM,CLOSURE_INFO,GObject)
-
-enum _GolemClosureType
-{
-  GOLEM_CLOSURE_SYMBOL,
-  GOLEM_CLOSURE_FUNCTION,
-  GOLEM_CLOSURE_SIGNAL,
-  GOLEM_CLOSURE_EXTERNAL
-};
 
 enum _GolemClosureContext
 {
@@ -66,36 +55,28 @@ enum _GolemClosureContext
 struct _GolemClosure
 {
   GClosure 		parent_boxed;
-  GolemClosureType	type;
-  GolemClosureInfo * 	info;
   GolemClosureContext 	context_type;
 
-  GolemClosureCallback	callback;
+  GolemClosureInvokeFunc   invoke_func;
+  GolemClosureFinalizeFunc finalize_func;
+
+  GolemClosureHoldNativeAddressFunc hold_native_address_func;
+  GolemClosureReleaseNativeAddressFunc release_native_address_func;
+
+  gpointer data;
 
   union {
     GType	class_type;
     gpointer    instance;
   } context;
-
 };
 
-struct _GolemSignal
+struct _GolemClosureInvoke
 {
-  GClosure	parent_boxed;
-  guint		signal_id;
-};
-
-struct _GolemSymbol
-{
-  GolemClosure 	parent_boxed;
-  gpointer	symbol_address;
-};
-
-struct _GolemFunction
-{
-  GolemClosure 	parent_boxed;
-  GolemContext*	context;
-  GolemStatement * sentence;
+	GList * arguments;
+	GList * current;
+	GValue result;
+	GError * error;
 };
 
 struct _GolemClosureParameter
@@ -103,8 +84,6 @@ struct _GolemClosureParameter
   gchar * 	name;
   gchar *	type_name;
   GType 	type;
-  gboolean 	is_array: 1;
-  gboolean	is_reference: 1;
 };
 
 struct _GolemClosureInfoClass
@@ -116,12 +95,58 @@ struct _GolemClosureInfoClass
 struct _GolemClosureInfo
 {
   GObject 	parent_instance;
-  GType 	return_type;
-  gboolean	return_const;
-  gint 		throw_at;
-  GList * 	parameters;
   GolemClosureInfoPrivate * priv;
 };
+
+/*
+ *	Golem Invoke Boxed
+ */
+
+GolemClosureInvoke * 	golem_closure_invoke_new();
+
+GolemClosureInvoke * 	golem_closure_invoke_new_with_values(guint n_param_values,const GValue *param_values);
+
+gsize			golem_closure_invoke_get_length(GolemClosureInvoke * closure_invoke);
+
+void			golem_closure_invoke_rewind(GolemClosureInvoke * closure_invoke);
+
+void			golem_closure_invoke_push(GolemClosureInvoke * closure_invoke,const GValue * value);
+
+gboolean		golem_closure_invoke_next(GolemClosureInvoke * closure_invoke,GValue * value);
+
+void			golem_closure_invoke_get_value(GolemClosureInvoke * closure_invoke,gint index,GValue * value);
+
+guchar			golem_closure_invoke_get_char(GolemClosureInvoke * closure_invoke,gint index);
+
+gint32			golem_closure_invoke_get_int(GolemClosureInvoke * closure_invoke,gint index);
+
+gint64			golem_closure_invoke_get_int64(GolemClosureInvoke * closure_invoke,gint index);
+
+gfloat			golem_closure_invoke_get_float(GolemClosureInvoke * closure_invoke,gint index);
+
+gdouble			golem_closure_invoke_get_double(GolemClosureInvoke * closure_invoke,gint index);
+
+gpointer		golem_closure_invoke_get_pointer(GolemClosureInvoke * closure_invoke,gint index);
+
+gpointer		golem_closure_invoke_get_boxed(GolemClosureInvoke * closure_invoke,gint index);
+
+gpointer		golem_closure_invoke_get_object(GolemClosureInvoke * closure_invoke,gint index);
+
+const gchar *	golem_closure_invoke_get_string(GolemClosureInvoke * closure_invoke,gint index);
+
+void			golem_closure_invoke_set_error(GolemClosureInvoke * closure_invoke,GError * error);
+
+GError *		golem_closure_invoke_get_error(GolemClosureInvoke * closure_invoke);
+
+void			golem_closure_invoke_set_result(GolemClosureInvoke * closure_invoke,const GValue * value);
+
+void			golem_closure_invoke_get_result(GolemClosureInvoke * closure_invoke,GValue * value);
+
+void			golem_closure_invoke_free(GolemClosureInvoke * closure_invoke);
+
+/*
+ * 	Golem Closure Info Object
+ */
 
 GType			golem_closure_info_get_type(void);
 
@@ -137,21 +162,34 @@ GType			golem_closure_info_get_return_type(GolemClosureInfo * info);
 
 GList *			golem_closure_info_get_parameters(GolemClosureInfo * info);
 
-GolemClosure *		golem_closure_new(GolemClosureCallback * callback);
+/*
+ * 	Golem Closure Boxed
+ */
 
-GolemClosure *		golem_closure_instanced_new(gpointer instance,GolemClosureCallback * callback);
+GType			golem_closure_get_type(void);
+
+GolemClosure *		golem_closure_new(GolemClosureInvokeFunc invoke_func,GolemClosureFinalizeFunc finalize_func,gpointer data);
+
+gboolean		golem_closure_invoke(GolemClosure * closure,GolemClosureInvoke * invoke);
+
+void			golem_closure_set_instance(GolemClosure * closure,gpointer instance);
 
 gpointer		golem_closure_get_instance(GolemClosure * closure);
 
-GTypeClass *		golem_closure_get_class(GolemClosure * closure);
+gpointer		golem_closure_hold_address(GolemClosure * closure);
 
-GolemClosureType	golem_closure_get_type(GolemClosure * closure);
+void			golem_closure_release_address(GolemClosure * closure,gpointer native_address);
+
+void			golem_closure_set_class(GolemClosure * closure,GType klass);
+
+GType			golem_closure_get_class(GolemClosure * closure);
+
+GTypeClass *		golem_closure_get_type_class(GolemClosure * closure);
+
 
 GolemClosure *		golem_symbol_new(GolemClosureInfo * info,gpointer symbol_address);
 
 GolemClosure *		golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement * sentence);
-
-
 
 
 

@@ -19,12 +19,28 @@
 #define GOLEMLLM_H_
 
 typedef struct _GolemStructBuilder GolemStructBuilder;
+typedef union
+{
+  gint8 int_8;
+  guint8 uint_8;
+  gint16 int_16;
+  guint16 uint_16;
+  gint32 int_32;
+  guint32 uint_32;
+  gint64 int_64;
+  guint64 uint_64;
+  gfloat float_32;
+  gdouble double_64;
+  gpointer pointer;
+  gchar * string;
+}gresult;
 
 struct _GolemStructBuilder
 {
   guint8 * mem;
-  guint8 offset;
-  guint8 size;
+  gssize allowed;
+  gssize offset;
+  gssize size;
 };
 
 GolemStructBuilder * golem_struct_builder_new(void);

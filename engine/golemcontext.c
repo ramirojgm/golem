@@ -38,7 +38,6 @@ G_DEFINE_TYPE_WITH_PRIVATE(GolemContext,golem_context,G_TYPE_OBJECT)
 static void
 golem_context_variable_free(GolemContextVariable * variable)
 {
-  g_print("release: %s\n",variable->name);
   g_free(variable->name);
   g_value_unset(&(variable->value));
   g_free(variable);
@@ -85,10 +84,14 @@ golem_context_set_auto(GolemContext * context,const gchar * name,GValue *  value
     }
 }
 
-gboolean
-golem_context_set_function(GolemContext * context,const gchar * name,gpointer address,GType return_type,...)
+void
+golem_context_add_function(GolemContext * context,const gchar * name,GolemClosure * closure)
 {
-  return FALSE;
+  GValue func_value = G_VALUE_INIT;
+  g_value_init(&func_value,GOLEM_TYPE_CLOSURE);
+  g_value_set_boxed(&func_value,closure);
+  golem_context_set_auto(context,name,&func_value,NULL);
+  g_value_unset(&func_value);
 }
 
 

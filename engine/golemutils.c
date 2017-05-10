@@ -50,7 +50,7 @@ golem_resolve_type_name(GolemContext * context,const gchar * name)
   else if(g_strcmp0(name,"double") == 0)
       return G_TYPE_DOUBLE;
   else if(g_strcmp0(name,"function") == 0)
-      return G_TYPE_CLOSURE;
+      return GOLEM_TYPE_CLOSURE;
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;
   else if(g_strcmp0(name,"debug_object") == 0)
@@ -122,32 +122,30 @@ golem_type_get_prefix(const gchar * name)
   return prefix;
 }
 
-static void
+static gboolean
 golem_gobject_signal_on(GolemClosure * closure,
-			GValue * return_value,
-			guint n_param_values,
-			const GValue *param_values,
-			GError ** error)
+			GolemClosureInvoke * invoke,
+			gpointer data)
 {
-  g_value_init(return_value,G_TYPE_UINT64);
-  g_value_set_uint64(return_value,0);
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_UINT64);
+  g_value_set_uint64(&return_value,0);
 
-  if(n_param_values == 2)
+  if(golem_closure_invoke_get_length(invoke) == 2)
     {
-      const GValue * details = &(param_values[0]);
-      const GValue * func = &(param_values[1]);
+      const gchar * details = golem_closure_invoke_get_string(invoke,0);
+      GClosure * closure = G_CLOSURE(golem_closure_invoke_get_boxed(invoke,1));
 
-      if(G_VALUE_TYPE(details) == G_TYPE_STRING && G_VALUE_TYPE(func) == G_TYPE_CLOSURE)
-	{
-	  guint64 signal_handler =  g_signal_connect_closure(
-	      golem_closure_get_instance(closure),
-	      g_value_get_string(details),
-	      g_value_get_boxed(func),
+      guint64 signal_handler =  g_signal_connect_closure(
+	      golem_closure_get_instance(GOLEM_CLOSURE(closure)),
+	      details,
+	      closure,
 	      FALSE);
-
-	  g_value_set_uint64(return_value,signal_handler);
-	}
+      g_value_set_uint64(&return_value,signal_handler);
     }
+
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
 }
 
 gboolean
@@ -165,8 +163,10 @@ golem_member_get(GValue * value,const gchar * member_name,GValue * dest,GError *
       if(g_strcmp0(member_name,"on") == 0)
 	{
 	  done = TRUE;
-	  g_value_init(dest,G_TYPE_CLOSURE);
-	  g_value_set_boxed(dest,golem_closure_instanced_new(self,golem_gobject_signal_on));
+	  GolemClosure * closure = golem_closure_new(golem_gobject_signal_on,NULL,NULL);
+	  golem_closure_set_instance(closure,self);
+	  g_value_init(dest,GOLEM_TYPE_CLOSURE);
+	  g_value_set_boxed(dest,closure);
 	}
       else if(property)
 	{
@@ -216,4 +216,11 @@ gboolean
 golem_member_set(GValue * value,const gchar * item,GValue * src,GError ** error)
 {
 
+}
+
+void
+g_value_free(GValue * value)
+{
+  g_value_unset(value);
+  g_free(value);
 }

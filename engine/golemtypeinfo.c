@@ -346,9 +346,9 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
 	      //TODO: bad offset
 	    }
 	}
-      GolemClosure * symbol = golem_symbol_instanced_new(method->info,(gpointer)callback,(gpointer)instance);
+      /*GolemClosure * symbol = golem_symbol_instanced_new(method->info,(gpointer)callback,(gpointer)instance);
       g_value_init(dest,G_TYPE_CLOSURE);
-      g_value_set_boxed(dest,symbol);
+      g_value_set_boxed(dest,symbol);*/
     }
   //Find property
   else if((property = g_object_class_find_property(klass,name)))

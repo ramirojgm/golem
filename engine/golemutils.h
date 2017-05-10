@@ -26,4 +26,6 @@ gboolean	golem_member_get(GValue * value,const gchar * member_name,GValue * dest
 
 gboolean	golem_member_set(GValue * value,const gchar * member,GValue * src,GError ** error);
 
+void		g_value_free(GValue * value);
+
 #endif /* GOLEMUTILS_H_ */

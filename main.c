@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,33 +22,29 @@
 
 #include "engine/golem.h"
 
-typedef union
+static gboolean
+golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
 {
-  guint8 uint8;
-  gint8 int8;
-  guint32 uint32;
-  gint32 int32;
-  guint64 uint64;
-  gint64 int64;
-  gulong ulong64;
-  glong long64;
-  gfloat float32;
-  gdouble double64;
-  gpointer pointer;
-}_InvokeReturn;
-
-G_BEGIN_DECLS
-
-gdouble func_return_double(gint a,gint b)
-{
-  return 2.3569;
+  GValue value = G_VALUE_INIT;
+  while(golem_closure_invoke_next(invoke,&value))
+    {
+      GValue string_value = G_VALUE_INIT;
+      g_value_init(&string_value,G_TYPE_STRING);
+      if(g_value_transform(&value,&string_value))
+	{
+	  g_print("%s",g_value_get_string(&string_value));
+	}
+      g_value_unset(&string_value);
+      g_value_unset(&value);
+    }
+  return TRUE;
 }
 
-G_END_DECLS
-
 gint
-main(gint argc,gchar * argv[])
+main(gint argc,gchar ** argv)
 {
+
+
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
   GValue  main_argc = G_VALUE_INIT,
@@ -60,17 +57,15 @@ main(gint argc,gchar * argv[])
   g_value_init(&const_true,G_TYPE_BOOLEAN);
   g_value_init(&const_false,G_TYPE_BOOLEAN);
 
-  g_value_set_int(&main_argc,argc);
-  g_value_set_pointer(&main_argv,argv);
   g_value_set_boolean(&const_true,TRUE);
   g_value_set_boolean(&const_false,TRUE);
 
-  golem_context_set_auto(context,"builtin_argc",&main_argc,NULL);
-  golem_context_set_auto(context,"builtin_argv",&main_argv,NULL);
   golem_context_set_auto(context,"true",&const_true,NULL);
   golem_context_set_auto(context,"false",&const_false,NULL);
 
-  golem_context_set_function(context,"print",g_print,G_TYPE_NONE,G_TYPE_STRING,-1);
+  GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
+  golem_context_add_function(context,"print",print_closure);
+  //g_closure_unref(G_CLOSURE(print_closure));
 
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
   GolemCompiled * compilation = golem_compiled_new();

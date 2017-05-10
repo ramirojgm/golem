@@ -30,33 +30,36 @@ static gboolean
 _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
 {
   GolemInvoke * self = GOLEM_INVOKE(expression);
+  GolemClosureInvoke * invoke = NULL;
   GValue func = G_VALUE_INIT;
   gboolean done = TRUE;
-  guint invoke_args_index = 0;
-  if(error)
-    *error = NULL;
-  GValue * invoke_args_values = NULL;
+
   if((done = golem_expression_evaluate(self->priv->func_exp,context,&func,error)))
     {
       if(G_VALUE_HOLDS_CLOSURE(&func))
 	{
-	  invoke_args_values = g_new0(GValue,g_list_length(self->priv->args_exp));
+	  invoke = golem_closure_invoke_new();
 	  for(GList * iter_arg = g_list_first(self->priv->args_exp);iter_arg;iter_arg = iter_arg->next)
 	    {
-	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,&(invoke_args_values[invoke_args_index]),error)))
+	      GValue value_arg = G_VALUE_INIT;
+	      g_value_unset(&value_arg);
+	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,&value_arg,error)))
 		{
 		  break;
 		}
-	      invoke_args_index ++;
+	      else
+		{
+		  golem_closure_invoke_push(invoke,&value_arg);
+		}
+	      g_value_unset(&value_arg);
 	    }
-	  GClosure * closure = (GClosure*)(g_value_get_boxed(&func));
-	  g_closure_invoke(closure,result,invoke_args_index,invoke_args_values,error);
-	  if(error && *error)
+
+	  GolemClosure * closure = (GolemClosure*)(g_value_get_boxed(&func));
+	  if(!golem_closure_invoke(closure,invoke))
 	    {
-	      done = FALSE;
+	      golem_throw_error(error,golem_closure_invoke_get_error(invoke));
 	    }
-	  else
-	    done = TRUE;
+	  g_closure_unref(G_CLOSURE(closure));
 	}
       else
 	{
@@ -65,7 +68,11 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 	  g_print("error:(%d)\n",g_value_get_int(&func));
 	}
     }
-  //TODO: free args
+
+  if(invoke)
+    golem_closure_invoke_free(invoke);
+
+  g_value_unset(&func);
   return done;
 }
 

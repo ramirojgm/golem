@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <memory.h>
 
+
 typedef union
 {
   guint8 uint8;
@@ -50,7 +51,7 @@ typedef union
   gfloat float32;
   gdouble double64;
   gpointer pointer;
-}_InvokeArg;
+}_StructField;
 
 typedef _InvokeReturn (*_GolemLLMInvoke)(gpointer,GolemStructBuilder*);
 
@@ -89,7 +90,7 @@ static _InvokeReturn
 _golem_llm_invoke_4(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[4]; } _InvokeArgs_4;
-  typedef gint64 (*_InvokeSymbol_4)(_InvokeArgs_4);
+  typedef gint64 (__stdcall *_InvokeSymbol_4)(_InvokeArgs_4);
   return (_InvokeReturn)((_InvokeSymbol_4) address)(*((_InvokeArgs_4*)args->mem));
 }
 
@@ -97,7 +98,7 @@ static _InvokeReturn
 _golem_llm_invoke_5(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[5]; } _InvokeArgs_5;
-  typedef gint64 (*_InvokeSymbol_5)(_InvokeArgs_5);
+  typedef gint64 (__stdcall *_InvokeSymbol_5)(_InvokeArgs_5);
   return (_InvokeReturn)((_InvokeSymbol_5) address)(*((_InvokeArgs_5*)args->mem));
 }
 
@@ -105,7 +106,7 @@ static _InvokeReturn
 _golem_llm_invoke_6(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[6]; } _InvokeArgs_6;
-  typedef gint64 (*_InvokeSymbol_6)(_InvokeArgs_6);
+  typedef gint64 (__stdcall *_InvokeSymbol_6)(_InvokeArgs_6);
   return (_InvokeReturn)((_InvokeSymbol_6) address)(*((_InvokeArgs_6*)args->mem));
 }
 
@@ -113,7 +114,7 @@ static _InvokeReturn
 _golem_llm_invoke_7(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[7]; } _InvokeArgs_7;
-  typedef gint64 (*_InvokeSymbol_7)(_InvokeArgs_7);
+  typedef gint64 (__stdcall *_InvokeSymbol_7)(_InvokeArgs_7);
   return (_InvokeReturn)((_InvokeSymbol_7) address)(*((_InvokeArgs_7*)args->mem));
 }
 
@@ -121,7 +122,7 @@ static _InvokeReturn
 _golem_llm_invoke_8(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[8]; } _InvokeArgs_8;
-  typedef gint64 (*_InvokeSymbol_8)(_InvokeArgs_8);
+  typedef gint64 (__stdcall *_InvokeSymbol_8)(_InvokeArgs_8);
   return (_InvokeReturn)((_InvokeSymbol_8) address)(*((_InvokeArgs_8*)args->mem));
 }
 
@@ -214,10 +215,10 @@ _golem_llm_invoke_19(gpointer address,GolemStructBuilder * args)
 }
 
 static _InvokeReturn
-_golem_llm_invoke_20(gpointer address,GolemStructBuilder * args)
+__stdcall _golem_llm_invoke_20(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[20]; } _InvokeArgs_20;
-  typedef gint64 (*_InvokeSymbol_20)(_InvokeArgs_20);
+  typedef gint64 ( __stdcall *_InvokeSymbol_20)(_InvokeArgs_20);
   return (_InvokeReturn)((_InvokeSymbol_20) address)(*((_InvokeArgs_20*)args->mem));
 }
 
@@ -2375,120 +2376,146 @@ golem_struct_builder_new()
 {
   GolemStructBuilder * arg = g_new0(GolemStructBuilder,1);
   arg->mem = NULL;
+  arg->allowed = 0;
   arg->offset = 0;
   arg->size = 0;
   return arg;
 }
 
 
-#define golem_args_expand(args,type) args->mem = g_realloc(args->mem,args->size + sizeof(type));\
-				     args->offset = args->size;\
-				     args->size += sizeof(type)
+#define golem_struct_builder_expand(struct_builder,type)  _golem_struct_builder_expand(struct_builder,sizeof(type))
 
-#define GOLEM_INVOKE_ARG(args) 	((_InvokeArg*)(args->mem + args->offset))
+void _golem_struct_builder_expand(GolemStructBuilder * struct_builder,gsize size)
+{
+
+  if((struct_builder->allowed - struct_builder->size) < size)
+    {
+      struct_builder->offset = struct_builder->allowed;
+      struct_builder->size = struct_builder->allowed + size;
+      struct_builder->allowed += (size * 2);
+      struct_builder->mem = g_realloc(struct_builder->mem,struct_builder->allowed);
+      memset(struct_builder->mem,0,struct_builder->allowed - struct_builder->offset);
+    }
+  else
+    {
+      struct_builder->offset = struct_builder->size;
+      struct_builder->size += size;
+    }
+
+  //g_print("{ mem: %p, offset: %d, size: %d,allowed: %d, new_size: %d }\n",struct_builder->mem,struct_builder->offset,struct_builder->size,struct_builder->allowed,size);
+}
+
+#define GOLEM_STRUCT_FIELD(args,type) 	*((type*)(args->mem + args->offset))
 
 void
-golem_struct_builder_append_string(GolemStructBuilder * args,const gchar * str1)
+golem_struct_builder_append_string(GolemStructBuilder * struct_builder,const gchar * str1)
 {
-  golem_args_expand(args,gchar *);
-  GOLEM_INVOKE_ARG(args)->pointer = (gpointer)str1;
+  golem_struct_builder_expand(struct_builder,gchar *);
+  GOLEM_STRUCT_FIELD(struct_builder,gchar*) = (gpointer)str1;
 }
 
 void
-golem_struct_builder_append_type(GolemStructBuilder * args,GType type)
+golem_struct_builder_append_int(GolemStructBuilder * struct_builder,gint value)
 {
-  golem_args_expand(args,GType);
-  GOLEM_INVOKE_ARG(args)->type = type;
+  golem_struct_builder_expand(struct_builder,gint);
+  GOLEM_STRUCT_FIELD(struct_builder,gint) = value;
 }
 
 void
-golem_struct_builder_append_pointer(GolemStructBuilder * args,gpointer pointer)
+golem_struct_builder_append_type(GolemStructBuilder * struct_builder,GType type)
 {
-  golem_args_expand(args,gchar *);
-  GOLEM_INVOKE_ARG(args)->pointer = pointer;
+  golem_struct_builder_expand(struct_builder,GType);
+  GOLEM_STRUCT_FIELD(struct_builder,GType) = type;
 }
 
 void
-golem_struct_builder_append(GolemStructBuilder * args,const GValue * value)
+golem_struct_builder_append_pointer(GolemStructBuilder * struct_builder,gpointer pointer)
+{
+  golem_struct_builder_expand(struct_builder,gpointer);
+  GOLEM_STRUCT_FIELD(struct_builder,gpointer) = pointer;
+}
+
+void
+golem_struct_builder_append(GolemStructBuilder * struct_builder,const GValue * value)
 {
   switch(g_type_fundamental(G_VALUE_TYPE(value)))
     {
     case G_TYPE_BOOLEAN:
-      golem_args_expand(args,gboolean);
-      GOLEM_INVOKE_ARG(args)->boolean = g_value_get_boolean(value);
+      golem_struct_builder_expand(struct_builder,gboolean);
+      GOLEM_STRUCT_FIELD(struct_builder,gboolean) = g_value_get_boolean(value);
       break;
     case G_TYPE_ENUM:
-      golem_args_expand(args,gint32);
-      GOLEM_INVOKE_ARG(args)->int32 = g_value_get_enum(value);
+      golem_struct_builder_expand(struct_builder,gint32);
+      GOLEM_STRUCT_FIELD(struct_builder,gint32)= g_value_get_enum(value);
       break;
     case G_TYPE_FLAGS:
-      golem_args_expand(args,gint32);
-      GOLEM_INVOKE_ARG(args)->int32 = g_value_get_flags(value);
+      golem_struct_builder_expand(struct_builder,gint32);
+      GOLEM_STRUCT_FIELD(struct_builder,gint32) = g_value_get_flags(value);
       break;
     case G_TYPE_CHAR:
-      golem_args_expand(args,gchar);
-      GOLEM_INVOKE_ARG(args)->int8 = g_value_get_schar(value);
+      golem_struct_builder_expand(struct_builder,gchar);
+      GOLEM_STRUCT_FIELD(struct_builder,gchar) = g_value_get_schar(value);
       break;
     case G_TYPE_UCHAR:
-      golem_args_expand(args,guchar);
-      GOLEM_INVOKE_ARG(args)->uint8 = g_value_get_uchar(value);
+      golem_struct_builder_expand(struct_builder,guchar);
+      GOLEM_STRUCT_FIELD(struct_builder,guchar) = g_value_get_uchar(value);
       break;
     case G_TYPE_INT:
-      golem_args_expand(args,gint32);
-      GOLEM_INVOKE_ARG(args)->int32 = g_value_get_int(value);
+      golem_struct_builder_expand(struct_builder,gint32);
+      GOLEM_STRUCT_FIELD(struct_builder,gint32) = g_value_get_int(value);
       break;
     case G_TYPE_LONG:
-      golem_args_expand(args,glong);
-      GOLEM_INVOKE_ARG(args)->long64 = g_value_get_long(value);
+      golem_struct_builder_expand(struct_builder,glong);
+      GOLEM_STRUCT_FIELD(struct_builder,glong) = g_value_get_long(value);
       break;
     case G_TYPE_INT64:
-      golem_args_expand(args,gint64);
-      GOLEM_INVOKE_ARG(args)->int64 = g_value_get_int64(value);
+      golem_struct_builder_expand(struct_builder,gint64);
+      GOLEM_STRUCT_FIELD(struct_builder,gint64) = g_value_get_int64(value);
       break;
     case G_TYPE_UINT:
-      golem_args_expand(args,guint);
-      GOLEM_INVOKE_ARG(args)->uint32 = g_value_get_uint(value);
+      golem_struct_builder_expand(struct_builder,guint);
+      GOLEM_STRUCT_FIELD(struct_builder,guint) = g_value_get_uint(value);
       break;
     case G_TYPE_ULONG:
-      golem_args_expand(args,gulong);
-      GOLEM_INVOKE_ARG(args)->ulong64 = g_value_get_ulong(value);
+      golem_struct_builder_expand(struct_builder,gulong);
+      GOLEM_STRUCT_FIELD(struct_builder,gulong) = g_value_get_ulong(value);
       break;
     case G_TYPE_UINT64:
-      golem_args_expand(args,guint64);
-      GOLEM_INVOKE_ARG(args)->uint64 = g_value_get_uint64(value);
+      golem_struct_builder_expand(struct_builder,guint64);
+      GOLEM_STRUCT_FIELD(struct_builder,guint64) = g_value_get_uint64(value);
       break;
     case G_TYPE_FLOAT:
-      golem_args_expand(args,gfloat);
-      GOLEM_INVOKE_ARG(args)->float32 = g_value_get_float(value);
+      golem_struct_builder_expand(struct_builder,gfloat);
+      GOLEM_STRUCT_FIELD(struct_builder,gfloat) = g_value_get_float(value);
       break;
     case G_TYPE_DOUBLE:
-      golem_args_expand(args,gdouble);
-      GOLEM_INVOKE_ARG(args)->double64 = g_value_get_double(value);
+      golem_struct_builder_expand(struct_builder,gdouble);
+      GOLEM_STRUCT_FIELD(struct_builder,gdouble) = g_value_get_double(value);
       break;
     case G_TYPE_POINTER:
-      golem_args_expand(args,gpointer);
-      GOLEM_INVOKE_ARG(args)->pointer = g_value_get_pointer(value);
+      golem_struct_builder_expand(struct_builder,gpointer);
+      GOLEM_STRUCT_FIELD(struct_builder,gpointer) = g_value_get_pointer(value);
       break;
     case G_TYPE_STRING:
-      golem_args_expand(args,gpointer);
-      GOLEM_INVOKE_ARG(args)->pointer = (gpointer)g_value_get_string(value);
+      golem_struct_builder_expand(struct_builder,gchar*);
+      GOLEM_STRUCT_FIELD(struct_builder,gchar*) = (gpointer)g_value_get_string(value);
       break;
     case G_TYPE_BOXED:
-      golem_args_expand(args,gpointer);
-      GOLEM_INVOKE_ARG(args)->pointer = g_value_get_boxed(value);
+      golem_struct_builder_expand(struct_builder,gpointer);
+      GOLEM_STRUCT_FIELD(struct_builder,gpointer) = g_value_get_boxed(value);
       break;
     case G_TYPE_OBJECT:
-      golem_args_expand(args,gpointer);
-      GOLEM_INVOKE_ARG(args)->pointer = g_value_get_object(value);
+      golem_struct_builder_expand(struct_builder,gpointer);
+      GOLEM_STRUCT_FIELD(struct_builder,gpointer) = g_value_get_object(value);
       break;
     }
 }
 
 void
-golem_struct_builder_free(GolemStructBuilder * args)
+golem_struct_builder_free(GolemStructBuilder * struct_builder)
 {
-  g_free(args->mem);
-  g_free(args);
+  g_free(struct_builder->mem);
+  g_free(struct_builder);
 }
 
 static _InvokeReturn

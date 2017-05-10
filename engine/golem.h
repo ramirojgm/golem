@@ -37,7 +37,6 @@
 #include "golemidentificator.h"
 #include "golemblock.h"
 #include "golemclosure.h"
-//#include "golemfunc.h"
 #include "golembuilderclass.h"
 #include "golembuilderextern.h"
 #include "golembuilderclosure.h"

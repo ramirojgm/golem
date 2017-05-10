@@ -40,7 +40,8 @@ golem_builder_extern_execute(GolemStatement * sentence,GolemContext * context,GE
 	{
 	  GValue func_value = G_VALUE_INIT;
 	  g_value_init(&func_value,G_TYPE_CLOSURE);
-	  g_value_take_boxed(&func_value,golem_symbol_new(self->priv->info,address));
+	  //g_value_take_boxed(&func_value,golem_symbol_new(self->priv->info,address));
+	  //FIXME: create procedure
 	  golem_context_declare(context,golem_closure_info_get_name(self->priv->info),G_TYPE_CLOSURE,error);
 	  golem_context_set(context,golem_closure_info_get_name(self->priv->info),&func_value,error);
 	  g_value_unset(&func_value);

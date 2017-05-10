@@ -50,6 +50,8 @@ golem_expression_class_init(GolemExpressionClass * klass)
 gboolean
 golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
 {
+  if(G_VALUE_TYPE(result) != G_TYPE_NONE)
+    g_value_unset(result);
   return GOLEM_EXPRESSION_GET_CLASS(expression)->evaluate(expression,context,result,error);
 }
 

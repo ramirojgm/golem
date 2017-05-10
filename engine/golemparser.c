@@ -57,8 +57,6 @@ golem_parser_finalize(GObject * instance)
 
   g_queue_free(priv->saved_point);
   g_list_free_full(priv->words,(GDestroyNotify)golem_parser_word_free);
-
-  //G_OBJECT_GET_CLASS(instance)->finalize(instance);
 }
 
 
@@ -439,19 +437,34 @@ golem_parser_get_line(GolemParser * parser)
 gboolean
 golem_parser_check_is_number(GolemParser * parser)
 {
+  gboolean done = FALSE;
+  golem_parser_save_point(parser);
+  golem_parser_next_word_check(parser,"-");
   const gchar * word = golem_parser_next_word(parser,NULL,FALSE);
   if(word)
     {
       if((*word == 'l') || (*word == 'f'))
-	return FALSE;
-      for(const gchar * c = word;*c != 0;c++)
 	{
-	  if(!(isdigit(*c) || (*c == 'l') || (*c == 'f')))
-	    return FALSE;
+	  done = FALSE;
 	}
-      return TRUE;
+      else
+	{
+	  for(const gchar * c = word;*c != 0;c++)
+	    {
+	      if(!(isdigit(*c) || (*c == 'l') || (*c == 'f')))
+		{
+		  done = FALSE;
+		  break;
+		}
+	      else
+		{
+		  done = TRUE;
+		}
+	    }
+	}
     }
-  return FALSE;
+  golem_parser_restore_point(parser);
+  return done;
 }
 
 gboolean

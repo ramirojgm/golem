@@ -34,12 +34,15 @@ _golem_builder_closure_evaluate(GolemExpression * expression,GolemContext * cont
   if(golem_closure_info_resolve(priv->info,context,error))
     {
       GolemClosure * closure = golem_function_new(priv->info,context, GOLEM_STATEMENT(priv->block));
-      g_value_init(result,G_TYPE_CLOSURE);
+      g_value_init(result,GOLEM_TYPE_CLOSURE);
       g_value_set_boxed(result,closure);
       return TRUE;
     }
   else
-    return FALSE;
+    {
+      return FALSE;
+    }
+
 }
 
 static void
