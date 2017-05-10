@@ -1,11 +1,13 @@
 sharedobject "libgtk-3.so"
 sharedobject "libgio-2.0.so"
 
-function open;
+string buffer;
+int size;
 
-open = do (int path)
-{
-	print("open file ",path,"\n");
-};
+size = 10;
 
-open(32);
+if(size == 10 + 1)
+	print("Hola Mundo");
+else
+	print("Pudrete Mundo");
+	

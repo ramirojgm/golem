@@ -1,4 +1,4 @@
-engine/golemllm.d: ../engine/golemllm.c ../engine/golem.h \
+engine/golemif.d: ../engine/golemif.c ../engine/golem.h \
  /usr/include/glib-2.0/glib.h /usr/include/glib-2.0/glib/galloca.h \
  /usr/include/glib-2.0/glib/gtypes.h \
  /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h \

@@ -90,7 +90,7 @@ static _InvokeReturn
 _golem_llm_invoke_4(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[4]; } _InvokeArgs_4;
-  typedef gint64 (__stdcall *_InvokeSymbol_4)(_InvokeArgs_4);
+  typedef gint64 (*_InvokeSymbol_4)(_InvokeArgs_4);
   return (_InvokeReturn)((_InvokeSymbol_4) address)(*((_InvokeArgs_4*)args->mem));
 }
 
@@ -98,7 +98,7 @@ static _InvokeReturn
 _golem_llm_invoke_5(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[5]; } _InvokeArgs_5;
-  typedef gint64 (__stdcall *_InvokeSymbol_5)(_InvokeArgs_5);
+  typedef gint64 (*_InvokeSymbol_5)(_InvokeArgs_5);
   return (_InvokeReturn)((_InvokeSymbol_5) address)(*((_InvokeArgs_5*)args->mem));
 }
 
@@ -106,7 +106,7 @@ static _InvokeReturn
 _golem_llm_invoke_6(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[6]; } _InvokeArgs_6;
-  typedef gint64 (__stdcall *_InvokeSymbol_6)(_InvokeArgs_6);
+  typedef gint64 (*_InvokeSymbol_6)(_InvokeArgs_6);
   return (_InvokeReturn)((_InvokeSymbol_6) address)(*((_InvokeArgs_6*)args->mem));
 }
 
@@ -114,7 +114,7 @@ static _InvokeReturn
 _golem_llm_invoke_7(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[7]; } _InvokeArgs_7;
-  typedef gint64 (__stdcall *_InvokeSymbol_7)(_InvokeArgs_7);
+  typedef gint64 ( *_InvokeSymbol_7)(_InvokeArgs_7);
   return (_InvokeReturn)((_InvokeSymbol_7) address)(*((_InvokeArgs_7*)args->mem));
 }
 
@@ -122,7 +122,7 @@ static _InvokeReturn
 _golem_llm_invoke_8(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[8]; } _InvokeArgs_8;
-  typedef gint64 (__stdcall *_InvokeSymbol_8)(_InvokeArgs_8);
+  typedef gint64 ( *_InvokeSymbol_8)(_InvokeArgs_8);
   return (_InvokeReturn)((_InvokeSymbol_8) address)(*((_InvokeArgs_8*)args->mem));
 }
 
@@ -215,10 +215,10 @@ _golem_llm_invoke_19(gpointer address,GolemStructBuilder * args)
 }
 
 static _InvokeReturn
-__stdcall _golem_llm_invoke_20(gpointer address,GolemStructBuilder * args)
+_golem_llm_invoke_20(gpointer address,GolemStructBuilder * args)
 {
   typedef struct { guint8 padding[20]; } _InvokeArgs_20;
-  typedef gint64 ( __stdcall *_InvokeSymbol_20)(_InvokeArgs_20);
+  typedef gint64 ( *_InvokeSymbol_20)(_InvokeArgs_20);
   return (_InvokeReturn)((_InvokeSymbol_20) address)(*((_InvokeArgs_20*)args->mem));
 }
 

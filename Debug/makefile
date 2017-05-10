@@ -29,7 +29,7 @@ all: golem
 golem: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	clang -L../ -o "golem" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L../ -o "golem" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -37,6 +37,6 @@ GType			golem_declaration_get_type(void);
 
 gboolean		golem_declaration_check(GolemParser * parser);
 
-GolemStatement *		golem_declaration_parse(GolemParser * parser,GError ** error);
+GolemStatement *	golem_declaration_parse(GolemParser * parser,GError ** error);
 
 #endif /* ENGINE_GOLEMDECLARATION_H_ */
