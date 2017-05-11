@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 
@@ -37,6 +38,46 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
       g_value_unset(&string_value);
       g_value_unset(&value);
     }
+  return TRUE;
+}
+
+static gboolean
+golem_input_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
+{
+  GValue type_value = G_VALUE_INIT;
+  GValue result_value = G_VALUE_INIT;
+  GType type = G_TYPE_STRING;
+
+  if(golem_closure_invoke_next(invoke,&type_value))
+    {
+      if(G_VALUE_HOLDS_INT(&type_value))
+	type = G_TYPE_INT;
+      else if(G_VALUE_HOLDS_DOUBLE(&type_value))
+	type = G_TYPE_DOUBLE;
+      else if(G_VALUE_HOLDS_FLOAT(&type_value))
+      	type = G_TYPE_FLOAT;
+      g_value_unset(&type_value);
+    }
+  gchar input[1024];
+  fgets(input,1024,stdin);
+  g_value_init(&result_value,type);
+  switch(type)
+  {
+    case G_TYPE_STRING:
+      g_value_set_string(&result_value,input);
+      break;
+    case G_TYPE_INT:
+      g_value_set_int(&result_value,atoi(input));
+      break;
+    case G_TYPE_FLOAT:
+      g_value_set_float(&result_value,atof(input));
+      break;
+    case G_TYPE_DOUBLE:
+      g_value_set_double(&result_value,atof(input));
+      break;
+  }
+  golem_closure_invoke_set_result(invoke,&result_value);
+  g_value_unset(&result_value);
   return TRUE;
 }
 
@@ -64,8 +105,13 @@ main(gint argc,gchar ** argv)
   golem_context_set_auto(context,"false",&const_false,NULL);
 
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
+  GolemClosure * input_closure = golem_closure_new(golem_input_func,NULL,NULL);
+
   golem_context_add_function(context,"print",print_closure);
-  //g_closure_unref(G_CLOSURE(print_closure));
+  golem_context_add_function(context,"input",input_closure);
+
+  g_closure_unref(G_CLOSURE(print_closure));
+  g_closure_unref(G_CLOSURE(input_closure));
 
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
   GolemCompiled * compilation = golem_compiled_new();

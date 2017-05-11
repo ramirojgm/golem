@@ -1,15 +1,19 @@
 sharedobject "libgtk-3.so"
 sharedobject "libgio-2.0.so"
 
-string buffer;
-int size;
+int cantidad = 0;
+int contador = 0;
+double total = 0;
 
-size = 10;
+print("Cantidad de numeros:");
+cantidad = input(0);
 
-assert(x <= 30);
-
-if(size == 10 + 1)
-	print("Hola Mundo");
-else
-	print("Pudrete Mundo");
-	
+while(contador < cantidad)
+  {
+    double monto = 0;
+    print("monto:");
+    monto = input(monto);
+    contador = contador + 1;
+    total = total + monto;
+  }
+print("El promedio de los ",cantidad, " es ",total / cantidad);

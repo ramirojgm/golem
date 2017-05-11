@@ -28,7 +28,8 @@ C_SRCS += \
 ../engine/golemsharedobject.c \
 ../engine/golemstatement.c \
 ../engine/golemtypeinfo.c \
-../engine/golemutils.c 
+../engine/golemutils.c \
+../engine/golemwhile.c 
 
 OBJS += \
 ./engine/golem.o \
@@ -55,7 +56,8 @@ OBJS += \
 ./engine/golemsharedobject.o \
 ./engine/golemstatement.o \
 ./engine/golemtypeinfo.o \
-./engine/golemutils.o 
+./engine/golemutils.o \
+./engine/golemwhile.o 
 
 C_DEPS += \
 ./engine/golem.d \
@@ -82,14 +84,15 @@ C_DEPS += \
 ./engine/golemsharedobject.d \
 ./engine/golemstatement.d \
 ./engine/golemtypeinfo.d \
-./engine/golemutils.d 
+./engine/golemutils.d \
+./engine/golemwhile.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	gcc -std=c11 -I/usr/lib/x86_64-linux-gnu/glib-2.0/includ -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	clang -std=c99 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

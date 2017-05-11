@@ -67,6 +67,8 @@ golem_statement_parse(GolemParser * parser,GError ** error)
     return GOLEM_STATEMENT(golem_block_parse(parser,error));
   else if(golem_if_check(parser))
     return GOLEM_STATEMENT(golem_if_parse(parser,error));
+  else if(golem_while_check(parser))
+      return GOLEM_STATEMENT(golem_while_parse(parser,error));
   else
     {
       GolemExpression * exp = golem_expression_parse(parser,error);

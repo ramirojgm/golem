@@ -42,7 +42,6 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 	  for(GList * iter_arg = g_list_first(self->priv->args_exp);iter_arg;iter_arg = iter_arg->next)
 	    {
 	      GValue value_arg = G_VALUE_INIT;
-	      g_value_unset(&value_arg);
 	      if(!(done = golem_expression_evaluate(GOLEM_EXPRESSION(iter_arg->data),context,&value_arg,error)))
 		{
 		  break;
@@ -54,10 +53,14 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 	      g_value_unset(&value_arg);
 	    }
 
-	  GolemClosure * closure = (GolemClosure*)(g_value_get_boxed(&func));
+	  GolemClosure * closure = GOLEM_CLOSURE(g_closure_ref(G_CLOSURE(g_value_get_boxed(&func))));
 	  if(!golem_closure_invoke(closure,invoke))
 	    {
 	      golem_throw_error(error,golem_closure_invoke_get_error(invoke));
+	    }
+	  else
+	    {
+	      golem_closure_invoke_get_result(invoke,result);
 	    }
 	  g_closure_unref(G_CLOSURE(closure));
 	}
