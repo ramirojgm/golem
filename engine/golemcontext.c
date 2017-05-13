@@ -224,6 +224,7 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
 }
 
 
+
 gboolean
 golem_context_get(GolemContext * context,const gchar * name, GValue * value,GError ** error)
 {

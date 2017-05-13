@@ -226,8 +226,16 @@ golem_closure_invoke_set_result(GolemClosureInvoke * closure_invoke,const GValue
 void
 golem_closure_invoke_get_result(GolemClosureInvoke * closure_invoke,GValue * value)
 {
-  g_value_init(value,G_VALUE_TYPE(&(closure_invoke->result)));
-  g_value_copy(&(closure_invoke->result),value);
+  if(G_VALUE_TYPE(&(closure_invoke->result)) != 0)
+    {
+      g_value_init(value,G_VALUE_TYPE(&(closure_invoke->result)));
+      g_value_copy(&(closure_invoke->result),value);
+    }
+  else
+    {
+      g_value_init(value,G_TYPE_INT);
+      g_value_set_int(value,0);
+    }
 }
 
 void
