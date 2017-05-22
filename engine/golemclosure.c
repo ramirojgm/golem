@@ -514,7 +514,6 @@ golem_function_invoke (GolemClosure *closure,
       if(param_info)
       {
 	g_value_unset(&param_value);
-	g_value_init(&param_value,param_info->type);
 	golem_closure_invoke_get_value(invoke,param_index,&param_value);
 
 	if((G_VALUE_TYPE(&param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(&param_value),param_info->type)))
@@ -776,7 +775,7 @@ golem_symbol_static_new(GolemClosureInfo * info,gpointer symbol_address,GType ty
 GolemClosure *
 golem_closure_new(GolemClosureInvokeFunc invoke_func,GolemClosureFinalizeFunc finalize_func,gpointer data)
 {
-  GolemClosure  * closure = GOLEM_CLOSURE(g_closure_new_simple(sizeof(GolemClosure),NULL));
+  GolemClosure  * closure = GOLEM_CLOSURE(g_closure_new_simple(sizeof(GolemClosure),data));
   closure->context_type = GOLEM_CLOSURE_CONTEXT_NONE;
   closure->context.class_type = G_TYPE_NONE;
   closure->context.instance = NULL;

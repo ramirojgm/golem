@@ -98,9 +98,13 @@ main(gint argc,gchar ** argv)
 
   g_value_set_boolean(&const_true,TRUE);
   g_value_set_boolean(&const_false,TRUE);
+  g_value_set_int(&main_argc,argc);
+  g_value_set_pointer(&main_argv,argv);
 
   golem_context_set_auto(context,"true",&const_true,NULL);
   golem_context_set_auto(context,"false",&const_false,NULL);
+  golem_context_set_auto(context,"startup_argc",&main_argc,NULL);
+  golem_context_set_auto(context,"startup_argv",&main_argv,NULL);
 
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
   GolemClosure * input_closure = golem_closure_new(golem_input_func,NULL,NULL);

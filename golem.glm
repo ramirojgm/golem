@@ -1,15 +1,30 @@
-sharedobject "libgtk-3.0.so"
-sharedobject "libgio-2.0.so"
+sharedobject "libgtk-3.so.0"
 
+extern int g_application_run(GtkApplication application,int c,pointer v);
+extern void gtk_application_add_window(GtkApplication app,GtkWindow window);
+extern void gtk_widget_show(GtkWidget widget);
 
-extern int g_application_run(GApplication application,int argc,pointer argv);
-
-GtkApplication app;
-app = new GtkApplication {
-  
+GtkApplication app = new GtkApplication {
+  "application-id": "org.gnome.desktop.golem.test",
+  "run": do(){
+      g_application_run(app,startup_argc,startup_argv);
+  },
+  "add_window": do(GtkWindow window) {
+      gtk_application_add_window(app,window);
+  }
 };
 
+app.on("activate",do() {
+    GtkWindow win = new GtkWindow {
+      "title": "Golem",
+      "show": do(){
+	  gtk_widget_show(win);
+      }
+    };
+    app.add_window(win);
+    win.show();
+});
 
-print("OK");
+app.run();
 
 

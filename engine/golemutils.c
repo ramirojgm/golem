@@ -135,15 +135,14 @@ golem_gobject_signal_on(GolemClosure * closure,
     {
       const gchar * details = golem_closure_invoke_get_string(invoke,0);
       GClosure * closure = G_CLOSURE(golem_closure_invoke_get_boxed(invoke,1));
-
       guint64 signal_handler =  g_signal_connect_closure(
-	      golem_closure_get_instance(GOLEM_CLOSURE(closure)),
+	      data,
 	      details,
 	      closure,
 	      FALSE);
+
       g_value_set_uint64(&return_value,signal_handler);
     }
-
   golem_closure_invoke_set_result(invoke,&return_value);
   return TRUE;
 }
@@ -163,8 +162,7 @@ golem_member_get(GValue * value,const gchar * member_name,GValue * dest,GError *
       if(g_strcmp0(member_name,"on") == 0)
 	{
 	  done = TRUE;
-	  GolemClosure * closure = golem_closure_new(golem_gobject_signal_on,NULL,NULL);
-	  golem_closure_set_instance(closure,self);
+	  GolemClosure * closure = golem_closure_new(golem_gobject_signal_on,g_object_unref,g_object_ref(self));
 	  g_value_init(dest,GOLEM_TYPE_CLOSURE);
 	  g_value_set_boxed(dest,closure);
 	}
