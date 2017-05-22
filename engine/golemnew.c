@@ -100,7 +100,9 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 	}
       if(done)
 	{
+	  g_print("creating\n");
 	  gpointer instance = g_object_newv(type,params_construct_n,params_construct);
+	  g_print("created\n");
 	  for(guint params_index = 0;params_index < params_data_n;params_index++)
 	    {
 	      if(!(params_data[params_index].name))

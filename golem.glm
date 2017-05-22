@@ -1,16 +1,15 @@
-int count = 0;
-int counter = 0;
-double total = 0;
+sharedobject "libgtk-3.0.so"
+sharedobject "libgio-2.0.so"
 
-print("Number count:");
-count = input(0);
 
-while(counter < count)
-  {
-    double number = 0;
-    print("Number:");
-    number = input(number);
-    counter = counter + 1;
-    total = total + number;
-  }
-print("The average of ",count, " numbers is: ",total / count);
+extern int g_application_run(GApplication application,int argc,pointer argv);
+
+GtkApplication app;
+app = new GtkApplication {
+  
+};
+
+
+print("OK");
+
+

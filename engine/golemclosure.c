@@ -591,6 +591,118 @@ golem_function_finalizer(GolemClosure * closure,gpointer data)
   g_free(func_data);
 }
 
+static gboolean
+golem_symbol_invoke (GolemClosure *closure,
+		     GolemClosureInvoke * invoke,
+		     gpointer data)
+{
+  gboolean done = TRUE;
+  GolemSymbolData * func_data = (GolemSymbolData*)data;
+  GolemClosureInfo * info = func_data->info;
+  GolemCInvoke * cinvoke = golem_cinvoke_new(info->priv->return_type,info->priv->return_const);
+  GList * cur_param = golem_closure_info_get_parameters(info);
+  GError * error = NULL;
+
+  GolemClosureParameter * param_info = NULL;
+  guint param_index = 0;
+  gint n_param_values = golem_closure_invoke_get_length(invoke);
+
+  GValue * param_values = g_new0(GValue,n_param_values);
+  if(closure->context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
+      golem_cinvoke_push_pointer(cinvoke,closure->context.instance);
+  else if(closure->context_type == GOLEM_CLOSURE_CONTEXT_CLASSED)
+    golem_cinvoke_push_pointer(cinvoke,golem_closure_get_type_class(closure));
+
+  for(param_index = 0;param_index < n_param_values;param_index ++)
+    {
+      GValue * param_value = &(param_values[param_index]);
+      if(cur_param)
+      {
+	param_info = (GolemClosureParameter*)cur_param->data;
+	cur_param = g_list_next(cur_param);
+      }
+      else
+      {
+	param_info = NULL;
+      }
+
+      if(param_info)
+      {
+	g_value_unset(param_value);
+	//g_value_init(param_value,param_info->type);
+	golem_closure_invoke_get_value(invoke,param_index,param_value);
+
+	if((G_VALUE_TYPE(param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(param_value),param_info->type)))
+	  {
+	    golem_cinvoke_push_value(cinvoke,param_value);
+	  }
+	else if(param_info->type == G_TYPE_VALUE)
+	  {
+	    GValue * new_value = g_new0(GValue,0);
+	    g_value_init(new_value,G_VALUE_TYPE(param_value));
+	    g_value_copy(param_value,new_value);
+	    g_value_unset(param_value);
+	    g_value_init(param_value,G_TYPE_VALUE);
+	    g_value_take_boxed(param_value,new_value);
+	    golem_cinvoke_push_value(cinvoke,param_value);
+	  }
+	else if(g_value_type_transformable(G_VALUE_TYPE(&param_value), param_info->type))
+	  {
+	    GValue transformed = G_VALUE_INIT;
+	    g_value_unset(&transformed);
+	    g_value_init(&transformed,param_info->type);
+	    g_value_transform(param_value,&transformed);
+	    g_value_unset(param_value);
+	    g_value_init(param_value,param_info->type);
+	    g_value_copy(&transformed,param_value);
+	    g_value_unset(&transformed);
+	    golem_cinvoke_push_value(cinvoke,param_value);
+	  }
+	else
+	  {
+	    error = g_error_new(
+		GOLEM_ERROR,
+		GOLEM_INVALID_CAST_ERROR,
+		"can't transform from '%s' to '%s'",
+		g_type_name(G_VALUE_TYPE(&param_value)),
+		g_type_name(param_info->type)
+	    );
+	    done = FALSE;
+	    break;
+	  }
+	}
+      else
+	{
+	  GValue * param_value = &(param_values[param_index]);
+	  golem_cinvoke_push_value(cinvoke,param_value);
+	}
+    }
+
+  GValue result_value = G_VALUE_INIT;
+  if(done)
+    {
+      golem_cinvoke_invoke(cinvoke,func_data->symbol_address,&result_value);
+    }
+  else
+    {
+      golem_closure_invoke_set_error(invoke,error);
+    }
+
+  for(param_index = 0;param_index < n_param_values;param_index ++)
+    g_value_unset(&param_values[param_index]);
+  g_free(param_values);
+  golem_cinvoke_free(cinvoke);
+  return done;
+}
+
+static void
+golem_symbol_finalizer(GolemClosure * closure,gpointer data)
+{
+  GolemSymbolData * func_data = (GolemSymbolData*)data;
+  g_object_unref(func_data->info);
+  g_free(func_data);
+}
+
 /*
 
 void golem_signal_invoke (GClosure *closure,
@@ -658,6 +770,7 @@ golem_symbol_static_new(GolemClosureInfo * info,gpointer symbol_address,GType ty
   return GOLEM_CLOSURE(symbol);
 }
 */
+
 
 
 GolemClosure *
@@ -755,6 +868,15 @@ golem_function_new(GolemClosureInfo * info,GolemContext * context,GolemStatement
   return GOLEM_CLOSURE(closure);
 }
 
+GolemClosure *
+golem_symbol_new(GolemClosureInfo * info,gpointer symbol_address)
+{
+  GolemSymbolData * func = g_new0(GolemSymbolData,1);
+  func->info = GOLEM_CLOSURE_INFO(g_object_ref(info));
+  func->symbol_address = symbol_address;
+  GolemClosure * closure = golem_closure_new(golem_symbol_invoke,golem_symbol_finalizer,func);
+  return GOLEM_CLOSURE(closure);
+}
 
 static void
 golem_closure_info_init(GolemClosureInfo * self)

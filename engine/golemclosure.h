@@ -21,8 +21,6 @@
 typedef enum _GolemClosureType GolemClosureType;
 typedef enum _GolemClosureContext GolemClosureContext;
 
-typedef struct _GolemClosure GolemClosure;
-
 typedef struct _GolemClosureInfoPrivate GolemClosureInfoPrivate;
 typedef struct _GolemClosureParameter GolemClosureParameter;
 typedef struct _GolemClosureInvoke GolemClosureInvoke;

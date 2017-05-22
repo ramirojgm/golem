@@ -36,22 +36,6 @@ typedef union
   gpointer pointer;
 }_InvokeReturn;
 
-typedef union
-{
-  GType type;
-  gboolean boolean;
-  guint8 uint8;
-  gint8 int8;
-  guint32 uint32;
-  gint32 int32;
-  guint64 uint64;
-  gint64 int64;
-  gulong ulong64;
-  glong long64;
-  gfloat float32;
-  gdouble double64;
-  gpointer pointer;
-}_StructField;
 
 typedef _InvokeReturn (*_GolemLLMInvoke)(gpointer,GolemStructBuilder*);
 

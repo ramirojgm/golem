@@ -71,8 +71,8 @@ golem_shared_object_parse(GolemParser * parser,GError ** error)
     }
   if(!done)
     {
-      //TODO: free no complete sentence
-
+      g_object_unref(statement);
+      statement = NULL;
     }
   return GOLEM_STATEMENT(statement);
 }

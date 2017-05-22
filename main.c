@@ -84,8 +84,6 @@ golem_input_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
 gint
 main(gint argc,gchar ** argv)
 {
-
-
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
   GValue  main_argc = G_VALUE_INIT,
