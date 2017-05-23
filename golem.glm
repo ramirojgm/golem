@@ -3,6 +3,7 @@ sharedobject "libgtk-3.so.0"
 extern int g_application_run(GtkApplication application,int c,pointer v);
 extern void gtk_application_add_window(GtkApplication app,GtkWindow window);
 extern void gtk_widget_show(GtkWidget widget);
+extern void gtk_container_add(GtkContainer container,GtkWidget widget);
 
 GtkApplication app = new GtkApplication {
   "application-id": "org.gnome.desktop.golem.test",
@@ -14,13 +15,32 @@ GtkApplication app = new GtkApplication {
   }
 };
 
+
+extends GtkWidget {
+  extern void new():
+  extern void show(): gtk_widget_show;
+}
+
 app.on("activate",do() {
     GtkWindow win = new GtkWindow {
       "title": "Golem",
+      "border-width": 10,
       "show": do(){
 	  gtk_widget_show(win);
       }
     };
+    
+    GtkButton button = new GtkButton {
+      "label": "Open",
+      "visible": true
+    };
+    
+    gtk_container_add(win,button);
+    
+    button.on("clicked",do(){
+	print("Clicked\n");
+    });
+    
     app.add_window(win);
     win.show();
 });

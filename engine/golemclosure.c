@@ -276,7 +276,8 @@ golem_closure_marshal(GClosure *closure,
       g_error("%s",error->message);
       g_error_free(error);
     }
-  golem_closure_invoke_get_result(invoke,return_value);
+  if(return_value)
+    golem_closure_invoke_get_result(invoke,return_value);
   golem_closure_invoke_free(invoke);
 }
 
