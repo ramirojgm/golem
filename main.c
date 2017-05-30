@@ -86,25 +86,18 @@ main(gint argc,gchar ** argv)
 {
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
-  GValue  main_argc = G_VALUE_INIT,
-	  main_argv = G_VALUE_INIT,
-	  const_true = G_VALUE_INIT,
-	  const_false = G_VALUE_INIT;
+  GValue  const_true = G_VALUE_INIT,
+	  const_false = G_VALUE_INIT,
+	  main_func = G_VALUE_INIT;
 
-  g_value_init(&main_argc,G_TYPE_INT);
-  g_value_init(&main_argv,G_TYPE_POINTER);
   g_value_init(&const_true,G_TYPE_BOOLEAN);
   g_value_init(&const_false,G_TYPE_BOOLEAN);
 
   g_value_set_boolean(&const_true,TRUE);
   g_value_set_boolean(&const_false,TRUE);
-  g_value_set_int(&main_argc,argc);
-  g_value_set_pointer(&main_argv,argv);
 
   golem_context_set_auto(context,"true",&const_true,NULL);
   golem_context_set_auto(context,"false",&const_false,NULL);
-  golem_context_set_auto(context,"startup_argc",&main_argc,NULL);
-  golem_context_set_auto(context,"startup_argv",&main_argv,NULL);
 
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
   GolemClosure * input_closure = golem_closure_new(golem_input_func,NULL,NULL);
@@ -120,6 +113,27 @@ main(gint argc,gchar ** argv)
   golem_compiled_add_string(compilation,script_file_content,-1,NULL);
   g_free(script_file_content);
   golem_compiled_run(compilation,context,NULL);
+
+  if(golem_context_get(context,"main",&main_func,NULL))
+    {
+      GValue main_return = G_VALUE_INIT,
+	     main_argc = G_VALUE_INIT,
+	     main_argv = G_VALUE_INIT;
+
+      g_value_init(&main_argc,G_TYPE_INT);
+      g_value_init(&main_argv,G_TYPE_POINTER);
+
+      g_value_set_int(&main_argc,argc);
+      g_value_set_pointer(&main_argv,argv);
+
+      GolemClosureInvoke * invoke = golem_closure_invoke_new();
+      golem_closure_invoke_push(invoke,&main_argc);
+      golem_closure_invoke_push(invoke,&main_argv);
+      golem_closure_invoke(GOLEM_CLOSURE(g_value_get_boxed(&main_func)), invoke);
+      g_value_unset(&main_argc);
+      g_value_unset(&main_argv);
+      golem_closure_invoke_free(invoke);
+    }
   g_object_unref(context);
   g_object_unref(compilation);
 

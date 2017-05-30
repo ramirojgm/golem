@@ -41,6 +41,7 @@
 #include "golemclosure.h"
 #include "golembuilderclass.h"
 #include "golembuilderextern.h"
+#include "golembuilderfunction.h"
 #include "golembuilderclosure.h"
 #include "golemcinvoke.h"
 #include "golemcompiled.h"

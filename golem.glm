@@ -1,50 +1,39 @@
 sharedobject "libgtk-3.so.0"
+sharedobject "libsqlite3.so.0"
+
+extern pointer malloc(int size);
+extern void free(pointer p);
 
 extern int g_application_run(GtkApplication application,int c,pointer v);
 extern void gtk_application_add_window(GtkApplication app,GtkWindow window);
 extern void gtk_widget_show(GtkWidget widget);
 extern void gtk_container_add(GtkContainer container,GtkWidget widget);
 
-GtkApplication app = new GtkApplication {
-  "application-id": "org.gnome.desktop.golem.test",
-  "run": do(){
-      g_application_run(app,startup_argc,startup_argv);
-  },
-  "add_window": do(GtkWindow window) {
-      gtk_application_add_window(app,window);
-  }
-};
-
-
-extends GtkWidget {
-  extern void new():
-  extern void show(): gtk_widget_show;
+extern class GtkWidget {
+  
+  void show() = gtk_widget_show;
 }
 
-app.on("activate",do() {
-    GtkWindow win = new GtkWindow {
-      "title": "Golem",
-      "border-width": 10,
-      "show": do(){
-	  gtk_widget_show(win);
-      }
-    };
-    
-    GtkButton button = new GtkButton {
-      "label": "Open",
-      "visible": true
-    };
-    
-    gtk_container_add(win,button);
-    
-    button.on("clicked",do(){
-	print("Clicked\n");
-    });
-    
-    app.add_window(win);
-    win.show();
-});
 
-app.run();
+void main(int argc,pointer argv) {
+    
+  GtkApplication app = new GtkApplication {
+    "application-id": "org.gnome.desktop.golem.test",
+  };
+
+  app.on("activate",do() {
+     GtkApplicationWindow win = new GtkApplicationWindow {
+       "title": "Tsubame"
+     };
+     gtk_widget_show(win);
+     gtk_application_add_window(app,win);
+  });
+
+  app.on("shutdown",do () {
+      
+  });
+  
+  g_application_run(app,argc,argv);
+}
 
 

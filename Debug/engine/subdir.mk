@@ -9,6 +9,7 @@ C_SRCS += \
 ../engine/golembuilderclass.c \
 ../engine/golembuilderclosure.c \
 ../engine/golembuilderextern.c \
+../engine/golembuilderfunction.c \
 ../engine/golemcinvoke.c \
 ../engine/golemclosure.c \
 ../engine/golemcompiled.c \
@@ -38,6 +39,7 @@ OBJS += \
 ./engine/golembuilderclass.o \
 ./engine/golembuilderclosure.o \
 ./engine/golembuilderextern.o \
+./engine/golembuilderfunction.o \
 ./engine/golemcinvoke.o \
 ./engine/golemclosure.o \
 ./engine/golemcompiled.o \
@@ -67,6 +69,7 @@ C_DEPS += \
 ./engine/golembuilderclass.d \
 ./engine/golembuilderclosure.d \
 ./engine/golembuilderextern.d \
+./engine/golembuilderfunction.d \
 ./engine/golemcinvoke.d \
 ./engine/golemclosure.d \
 ./engine/golemcompiled.d \

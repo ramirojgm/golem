@@ -31,7 +31,10 @@ _golem_shared_object_execute(GolemStatement * statement,GolemContext * context,G
   GolemSharedObject * self = GOLEM_SHARED_OBJECT(statement);
   if(!g_module_open(self->priv->name,0))
     {
-
+      golem_throw(error,
+		  GOLEM_UNKNOWN_TYPE_ERROR,
+		  "not found shared object \"%s\"",
+		  self->priv->name);
     }
   return TRUE;
 }

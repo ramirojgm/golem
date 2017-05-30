@@ -32,7 +32,7 @@ struct _GolemTypeInfoPrivate {
     * constructed,
     * dispose,
     * finalize,
-    * complete;
+    * parse;
 
   GList
     * methods,

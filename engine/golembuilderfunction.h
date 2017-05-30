@@ -18,6 +18,27 @@
 #ifndef GOLEMBUILDERFUNC_H_
 #define GOLEMBUILDERFUNC_H_
 
+#define GOLEM_TYPE_BUILDER_FUNCTION	(golem_builder_function_get_type())
+G_DECLARE_FINAL_TYPE(GolemBuilderFunction,golem_builder_function,GOLEM,BUILDER_FUNCTION,GolemStatement)
 
+typedef struct _GolemBuilderFunctionPrivate GolemBuilderFunctionPrivate;
+
+struct _GolemBuilderFunctionClass
+{
+  GolemStatementClass parent_class;
+
+};
+
+struct _GolemBuilderFunction
+{
+  GolemStatement parent_instance;
+  GolemBuilderFunctionPrivate * priv;
+};
+
+GType			golem_builder_function_get_type(void);
+
+gboolean		golem_builder_function_check(GolemParser * parser);
+
+GolemBuilderFunction * 	golem_builder_function_parse(GolemParser * parser,GError ** error);
 
 #endif /* GOLEMBUILDERFUNC_H_ */

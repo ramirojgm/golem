@@ -61,6 +61,8 @@ golem_statement_parse(GolemParser * parser,GError ** error)
       return GOLEM_STATEMENT(golem_shared_object_parse(parser,error));
   else if(golem_builder_extern_check(parser))
     return GOLEM_STATEMENT(golem_builder_extern_parse(parser,error));
+  else if(golem_builder_function_check(parser))
+      return GOLEM_STATEMENT(golem_builder_function_parse(parser,error));
   else if(golem_declaration_check(parser))
     return GOLEM_STATEMENT(golem_declaration_parse(parser,error));
   else if(golem_block_check(parser))

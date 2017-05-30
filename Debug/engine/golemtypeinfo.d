@@ -97,9 +97,10 @@ engine/golemtypeinfo.d: ../engine/golemtypeinfo.c ../engine/golem.h \
   ../engine/golemidentificator.h ../engine/golemblock.h \
   ../engine/golemif.h ../engine/golemwhile.h ../engine/golemclosure.h \
   ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
-  ../engine/golembuilderclosure.h ../engine/golemcinvoke.h \
-  ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemllm.h \
-  ../engine/golemtypeinfo.h ../engine/golemutils.h
+  ../engine/golembuilderfunction.h ../engine/golembuilderclosure.h \
+  ../engine/golemcinvoke.h ../engine/golemcompiled.h \
+  ../engine/golemerror.h ../engine/golemllm.h ../engine/golemtypeinfo.h \
+  ../engine/golemutils.h
 
 ../engine/golem.h:
 
@@ -330,6 +331,8 @@ engine/golemtypeinfo.d: ../engine/golemtypeinfo.c ../engine/golem.h \
 ../engine/golembuilderclass.h:
 
 ../engine/golembuilderextern.h:
+
+../engine/golembuilderfunction.h:
 
 ../engine/golembuilderclosure.h:
 

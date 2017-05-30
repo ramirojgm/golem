@@ -48,7 +48,7 @@ enum _GolemMethodType
   GOLEM_METHOD_MODIFICATOR
 };
 
-
+static
 
 GType 		golem_type_info_get_type(void);
 
