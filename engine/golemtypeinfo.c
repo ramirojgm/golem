@@ -16,6 +16,7 @@
  */
 
 #include "golem.h"
+#include <gmodule.h>
 
 static GList *	_golem_type_info = NULL;
 GMutex 		_golem_type_info_mutex = G_STATIC_MUTEX_INIT;
@@ -35,20 +36,25 @@ struct _GolemTypeInfoPrivate {
     * parse;
 
   GList
-    * methods,
+    * functions,
     * properties;
 
 };
 
-struct _GolemMethod
+struct _GolemFunctionSpec
 {
-  GolemMethodType type;
   GolemClosureInfo * info;
-  goffset offset;
-  GCallback callback;
+  const gchar * name;
+  GolemFunctionType type;
+  union {
+    GolemStatement * body;
+    goffset offset;
+    gchar * symbol_name;
+    GolemClosureInvokeFunc func;
+  } data;
 };
 
-struct _GolemProperty {
+struct _GolemPropertySpec {
   GParamSpec * param;
   GolemStatement * get;
   GolemStatement * set;
@@ -56,7 +62,7 @@ struct _GolemProperty {
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeInfo,golem_type_info,G_TYPE_OBJECT)
 
-static void
+/*static void
 golem_instance_generic_dispose(GObject * instance)
 {
 
@@ -89,8 +95,8 @@ golem_instance_generic_set_property(GObject        *object,
   GolemTypeInfo *  info = GOLEM_TYPE_INFO(g_object_get_data(object,"_type_info_"));
 
 }
-
-static void
+*/
+/*static void
 golem_instance_generic_get_property(GObject        *object,
                                     guint           property_id,
                                     GValue         *value,
@@ -124,7 +130,7 @@ golem_instance_generic_class_init(GObjectClass * klass)
   klass->dispose = golem_instance_generic_dispose;
   klass->set_property = golem_instance_generic_set_property;
   klass->get_property = golem_instance_generic_get_property;
-}
+}*/
 
 static void
 golem_type_info_init(GolemTypeInfo * info)
@@ -132,11 +138,11 @@ golem_type_info_init(GolemTypeInfo * info)
   GolemTypeInfoPrivate * priv = golem_type_info_get_instance_private(info);
   info->priv = priv;
   priv->init = NULL;
-  priv->complete = NULL;
+  priv->parse = NULL;
   priv->constructed = NULL;
   priv->dispose = NULL;
   priv->name = NULL;
-  priv->methods = NULL;
+  priv->functions = NULL;
   priv->properties = NULL;
   g_mutex_init(&(info->mutex));
 }
@@ -172,11 +178,6 @@ golem_type_info_from_gtype(GType type)
   return type_info;
 }
 
-gboolean
-golem_type_info_register(GolemTypeInfo * type_info,GolemContext * context,GError ** error)
-{
-
-}
 
 const gchar *
 golem_type_info_get_name(GolemTypeInfo * type_info)
@@ -184,13 +185,7 @@ golem_type_info_get_name(GolemTypeInfo * type_info)
   return type_info->priv->name;
 }
 
-void
-golem_type_info_set_name(GolemTypeInfo * type_info,const gchar * name)
-{
-  g_clear_pointer(&(type_info->priv->name),g_free);
-  type_info->priv->name = g_strdup(name);
-}
-
+/*
 void
 golem_type_info_set_init(GolemTypeInfo * type_info,GolemStatement * statement)
 {
@@ -237,50 +232,53 @@ GolemStatement*
 golem_type_info_get_dispose(GolemTypeInfo * type_info)
 {
 
-}
+}*/
 
 void
-golem_type_info_add_method(GolemTypeInfo * type_info,GolemMethod * method)
+golem_type_info_add_function(GolemTypeInfo * type_info,GolemFunctionSpec * function)
 {
-  type_info->priv->methods = g_list_append(type_info->priv->methods,method);
+  type_info->priv->functions = g_list_append(type_info->priv->functions,function);
 }
 
 void
-golem_type_info_add_property(GolemTypeInfo * type_info,GolemProperty * property)
+golem_type_info_add_property(GolemTypeInfo * type_info,GolemPropertySpec * property)
 {
   type_info->priv->properties = g_list_append(type_info->priv->properties,property);
 }
 
-GolemMethod *
-golem_type_info_get_method(GType type,const gchar * name,GType * type_container)
+GolemFunctionSpec *
+_golem_type_info_find_function(GType type,const gchar * name,GType * type_container)
 {
   GType parent_type = g_type_parent(type);
   GolemTypeInfo * type_info = golem_type_info_from_gtype(type);
-
-  for(GList * method_iter = g_list_first(type_info->priv->methods);method_iter;method_iter = g_list_next(method_iter))
+  for(GList * function_iter = g_list_first(type_info->priv->functions);function_iter;function_iter = g_list_next(function_iter))
     {
-      GolemMethod * method = (GolemMethod*)method_iter->data;
-      if(g_strcmp0(golem_closure_info_get_name(method->info),name) == 0)
+      GolemFunctionSpec * function_spec = (GolemFunctionSpec*)function_iter->data;
+      const gchar * function_name = function_spec->name;
+      if(!function_name)
+	function_name = golem_closure_info_get_name(function_spec->info);
+      if(g_strcmp0(function_name,name) == 0)
 	{
 	  if(type_container)
 	    *type_container = type;
-	  return method;
+	  return function_spec;
 	}
     }
 
-  GType * interfaces = g_type_interfaces(type,NULL);
-  GolemMethod * interface_method = NULL;
-  for(GType * itype = interfaces;*itype; itype += sizeof(GType))
+  guint n_interfaces = 0;
+  GType * interfaces = g_type_interfaces(type,&n_interfaces);
+  GolemFunctionSpec * interface_function_spec = NULL;
+  for(guint itype = 0;itype < n_interfaces; itype++)
     {
-      if((interface_method = golem_type_info_get_method(*itype,name,type_container)))
+      if((interface_function_spec = _golem_type_info_find_function(interfaces[itype],name,type_container)))
 	break;
     }
   g_free(interfaces);
 
-  if(interface_method)
-    return interface_method;
-  else if((parent_type != G_TYPE_OBJECT) && parent_type)
-    return golem_type_info_get_method(parent_type,name,type_container);
+  if(interface_function_spec)
+    return interface_function_spec;
+  else if(parent_type)
+    return _golem_type_info_find_function(parent_type,name,type_container);
   else
     return NULL;
 }
@@ -288,41 +286,62 @@ golem_type_info_get_method(GType type,const gchar * name,GType * type_container)
 gboolean
 golem_type_info_get_static(GType type,const gchar * name,GValue * dest,GError ** error)
 {
+  return FALSE;
+}
 
+gboolean
+golem_type_info_get_classed(GType type,const gchar * name,GValue * dest,GError ** error)
+{
+  return FALSE;
+}
+
+void
+_golem_closure_attached_finalize(GolemClosure * closure,gpointer data)
+{
+  g_object_unref(data);
 }
 
 gboolean
 golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError ** error)
 {
   GType	gtype = G_TYPE_FROM_INSTANCE(instance);
-  GType gtype_method = G_TYPE_NONE;
+  GType gtype_function = G_TYPE_NONE;
   GObjectClass * klass = G_OBJECT_GET_CLASS(instance);
-  GolemMethod * method = NULL;
+  GolemFunctionSpec * function = NULL;
   GParamSpec *  property = NULL;
+  GolemClosure * closure = NULL;
 
   gboolean done = FALSE;
 
-  //Find method
-  if((method = golem_type_info_get_method(gtype,name,&gtype_method)))
+  //find function
+  if((function = _golem_type_info_find_function(gtype,name,&gtype_function)))
     {
       done = TRUE;
-      gpointer callback = NULL;
-      if(method->callback)
+      if(function->type == GOLEM_FUNCTION_SYMBOLIC)
 	{
-	  callback = method->callback;
+	  gpointer symbol = NULL;
+	  GModule * global = g_module_open(NULL,G_MODULE_BIND_LOCAL);
+	  g_module_symbol(global,function->data.symbol_name,&symbol);
+	  g_module_close(global);
+	  closure = golem_symbol_new(function->info,symbol);
+	  golem_closure_set_instance(closure,instance);
+	  g_value_init(dest,G_TYPE_CLOSURE);
+	  g_value_set_boxed(dest,closure);
+	  g_closure_unref(G_CLOSURE(closure));
+	  g_print("%s:%p\n",function->data.symbol_name,symbol);
 	}
-      else
+      else if(function->type == GOLEM_FUNCTION_VIRTUAL)
 	{
 	  GTypeQuery gtype_query = {0,};
 	  GTypeQuery gtype_parent_query = {0,};
-	  GType gtype_parent = g_type_parent(gtype_method);
-	  gpointer * struct_method = NULL;
+	  GType gtype_parent = g_type_parent(gtype_function);
+	  gpointer * struct_function = NULL;
 
-	  g_type_query(gtype_method,&gtype_query);
+	  g_type_query(gtype_function,&gtype_query);
 
-	  if(G_TYPE_IS_INTERFACE(gtype_method))
+	  if(G_TYPE_IS_INTERFACE(gtype_function))
 	    {
-	      struct_method = g_type_interface_peek(instance,gtype_method);
+	      struct_function = g_type_interface_peek(instance,gtype_function);
 	    }
 	  else
 	    {
@@ -333,34 +352,60 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
 		  g_type_query(gtype_parent,&gtype_parent_query);
 		  gtype_offset = parent_query.class_size;
 		}
-	      struct_method = (gpointer)klass + gtype_offset;
+	      struct_function = (gpointer)klass + gtype_offset;
 	    }
-
-	  if(gtype_query.class_size > method->offset)
+	  if(gtype_query.class_size > function->data.offset)
 	    {
-	      callback = *((gpointer*)(struct_method + method->offset));
-	    }
-	  else
-	    {
-	      callback = NULL;
-	      //TODO: bad offset
+	      closure = golem_symbol_new(function->info,(struct_function + function->data.offset));
+	      golem_closure_set_instance(closure,instance);
+	      g_value_init(dest,G_TYPE_CLOSURE);
+	      g_value_set_boxed(dest,closure);
+	      g_closure_unref(G_CLOSURE(closure));
 	    }
 	}
-      /*GolemClosure * symbol = golem_symbol_instanced_new(method->info,(gpointer)callback,(gpointer)instance);
-      g_value_init(dest,G_TYPE_CLOSURE);
-      g_value_set_boxed(dest,symbol);*/
+      else if(function->type == GOLEM_FUNCTION_INTERNAL)
+	{
+	  GolemContext * context = g_object_get_data(instance,"_this_context_");
+	  if(!context)
+	    {
+	      GolemTypeInfo * type_info = golem_type_info_from_gtype(gtype);
+	      context = golem_context_new(type_info->priv->define_context);
+	      golem_context_set_instance(context,instance);
+	      g_object_set_data_full(instance,"_this_context_",g_object_ref(context),g_object_unref);
+	    }
+	  closure = golem_function_new(function->info,context,function->data.body);
+	  g_value_init(dest,G_TYPE_CLOSURE);
+	  g_value_set_boxed(dest,closure);
+	  g_closure_unref(G_CLOSURE(closure));
+	}
+      else if(function->type == GOLEM_FUNCTION_CLOSURED)
+	{
+	  closure = golem_closure_new(function->data.func,_golem_closure_attached_finalize,g_object_ref(instance));
+	  g_value_init(dest,G_TYPE_CLOSURE);
+	  g_value_set_boxed(dest,closure);
+	  g_closure_unref(G_CLOSURE(closure));
+	}
     }
-  //Find property
+
+  //find property
   else if((property = g_object_class_find_property(klass,name)))
     {
       done = TRUE;
-
+      GParamSpec * property = g_object_class_find_property(klass,name);
+      if(property)
+	{
+	  g_value_init(dest,property->value_type);
+	  g_object_get_property(instance,name,dest);
+	  return TRUE;
+	}
     }
-  //Find data
+  //find data
   else
     {
-
+      g_value_init(dest,G_TYPE_INT);
+      g_value_set_int(dest,0);
     }
+  g_print("%s\n",name);
   return done;
 }
 
@@ -370,31 +415,46 @@ golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GErr
 
 }
 
-GolemProperty *
-golem_property_new(GParamSpec * property,GolemStatement *  get,GolemStatement * set)
+GolemFunctionSpec *
+golem_function_symbol_new(GolemClosureInfo * info,const gchar * symbol_name)
 {
-
+  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
+  function->name = NULL;
+  function->info = info;
+  function->type = GOLEM_FUNCTION_SYMBOLIC;
+  function->data.symbol_name = g_strdup(symbol_name);
+  return function;
 }
 
-void
-golem_property_free(GolemProperty *  property)
+GolemFunctionSpec *
+golem_function_virtual_new(GolemClosureInfo * info,goffset offset)
 {
-
+  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
+  function->name = NULL;
+  function->info = info;
+  function->type = GOLEM_FUNCTION_VIRTUAL;
+  function->data.offset = offset;
+  return function;
 }
 
-GolemMethod *
-golem_method_new(GolemMethodType type,GolemClosureInfo * info,GCallback callback,goffset offset)
+GolemFunctionSpec *
+golem_function_internal_new(GolemClosureInfo * info,GolemStatement * body)
 {
-  GolemMethod * method = g_new0(GolemMethod,1);
-  method->type = type;
-  method->info = info;
-  method->offset = offset;
-  method->callback = callback;
-  return method;
+  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
+  function->name = NULL;
+  function->info = info;
+  function->type = GOLEM_FUNCTION_INTERNAL;
+  function->data.body = body;
+  return function;
 }
 
-void
-golem_method_free(GolemMethod * method)
+GolemFunctionSpec *
+golem_function_closured_new(const gchar * name,GolemClosureInvokeFunc func)
 {
-
+  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
+  function->name = name;
+  function->info = NULL;
+  function->type = GOLEM_FUNCTION_CLOSURED;
+  function->data.func = func;
+  return function;
 }

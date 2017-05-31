@@ -20,8 +20,10 @@ C_SRCS += \
 ../engine/golemerror.c \
 ../engine/golemexpression.c \
 ../engine/golemexpressioncomplex.c \
+../engine/golemextends.c \
 ../engine/golemidentificator.c \
 ../engine/golemif.c \
+../engine/goleminit.c \
 ../engine/goleminvoke.c \
 ../engine/golemllm.c \
 ../engine/golemmember.c \
@@ -30,7 +32,6 @@ C_SRCS += \
 ../engine/golemsharedobject.c \
 ../engine/golemstatement.c \
 ../engine/golemtypeinfo.c \
-../engine/golemutils.c \
 ../engine/golemwhile.c 
 
 OBJS += \
@@ -50,8 +51,10 @@ OBJS += \
 ./engine/golemerror.o \
 ./engine/golemexpression.o \
 ./engine/golemexpressioncomplex.o \
+./engine/golemextends.o \
 ./engine/golemidentificator.o \
 ./engine/golemif.o \
+./engine/goleminit.o \
 ./engine/goleminvoke.o \
 ./engine/golemllm.o \
 ./engine/golemmember.o \
@@ -60,7 +63,6 @@ OBJS += \
 ./engine/golemsharedobject.o \
 ./engine/golemstatement.o \
 ./engine/golemtypeinfo.o \
-./engine/golemutils.o \
 ./engine/golemwhile.o 
 
 C_DEPS += \
@@ -80,8 +82,10 @@ C_DEPS += \
 ./engine/golemerror.d \
 ./engine/golemexpression.d \
 ./engine/golemexpressioncomplex.d \
+./engine/golemextends.d \
 ./engine/golemidentificator.d \
 ./engine/golemif.d \
+./engine/goleminit.d \
 ./engine/goleminvoke.d \
 ./engine/golemllm.d \
 ./engine/golemmember.d \
@@ -90,7 +94,6 @@ C_DEPS += \
 ./engine/golemsharedobject.d \
 ./engine/golemstatement.d \
 ./engine/golemtypeinfo.d \
-./engine/golemutils.d \
 ./engine/golemwhile.d 
 
 

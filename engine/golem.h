@@ -43,6 +43,7 @@
 #include "golembuilderextern.h"
 #include "golembuilderfunction.h"
 #include "golembuilderclosure.h"
+#include "golemextends.h"
 #include "golemcinvoke.h"
 #include "golemcompiled.h"
 #include "golemerror.h"

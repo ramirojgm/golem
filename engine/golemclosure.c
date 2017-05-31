@@ -791,7 +791,7 @@ golem_closure_new(GolemClosureInvokeFunc invoke_func,GolemClosureFinalizeFunc fi
 void
 golem_closure_set_instance(GolemClosure * closure,gpointer instance)
 {
-  g_return_if_fail(closure->context_type != GOLEM_CLOSURE_CONTEXT_NONE);
+  g_return_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_NONE);
   closure->context_type = GOLEM_CLOSURE_CONTEXT_INSTANCED;
   closure->context.instance = g_object_ref(instance);
 }
@@ -806,7 +806,7 @@ golem_closure_get_instance(GolemClosure * closure)
 void
 golem_closure_set_class(GolemClosure * closure,GType klass)
 {
-  g_return_if_fail(closure->context_type != GOLEM_CLOSURE_CONTEXT_NONE);
+  g_return_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_NONE);
   closure->context_type = GOLEM_CLOSURE_CONTEXT_CLASSED;
   closure->context.class_type = klass;
 }

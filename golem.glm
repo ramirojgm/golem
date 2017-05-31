@@ -1,32 +1,31 @@
 sharedobject "libgtk-3.so.0"
 sharedobject "libsqlite3.so.0"
 
-extern pointer malloc(int size);
-extern void free(pointer p);
+extern int g_application_run(GApplication app,int argc,pointer argv);
 
-extern int g_application_run(GtkApplication application,int c,pointer v);
-extern void gtk_application_add_window(GtkApplication app,GtkWindow window);
-extern void gtk_widget_show(GtkWidget widget);
-extern void gtk_container_add(GtkContainer container,GtkWidget widget);
-
-extern class GtkWidget {
-  
-  void show() = gtk_widget_show;
+extends GtkWidget
+{
+  extern void show();
+  extern void hide();
 }
 
+extends GtkApplication
+{
+  extern void add_window(GtkWidget child);
+}
 
 void main(int argc,pointer argv) {
-    
+  
   GtkApplication app = new GtkApplication {
     "application-id": "org.gnome.desktop.golem.test",
   };
-
+  
   app.on("activate",do() {
      GtkApplicationWindow win = new GtkApplicationWindow {
        "title": "Tsubame"
      };
-     gtk_widget_show(win);
-     gtk_application_add_window(app,win);
+     win.show();
+     app.add_window(win);
   });
 
   app.on("shutdown",do () {

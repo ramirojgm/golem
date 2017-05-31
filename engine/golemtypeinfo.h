@@ -19,13 +19,21 @@
 #define GOLEMTYPEINFO_H_
 
 typedef struct _GolemTypeInfoPrivate GolemTypeInfoPrivate;
-typedef struct _GolemMethod GolemMethod;
-typedef struct _GolemProperty GolemProperty;
-typedef enum _GolemMethodType GolemMethodType;
+typedef struct _GolemFunctionSpec GolemFunctionSpec;
+typedef struct _GolemPropertySpec GolemPropertySpec;
+typedef enum _GolemFunctionType GolemFunctionType;
+
 
 #define GOLEM_TYPE_TYPE_INFO	(golem_type_info_get_type())
 G_DECLARE_FINAL_TYPE(GolemTypeInfo,golem_type_info,GOLEM,TYPE_INFO,GObject)
 
+enum _GolemFunctionType
+{
+  GOLEM_FUNCTION_SYMBOLIC,
+  GOLEM_FUNCTION_VIRTUAL,
+  GOLEM_FUNCTION_INTERNAL,
+  GOLEM_FUNCTION_CLOSURED
+};
 
 struct _GolemTypeInfoClass
 {
@@ -40,23 +48,31 @@ struct _GolemTypeInfo
   GolemTypeInfoPrivate * priv;
 };
 
-enum _GolemMethodType
-{
-  GOLEM_METHOD_STATIC,
-  GOLEM_METHOD_INSTANCED,
-  GOLEM_METHOD_VIRTUAL,
-  GOLEM_METHOD_MODIFICATOR
-};
-
-static
-
 GType 		golem_type_info_get_type(void);
 
-GolemTypeInfo* 	golem_type_info_new();
+GolemTypeInfo* 	golem_type_info_new(const gchar * name);
 
 GolemTypeInfo*	golem_type_info_from_gtype(GType type);
 
-gboolean	golem_type_info_register(GolemTypeInfo * type_info,GolemContext * context,GError ** error);
+gboolean	golem_type_info_get_static(GType type,const gchar * name,GValue * dest,GError ** error);
+
+gboolean	golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError ** error);
+
+gboolean	golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GError ** error);
+
+void		golem_type_info_add_function(GolemTypeInfo * info,GolemFunctionSpec * spec);
+
+void		golem_type_info_add_property(GolemTypeInfo * info,GolemPropertySpec * spec);
+
+GolemFunctionSpec * golem_function_symbol_new(GolemClosureInfo * info,const gchar * symbol_name);
+
+GolemFunctionSpec * golem_function_virtual_new(GolemClosureInfo * info,goffset offset);
+
+GolemFunctionSpec * golem_function_internal_new(GolemClosureInfo * info,GolemStatement * body);
+
+GolemFunctionSpec * golem_function_closured_new(const gchar * name,GolemClosureInvokeFunc func);
+
+/*gboolean	golem_type_info_register(GolemTypeInfo * type_info,GolemContext * context,GError ** error);
 
 const gchar *	golem_type_info_get_name(GolemTypeInfo * type_info);
 
@@ -94,6 +110,6 @@ void		golem_property_free(GolemProperty *  property);
 
 GolemMethod *	golem_method_new(GolemMethodType type,GolemClosureInfo * info,GCallback callback,goffset offset);
 
-void		golem_method_free(GolemMethod * method);
+void		golem_method_free(GolemMethod * method);*/
 
 #endif /* GOLEMTYPEINFO_H_ */

@@ -22,10 +22,6 @@ GType		golem_resolve_type_name(GolemContext * context,const gchar * name);
 
 const gchar *	golem_type_get_prefix(const gchar * name);
 
-gboolean	golem_member_get(GValue * value,const gchar * member_name,GValue * dest,GError ** error);
-
-gboolean	golem_member_set(GValue * value,const gchar * member,GValue * src,GError ** error);
-
 void		g_value_free(GValue * value);
 
 #endif /* GOLEMUTILS_H_ */

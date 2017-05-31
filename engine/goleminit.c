@@ -53,6 +53,8 @@ golem_resolve_type_name(GolemContext * context,const gchar * name)
       return GOLEM_TYPE_CLOSURE;
   else if(g_strcmp0(name,"object") == 0)
       return G_TYPE_OBJECT;
+  else if(g_strcmp0(name,"array") == 0)
+        return G_TYPE_ARRAY;
   else if(g_strcmp0(name,"debug_object") == 0)
       return GOLEM_TYPE_DEBUG_OBJECT;
   else
@@ -145,6 +147,15 @@ golem_gobject_signal_on(GolemClosure * closure,
     }
   golem_closure_invoke_set_result(invoke,&return_value);
   return TRUE;
+}
+
+
+static void
+_golem_object_type_init() __attribute__((constructor))
+{
+  GolemTypeInfo * type_info = golem_type_info_from_gtype(G_TYPE_OBJECT);
+  GolemFunctionSpec * function_on = golem_function_closured_new("on",golem_gobject_signal_on);
+  golem_type_info_add_function(type_info,function_on);
 }
 
 gboolean

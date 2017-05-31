@@ -248,15 +248,25 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
 
   if(priv->instance)
       {
-        GObjectClass * klass = G_OBJECT_GET_CLASS(priv->instance);
-        GParamSpec * property = g_object_class_find_property(klass,name);
-        if(property)
+	if(g_strcmp0(name,"this") == 0)
 	  {
 	    g_value_unset(value);
-	    g_value_init(value,property->value_type);
-	    g_object_get_property(priv->instance,name,value);
-	    g_mutex_unlock(&(context->mutex));
+	    g_value_init(value,G_TYPE_FROM_INSTANCE(priv->instance));
+	    g_value_set_object(value,priv->instance);
 	    return TRUE;
+	  }
+	else
+	  {
+	    GObjectClass * klass = G_OBJECT_GET_CLASS(priv->instance);
+	    GParamSpec * property = g_object_class_find_property(klass,name);
+	    if(property)
+	      {
+		g_value_unset(value);
+		g_value_init(value,property->value_type);
+		g_object_get_property(priv->instance,name,value);
+		g_mutex_unlock(&(context->mutex));
+		return TRUE;
+	      }
 	  }
       }
 
@@ -289,3 +299,11 @@ golem_context_new(GolemContext * parent)
   return self;
 }
 
+void
+golem_context_set_instance(GolemContext * context,GObject * instance)
+{
+  GolemContextPrivate * priv = golem_context_get_instance_private(context);
+  if(priv->instance)
+    g_object_unref(priv->instance);
+  priv->instance = instance;
+}

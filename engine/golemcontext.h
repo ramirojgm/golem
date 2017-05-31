@@ -42,8 +42,6 @@ GolemContext *	golem_context_get_parent(GolemContext * context);
 
 void		golem_context_set_instance(GolemContext * context,GObject * instance);
 
-GObject *	golem_context_get_instance(GolemContext * context);
-
 gboolean	golem_context_declare(GolemContext * context,const gchar * name,GType type,GError ** error);
 
 gboolean	golem_context_set(GolemContext * context,const gchar * name,GValue * value,GError ** error);
