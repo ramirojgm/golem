@@ -2,17 +2,9 @@ sharedobject "libgtk-3.so.0"
 sharedobject "libsqlite3.so.0"
 
 extern int g_application_run(GApplication app,int argc,pointer argv);
+extern void gtk_widget_show(GtkWidget widget);
+extern void gtk_application_add_window(GtkApplication app,GtkWindow win);
 
-extends GtkWidget
-{
-  extern void show();
-  extern void hide();
-}
-
-extends GtkApplication
-{
-  extern void add_window(GtkWidget child);
-}
 
 void main(int argc,pointer argv) {
   
@@ -24,8 +16,8 @@ void main(int argc,pointer argv) {
      GtkApplicationWindow win = new GtkApplicationWindow {
        "title": "Tsubame"
      };
-     win.show();
-     app.add_window(win);
+     gtk_widget_show(win);
+     gtk_application_add_window(app,win);
   });
 
   app.on("shutdown",do () {
