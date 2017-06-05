@@ -29,22 +29,17 @@ G_DEFINE_TYPE_WITH_PRIVATE(GolemExtends,golem_extends,GOLEM_TYPE_STATEMENT)
 static gboolean
 _golem_extends_execute(GolemStatement * statement,GolemContext * context,GError ** error)
 {
-  gboolean done = TRUE;
+  gboolean done = FALSE;
   GolemExtends * self = GOLEM_EXTENDS(statement);
-  GType gtype = golem_resolve_type_name(context,self->priv->type_name);
+  GType gtype = golem_context_get_type_define(context,self->priv->type_name,error);
   if(gtype)
     {
+      done = TRUE;
       GolemTypeInfo * info = golem_type_info_from_gtype(gtype);
       for(GList * func_iter = g_list_first(self->priv->functions);func_iter;func_iter = g_list_next(func_iter))
 	{
 	  golem_type_info_add_function(info,(GolemFunctionSpec *)func_iter->data);
 	}
-    }
-  else
-    {
-      //TODO: type not exists
-      g_print("type not exists\n");
-      done = FALSE;
     }
   return done;
 }
@@ -106,8 +101,6 @@ golem_extends_parse(GolemParser * parser,GError ** error)
 				{
 				  g_object_unref(info);
 				  done = FALSE;
-				  //TODO: expected {
-				  g_print("expected { but get %s\n",golem_parser_next_word(parser,NULL,FALSE));
 				  break;
 				}
 			    }
@@ -115,8 +108,7 @@ golem_extends_parse(GolemParser * parser,GError ** error)
 			    {
 			      g_object_unref(info);
 			      done = FALSE;
-			      //TODO: expected {
-			      g_print("expected { but get %s\n",golem_parser_next_word(parser,NULL,FALSE));
+			      golem_parser_error(error,parser,"was expected \"{\"");
 			      break;
 			    }
 			}
@@ -136,8 +128,7 @@ golem_extends_parse(GolemParser * parser,GError ** error)
 			    {
 			      g_object_unref(info);
 			      done = FALSE;
-			      //TODO: expected ;
-			      g_print("expected ;");
+			      golem_parser_error(error,parser,"was expected \";\"");
 			      g_free(real_name);
 			      break;
 			    }
@@ -150,20 +141,20 @@ golem_extends_parse(GolemParser * parser,GError ** error)
 		    }
 		  else
 		    {
-		      g_print("error parsing");
+		      done = FALSE;
 		    }
 		}
 	    }
 	  else
 	    {
 	      done = FALSE;
-	      //TODO: expected type name to extend
+	      golem_parser_error(error,parser,"was expected \"{\"");
 	    }
 	}
       else
 	{
 	  done = FALSE;
-	  //TODO: expected type name to extend
+	  golem_parser_error(error,parser,"was expected the type to extend");
 	}
     }
   if(!done)

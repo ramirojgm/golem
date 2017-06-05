@@ -21,7 +21,7 @@ G_DEFINE_TYPE_WITH_CODE(GolemExpression,golem_expression,GOLEM_TYPE_STATEMENT,{}
 static gboolean
 _golem_expression_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
 {
-  golem_throw(error,GOLEM_NOT_IMPLEMENTED_ERROR,"expression evaluate not implemented yet");
+  golem_runtime_error(error,GOLEM_NOT_IMPLEMENTED_ERROR,"expression evaluate not implemented yet");
   return FALSE;
 }
 
@@ -64,7 +64,7 @@ golem_expression_parse(GolemParser * parser,GError ** error)
   if(!golem_parser_next_word_check(parser,";"))
     {
       g_clear_object(&expression);
-      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected \";\" at line (%d)",golem_parser_get_line(parser));
+      golem_parser_error(error,parser,"expected \";\"");
     }
   return expression;
 }

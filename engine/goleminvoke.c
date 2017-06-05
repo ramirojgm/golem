@@ -56,7 +56,7 @@ _golem_invoke_evaluate(GolemExpression * expression,GolemContext * context,GValu
 	  GolemClosure * closure = GOLEM_CLOSURE(g_closure_ref(G_CLOSURE(g_value_get_boxed(&func))));
 	  if(!golem_closure_invoke(closure,invoke))
 	    {
-	      golem_throw_error(error,golem_closure_invoke_get_error(invoke));
+	      golem_propage_error(error,golem_closure_invoke_get_error(invoke));
 	    }
 	  else
 	    {
@@ -114,7 +114,7 @@ golem_invoke_parse(GolemParser * parser,GolemExpression * expression,GError ** e
 	  if(golem_parser_next_word_check(parser,","))
 	    {
 	      done = FALSE;
-	      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected a expression before \",\"");
+	      golem_parser_error(error,parser,"was expected a expression before \",\"");
 	      break;
 	    }
 
@@ -136,7 +136,7 @@ golem_invoke_parse(GolemParser * parser,GolemExpression * expression,GError ** e
 	      else
 		{
 		  done = FALSE;
-		  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \",\" or \")\"");
+		  golem_parser_error(error,parser,"was expected \",\" or \")\"");
 		}
 	    }
 	}

@@ -45,11 +45,11 @@ golem_compiled_class_init(GolemCompiledClass * klass)
 }
 
 gboolean
-golem_compiled_add_string(GolemCompiled * compiled,const gchar * str,gssize length,GError ** error)
+golem_compiled_add_string(GolemCompiled * compiled,const gchar * source_name,const gchar * str,gssize length,GError ** error)
 {
   GolemStatement * sentence;
   gboolean done = TRUE;
-  GolemParser * parser = golem_parser_new();
+  GolemParser * parser = golem_parser_new(source_name);
   golem_parser_parse(parser,str,length);
   GList * sentences = NULL;
   while(!golem_parser_is_end(parser))

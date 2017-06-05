@@ -20,7 +20,6 @@
 
 #define GOLEM_ERROR	(golem_error_quark())
 
-typedef struct _GolemCompiled GolemCompiled;
 typedef enum GolemError GolemError;
 
 enum GolemError
@@ -33,10 +32,14 @@ enum GolemError
   GOLEM_UNKNOWN_TYPE_ERROR,
 };
 
-GQuark		golem_error_quark(void);
+GQuark	golem_error_quark(void);
 
-void		golem_throw_error(GError ** error,GError * err);
+void	golem_error_default_handle(GError * error);
 
-void		golem_throw(GError ** error,GolemError code,const gchar * format,...);
+void	golem_parser_error(GError ** error,GolemParser * parser,const gchar * format,...);
+
+void	golem_runtime_error(GError ** error,enum GolemError code,const gchar * format,...);
+
+void	golem_propage_error(GError ** error,GError * new_error);
 
 #endif /* GOLEMERROR_H_ */

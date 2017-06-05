@@ -22,6 +22,7 @@ typedef struct _GolemParserPrivate GolemParserPrivate;
 
 struct _GolemParserPrivate
 {
+  gchar * source_name;
   GList
     * words,
     * cur_word;
@@ -54,7 +55,7 @@ golem_parser_finalize(GObject * instance)
 {
   GolemParserPrivate * priv;
   priv = golem_parser_get_instance_private(GOLEM_PARSER(instance));
-
+  g_free(priv->source_name);
   g_queue_free(priv->saved_point);
   g_list_free_full(priv->words,(GDestroyNotify)golem_parser_word_free);
 }
@@ -64,8 +65,8 @@ static void
 golem_parser_init(GolemParser * self)
 {
   GolemParserPrivate * priv;
-
   priv = golem_parser_get_instance_private(self);
+  priv->source_name = NULL;
   priv->cur_word = NULL;
   priv->words = NULL;
   priv->saved_point = g_queue_new();
@@ -78,9 +79,22 @@ golem_parser_class_init(GolemParserClass * klass)
 }
 
 GolemParser *
-golem_parser_new()
+golem_parser_new(const gchar * source_name)
 {
-  return GOLEM_PARSER(g_object_new(GOLEM_TYPE_PARSER,NULL));
+  GolemParser * parser = GOLEM_PARSER(g_object_new(GOLEM_TYPE_PARSER,NULL));
+  if(source_name)
+    {
+      GolemParserPrivate * priv = golem_parser_get_instance_private(parser);
+      priv->source_name = g_strdup(source_name);
+    }
+  return parser;
+}
+
+const gchar *
+golem_parser_get_source_name(GolemParser * parser)
+{
+  GolemParserPrivate * priv = golem_parser_get_instance_private(parser);
+  return priv->source_name;
 }
 
 gint

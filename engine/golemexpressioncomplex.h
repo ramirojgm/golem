@@ -18,7 +18,6 @@
 #ifndef GOLEMEXPRESSIONCOMPLEX_H_
 #define GOLEMEXPRESSIONCOMPLEX_H_
 
-typedef enum _GolemExpressionLimit GolemExpressionLimit;
 typedef struct _GolemExpressionComplexPrivate GolemExpressionComplexPrivate;
 
 #define GOLEM_TYPE_EXPRESSION_COMPLEX	(golem_expression_complex_get_type())

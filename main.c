@@ -24,6 +24,51 @@
 #include "engine/golem.h"
 
 static gboolean
+golem_convert_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
+{
+  gboolean done = FALSE;
+  if(golem_closure_invoke_get_length(invoke) == 2)
+    {
+      GValue src = G_VALUE_INIT;
+      GValue dest = G_VALUE_INIT;
+      GValue gtype = G_VALUE_INIT;
+
+      golem_closure_invoke_next(invoke,&gtype);
+      golem_closure_invoke_next(invoke,&src);
+      if(G_VALUE_HOLDS_GTYPE(&gtype))
+	{
+	  GType gtype_dest = g_value_get_gtype(&gtype);
+	  if(g_value_type_transformable(src.g_type,gtype_dest))
+	    {
+	      done = TRUE;
+	      g_value_init(&dest,gtype_dest);
+	      g_value_transform(&src,&dest);
+	      golem_closure_invoke_set_result(invoke,&dest);
+	    }
+	  else
+	    {
+
+	      //TODO: can't transform this to it
+	    }
+	}
+      else
+	{
+	  //TODO: No holds type
+	}
+      g_value_unset(&src);
+      g_value_unset(&dest);
+      g_value_unset(&gtype);
+    }
+  else
+    {
+      //TODO: expected 2 params
+    }
+  g_print("done: %d\n",done);
+  return done;
+}
+
+
+static gboolean
 golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
 {
   GValue value = G_VALUE_INIT;
@@ -34,6 +79,11 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
       if(g_value_transform(&value,&string_value))
 	{
 	  g_print("%s",g_value_get_string(&string_value));
+	}
+      else if(G_VALUE_HOLDS_OBJECT(&value) || G_VALUE_HOLDS_BOXED(&value))
+	{
+	  gpointer instance = g_value_get_object(&value);
+	  g_print("<%s: %p>",G_VALUE_TYPE_NAME(&value),instance);
 	}
       g_value_unset(&string_value);
       g_value_unset(&value);
@@ -101,23 +151,25 @@ main(gint argc,gchar ** argv)
 
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
   GolemClosure * input_closure = golem_closure_new(golem_input_func,NULL,NULL);
+  GolemClosure * convert_closure = golem_closure_new(golem_convert_func,NULL,NULL);
 
   golem_context_add_function(context,"print",print_closure);
   golem_context_add_function(context,"input",input_closure);
+  golem_context_add_function(context,"convert",convert_closure);
 
   g_closure_unref(G_CLOSURE(print_closure));
   g_closure_unref(G_CLOSURE(input_closure));
+  g_closure_unref(G_CLOSURE(convert_closure));
 
   g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
   GolemCompiled * compilation = golem_compiled_new();
-  golem_compiled_add_string(compilation,script_file_content,-1,NULL);
+  golem_compiled_add_string(compilation,"golem.glm",script_file_content,-1,NULL);
   g_free(script_file_content);
   golem_compiled_run(compilation,context,NULL);
 
   if(golem_context_get(context,"main",&main_func,NULL))
     {
-      GValue main_return = G_VALUE_INIT,
-	     main_argc = G_VALUE_INIT,
+      GValue main_argc = G_VALUE_INIT,
 	     main_argv = G_VALUE_INIT;
 
       g_value_init(&main_argc,G_TYPE_INT);

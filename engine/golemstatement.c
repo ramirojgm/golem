@@ -24,7 +24,7 @@ G_DEFINE_ABSTRACT_TYPE(GolemStatement,golem_statement,G_TYPE_OBJECT)
 static gboolean
 _golem_statement_execute_real(GolemStatement * self,GolemContext * context,GError ** error)
 {
-  golem_throw(error,
+  golem_runtime_error(error,
       GOLEM_NOT_IMPLEMENTED_ERROR,
       "not implement"
   );

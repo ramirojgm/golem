@@ -16,6 +16,9 @@
  */
 
 #include "golem.h"
+#include "gmodule.h"
+#include <ctype.h>
+#include <string.h>
 
 typedef struct _GolemContextPrivate GolemContextPrivate;
 typedef struct _GolemContextVariable GolemContextVariable;
@@ -128,7 +131,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	    }
 	  else
 	    {
-	      golem_throw(error,
+	      golem_runtime_error(error,
 			  GOLEM_INVALID_CAST_ERROR,
 			  "invalid cast from type \"%s\" to type \"%s\"",
 			  g_type_name(value->g_type),
@@ -163,7 +166,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 	    }
 	  else
 	    {
-	      golem_throw(error,
+	      golem_runtime_error(error,
 			  GOLEM_INVALID_CAST_ERROR,
 			  "invalid cast from type \"%s\" to type \"%s\"",
 			  g_type_name(value->g_type),
@@ -181,7 +184,7 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
     }
   else
     {
-      golem_throw(error,
+      golem_runtime_error(error,
       		    GOLEM_NOT_EXISTS_ERROR,
       		    "the variable \"%s\" not exists",
       		    name
@@ -203,7 +206,7 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
       GolemContextVariable * variable = (GolemContextVariable *)(iter->data);
       if(g_strcmp0(name,variable->name) == 0)
 	{
-	  golem_throw(error,
+	  golem_runtime_error(error,
 		      GOLEM_ALREADY_EXISTS_ERROR,
 		      "the variable \"%s\" already exists",
 		      name
@@ -223,11 +226,105 @@ golem_context_declare(GolemContext * context,const gchar * name,GType type,GErro
   return TRUE;
 }
 
+static GType
+golem_context_get_type_from_name(const gchar * name)
+{
+#ifdef GOLEM_TYPE_IMPORT
+   if(g_strcmp0(name,"void") == 0)
+     return G_TYPE_NONE;
+   else if(g_strcmp0(name,"var") == 0)
+     return G_TYPE_VALUE;
+   else if(g_strcmp0(name,"bool") == 0)
+       return G_TYPE_BOOLEAN;
+   else if(g_strcmp0(name,"string") == 0)
+     return G_TYPE_STRING;
+   else if(g_strcmp0(name,"byte") == 0 || g_strcmp0(name,"char") == 0)
+     return G_TYPE_CHAR;
+   else if(g_strcmp0(name,"int") == 0)
+     return G_TYPE_INT;
+   else if(g_strcmp0(name,"long") == 0)
+     return G_TYPE_LONG;
+   else if(g_strcmp0(name,"ubyte") == 0 || g_strcmp0(name,"uchar") == 0)
+       return G_TYPE_UCHAR;
+   else if(g_strcmp0(name,"uint") == 0)
+     return G_TYPE_UINT;
+   else if(g_strcmp0(name,"ulong") == 0)
+     return G_TYPE_ULONG;
+   else if(g_strcmp0(name,"pointer") == 0)
+     return G_TYPE_POINTER;
+   else if(g_strcmp0(name,"float") == 0)
+       return G_TYPE_FLOAT;
+   else if(g_strcmp0(name,"double") == 0)
+       return G_TYPE_DOUBLE;
+   else if(g_strcmp0(name,"function") == 0)
+       return GOLEM_TYPE_CLOSURE;
+   else if(g_strcmp0(name,"object") == 0)
+       return G_TYPE_OBJECT;
+   else if(g_strcmp0(name,"array") == 0)
+         return G_TYPE_ARRAY;
+   else
+     {
+       GType type = g_type_from_name(name);
+       static gchar type_named[256] = {0,};
+       memset(type_named,0,256);
+       if(type == 0)
+       	{
+       	  GModule * module = g_module_open(NULL,0);
+       	  guint type_named_index = 0;
+       	  for(const gchar * iter = name;*iter;iter ++)
+       	    {
+       	      if(isupper(*iter) && (iter != name))
+       		{
+       		  type_named[type_named_index] = '_';
+       		  type_named_index++;
+
+       		}
+       	      type_named[type_named_index] = tolower(*iter);
+       	      type_named_index++;
+       	    }
+       	  strcat(type_named,"_get_type");
+       	  GType (*get_type)() = 0;
+       	  g_module_symbol(module,type_named,(gpointer*)&get_type);
+       	  if(get_type)
+       	    type = get_type();
+       	  else
+       	    type = 0;
+       	  g_module_close(module);
+       	}
+       return type;
+     }
+#else
+  return 0;
+#endif
+}
+
+GType
+golem_context_get_type_define( GolemContext * context,const gchar * name,GError ** error)
+{
+  GValue type_value = G_VALUE_INIT;
+  GType result = 0;
+  golem_context_get(context,name,&type_value,error);
+  if(G_VALUE_HOLDS_GTYPE(&type_value))
+    {
+      result = g_value_get_gtype(&type_value);
+    }
+  g_value_unset(&type_value);
+  return result;
+}
 
 
 gboolean
 golem_context_get(GolemContext * context,const gchar * name, GValue * value,GError ** error)
 {
+  //Check for type
+  GType type = golem_context_get_type_from_name(name);
+  if(type)
+    {
+      g_value_init(value,G_TYPE_GTYPE);
+      g_value_set_gtype(value,type);
+      return TRUE;
+    }
+
   g_mutex_lock(&(context->mutex));
   GolemContextPrivate * priv;
   GolemContextVariable * variable;
@@ -277,9 +374,9 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
       }
     else
       {
-	golem_throw(error,
+	golem_runtime_error(error,
 		    GOLEM_NOT_EXISTS_ERROR,
-		    "the variable \"%s\" not exists",
+		    "\"%s\" is undefined",
 		    name
 	);
 	g_mutex_unlock(&(context->mutex));

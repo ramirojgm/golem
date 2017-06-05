@@ -41,7 +41,7 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 	{
 	  done = FALSE;
 	  //TODO: no instance object
-	  g_print("no instance");
+	  g_print("not is a object");
 	}
       else
 	{
@@ -52,7 +52,10 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 		  gpointer inst = g_value_get_object(&instance);
 		  done = golem_type_info_set(inst,priv->index,&new_value,error);
 		  if(done)
-		    g_value_copy(&new_value,result);
+		    {
+		      g_value_init(result,G_VALUE_TYPE(&new_value));
+		      g_value_copy(&new_value,result);
+		    }
 		  g_value_unset(&new_value);
 		}
 	    }

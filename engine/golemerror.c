@@ -17,6 +17,8 @@
 
 
 #include "golem.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 GQuark
 golem_error_quark(void)
@@ -25,26 +27,43 @@ golem_error_quark(void)
 }
 
 void
-golem_throw(GError ** error,enum GolemError code,const gchar * format,...)
+golem_error_default_handle(GError * error)
+{
+  if(error)
+    {
+      g_printerr("%s **: %s\n",g_quark_to_string(error->domain), error->message);
+      g_error_free(error);
+      raise(SIGTRAP);
+    }
+}
+
+void
+golem_parser_error(GError ** error,GolemParser * parser,const gchar * format,...)
+{
+  va_list va;
+  va_start(va,format);
+  gchar * message = g_strdup_vprintf(format,va);
+  va_end(va);
+  GError * err = g_error_new(GOLEM_ERROR,GOLEM_SYNTAXIS_ERROR,"%s (%d): %s",golem_parser_get_source_name(parser),golem_parser_get_line(parser),message);
+  g_free(message);
+  golem_propage_error(error,err);
+}
+
+void
+golem_runtime_error(GError ** error,enum GolemError code,const gchar * format,...)
 {
   va_list va;
   va_start(va,format);
   GError * err = g_error_new_valist(GOLEM_ERROR,code,format,va);
   va_end(va);
-  golem_throw_error(error,err);
+  golem_propage_error(error,err);
 }
 
 void
-golem_throw_error(GError ** error,GError * err)
+golem_propage_error(GError ** error,GError * new_error)
 {
   if(error)
-    {
-      *error = err;
-    }
+      *error = new_error;
   else
-    {
-      g_printerr("%s **: %s\n",g_quark_to_string(err->domain), err->message);
-      g_error_free(err);
-      raise(SIGTRAP);
-    }
+    golem_error_default_handle(new_error);
 }

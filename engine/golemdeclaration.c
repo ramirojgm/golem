@@ -45,7 +45,7 @@ _golem_declaration_execute(GolemStatement * sentence,GolemContext * context,GErr
   if(!self->priv->is_resolved)
     {
       self->priv->is_resolved = TRUE;
-      self->priv->type = golem_resolve_type_name(context,self->priv->type_name);
+      self->priv->type = golem_context_get_type_define(context,self->priv->type_name,error);
     }
 
   if(self->priv->type != 0)

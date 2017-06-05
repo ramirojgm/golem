@@ -53,11 +53,14 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 
   if(self->priv->type_name)
     {
-      type = golem_resolve_type_name(context,self->priv->type_name);
+      type = golem_context_get_type_define(context,self->priv->type_name,error);
       if(type == 0)
 	{
 	  done = FALSE;
-	  golem_throw(error,GOLEM_UNKNOWN_TYPE_ERROR,"unknown type \"%s\"",self->priv->type_name);
+	  golem_runtime_error(error,
+			      GOLEM_UNKNOWN_TYPE_ERROR,
+			      "unknown type \"%s\"",
+			      self->priv->type_name);
 	}
     }
   else
@@ -183,6 +186,7 @@ golem_new_parse(GolemParser * parser,GError ** error)
 			}
 		      else
 			{
+
 			  //TODO: throw expected ':'
 			  g_print("throw expected ':'");
 			  break;

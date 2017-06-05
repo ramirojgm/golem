@@ -89,13 +89,12 @@ golem_builder_function_parse(GolemParser * parser,GError ** error)
 	{
 	  if(!(priv->body = GOLEM_STATEMENT(golem_block_parse(parser,error))))
 	    {
-	      //TODO: throw error expected '{'
 	      g_clear_object(&self);
 	    }
 	}
       else
 	{
-	  //TODO: throw error expected '{'
+	  golem_parser_error(error,parser,"was expected \"{\"");
 	  g_clear_object(&self);
 	}
     }

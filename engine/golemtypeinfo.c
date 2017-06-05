@@ -310,109 +310,160 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
   GolemFunctionSpec * function = NULL;
   GParamSpec *  property = NULL;
   GolemClosure * closure = NULL;
-
   gboolean done = FALSE;
+  gchar * dashed_name = g_strdup(name);
+
+  //make dashed named property
+  for(gchar * dn = dashed_name;*dn;dn++)
+    {
+      if(*dn == '_')
+	*dn = '-';
+    }
 
   //find function
   if((function = _golem_type_info_find_function(gtype,name,&gtype_function)))
     {
-      done = TRUE;
-      if(function->type == GOLEM_FUNCTION_SYMBOLIC)
+      GolemTypeInfo * type_info = golem_type_info_from_gtype(gtype);
+      if((function->info == NULL)||golem_closure_info_resolve(function->info,type_info->priv->define_context,error))
 	{
-	  gpointer symbol = NULL;
-	  GModule * global = g_module_open(NULL,G_MODULE_BIND_LOCAL);
-	  g_module_symbol(global,function->data.symbol_name,&symbol);
-	  g_module_close(global);
-	  closure = golem_symbol_new(function->info,symbol);
-	  golem_closure_set_instance(closure,instance);
-	  g_value_init(dest,G_TYPE_CLOSURE);
-	  g_value_set_boxed(dest,closure);
-	  g_closure_unref(G_CLOSURE(closure));
-	  g_print("%s:%p\n",function->data.symbol_name,symbol);
-	}
-      else if(function->type == GOLEM_FUNCTION_VIRTUAL)
-	{
-	  GTypeQuery gtype_query = {0,};
-	  GTypeQuery gtype_parent_query = {0,};
-	  GType gtype_parent = g_type_parent(gtype_function);
-	  gpointer * struct_function = NULL;
-
-	  g_type_query(gtype_function,&gtype_query);
-
-	  if(G_TYPE_IS_INTERFACE(gtype_function))
+	  done = TRUE;
+	  if(function->type == GOLEM_FUNCTION_SYMBOLIC)
 	    {
-	      struct_function = g_type_interface_peek(instance,gtype_function);
-	    }
-	  else
-	    {
-	      goffset gtype_offset = 0;
-	      if((gtype_parent != G_TYPE_OBJECT) && gtype_parent)
-		{
-		  GTypeQuery parent_query = {0,};
-		  g_type_query(gtype_parent,&gtype_parent_query);
-		  gtype_offset = parent_query.class_size;
-		}
-	      struct_function = (gpointer)klass + gtype_offset;
-	    }
-	  if(gtype_query.class_size > function->data.offset)
-	    {
-	      closure = golem_symbol_new(function->info,(struct_function + function->data.offset));
+	      gpointer symbol = NULL;
+	      GModule * global = g_module_open(NULL,G_MODULE_BIND_LOCAL);
+	      g_module_symbol(global,function->data.symbol_name,&symbol);
+	      g_module_close(global);
+	      closure = golem_symbol_new(function->info,symbol);
 	      golem_closure_set_instance(closure,instance);
 	      g_value_init(dest,G_TYPE_CLOSURE);
 	      g_value_set_boxed(dest,closure);
 	      g_closure_unref(G_CLOSURE(closure));
 	    }
-	}
-      else if(function->type == GOLEM_FUNCTION_INTERNAL)
-	{
-	  GolemContext * context = g_object_get_data(instance,"_this_context_");
-	  if(!context)
+	  else if(function->type == GOLEM_FUNCTION_VIRTUAL)
 	    {
-	      GolemTypeInfo * type_info = golem_type_info_from_gtype(gtype);
-	      context = golem_context_new(type_info->priv->define_context);
-	      golem_context_set_instance(context,instance);
-	      g_object_set_data_full(instance,"_this_context_",g_object_ref(context),g_object_unref);
+	      GTypeQuery gtype_query = {0,};
+	      GTypeQuery gtype_parent_query = {0,};
+	      GType gtype_parent = g_type_parent(gtype_function);
+	      gpointer * struct_function = NULL;
+
+	      g_type_query(gtype_function,&gtype_query);
+
+	      if(G_TYPE_IS_INTERFACE(gtype_function))
+		{
+		  struct_function = g_type_interface_peek(instance,gtype_function);
+		}
+	      else
+		{
+		  goffset gtype_offset = 0;
+		  if((gtype_parent != G_TYPE_OBJECT) && gtype_parent)
+		    {
+		      GTypeQuery parent_query = {0,};
+		      g_type_query(gtype_parent,&gtype_parent_query);
+		      gtype_offset = parent_query.class_size;
+		    }
+		  struct_function = (gpointer)klass + gtype_offset;
+		}
+	      if(gtype_query.class_size > function->data.offset)
+		{
+		  closure = golem_symbol_new(function->info,(struct_function + function->data.offset));
+		  golem_closure_set_instance(closure,instance);
+		  g_value_init(dest,G_TYPE_CLOSURE);
+		  g_value_set_boxed(dest,closure);
+		  g_closure_unref(G_CLOSURE(closure));
+		}
 	    }
-	  closure = golem_function_new(function->info,context,function->data.body);
-	  g_value_init(dest,G_TYPE_CLOSURE);
-	  g_value_set_boxed(dest,closure);
-	  g_closure_unref(G_CLOSURE(closure));
-	}
-      else if(function->type == GOLEM_FUNCTION_CLOSURED)
-	{
-	  closure = golem_closure_new(function->data.func,_golem_closure_attached_finalize,g_object_ref(instance));
-	  g_value_init(dest,G_TYPE_CLOSURE);
-	  g_value_set_boxed(dest,closure);
-	  g_closure_unref(G_CLOSURE(closure));
+	  else if(function->type == GOLEM_FUNCTION_INTERNAL)
+	    {
+	      GolemContext * context = g_object_get_data(instance,"_this_context_");
+	      if(!context)
+		{
+		  context = golem_context_new(type_info->priv->define_context);
+		  golem_context_set_instance(context,instance);
+		  g_object_set_data_full(instance,"_this_context_",g_object_ref(context),g_object_unref);
+		}
+	      closure = golem_function_new(function->info,context,function->data.body);
+	      g_value_init(dest,G_TYPE_CLOSURE);
+	      g_value_set_boxed(dest,closure);
+	      g_closure_unref(G_CLOSURE(closure));
+	    }
+	  else if(function->type == GOLEM_FUNCTION_CLOSURED)
+	    {
+	      closure = golem_closure_new(function->data.func,_golem_closure_attached_finalize,g_object_ref(instance));
+	      g_value_init(dest,G_TYPE_CLOSURE);
+	      g_value_set_boxed(dest,closure);
+	      g_closure_unref(G_CLOSURE(closure));
+	    }
 	}
     }
-
   //find property
-  else if((property = g_object_class_find_property(klass,name)))
+  else if((property = g_object_class_find_property(klass,name))||(property = g_object_class_find_property(klass,dashed_name)))
     {
+      g_value_init(dest,property->value_type);
+      g_object_get_property(instance,property->name,dest);
       done = TRUE;
-      GParamSpec * property = g_object_class_find_property(klass,name);
-      if(property)
-	{
-	  g_value_init(dest,property->value_type);
-	  g_object_get_property(instance,name,dest);
-	  return TRUE;
-	}
     }
   //find data
   else
     {
-      g_value_init(dest,G_TYPE_INT);
-      g_value_set_int(dest,0);
+      GValue * data_value = (GValue*)(g_object_get_data(instance,name));
+      if(!data_value)
+	{
+	  data_value =  (GValue*)(g_object_get_data(instance,dashed_name));
+	}
+
+      if(data_value)
+	{
+	  done = TRUE;
+	  g_value_init(dest,G_VALUE_TYPE(data_value));
+	  g_value_copy(data_value,dest);
+	}
+      else
+	{
+	  done = TRUE;
+	  g_value_init(dest,G_TYPE_POINTER);
+	  g_value_set_pointer(dest,NULL);
+	}
     }
-  g_print("%s\n",name);
+  g_free(dashed_name);
   return done;
 }
 
 gboolean
 golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GError ** error)
 {
+  gboolean done = FALSE;
+  GObjectClass * klass = G_OBJECT_GET_CLASS(instance);
+  GParamSpec * property = g_object_class_find_property(klass,name);
+  gchar * dashed_name = g_strdup(name);
 
+  //make dashed named property
+  for(gchar * dn = dashed_name;*dn;dn++)
+    {
+      if(*dn == '_')
+	*dn = '-';
+    }
+
+  if(!property)
+    {
+      property = g_object_class_find_property(klass,dashed_name);
+    }
+
+  if(property)
+    {
+      done = TRUE;
+      g_object_set_property(instance,property->name,src);
+    }
+  else
+    {
+      done = TRUE;
+      GValue * data_value = g_new0(GValue,1);
+      g_value_init(data_value,G_VALUE_TYPE(src));
+      g_value_copy(src,data_value);
+      g_object_set_data_full(instance,name,data_value,(GDestroyNotify)g_value_free);
+    }
+
+  g_free(dashed_name);
+  return done;
 }
 
 GolemFunctionSpec *

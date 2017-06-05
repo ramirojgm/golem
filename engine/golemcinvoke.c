@@ -1377,7 +1377,7 @@ golem_cinvoke_push_double(GolemCInvoke * invoke,gdouble value)
 {
   g_return_if_fail(invoke->count < 8);
   GolemCArgument * arg = _golem_cinvoke_get_argument(invoke);
-  invoke->indexes[invoke->count] = GOLEM_CTYPE_INDEX(gpointer);
+  invoke->indexes[invoke->count] = GOLEM_CTYPE_INDEX(gdouble);
   arg->value_gdouble = value;
   invoke->count ++;
 }

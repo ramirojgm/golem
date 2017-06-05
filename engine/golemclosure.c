@@ -545,6 +545,7 @@ golem_function_invoke (GolemClosure *closure,
 	  }
 	else
 	  {
+
 	    error = g_error_new(
 		GOLEM_ERROR,
 		GOLEM_INVALID_CAST_ERROR,
@@ -609,7 +610,7 @@ golem_symbol_invoke (GolemClosure *closure,
 
   GValue * param_values = g_new0(GValue,n_param_values);
   if(closure->context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
-      golem_cinvoke_push_pointer(cinvoke,closure->context.instance);
+    golem_cinvoke_push_pointer(cinvoke,closure->context.instance);
   else if(closure->context_type == GOLEM_CLOSURE_CONTEXT_CLASSED)
     golem_cinvoke_push_pointer(cinvoke,golem_closure_get_type_class(closure));
 
@@ -629,9 +630,7 @@ golem_symbol_invoke (GolemClosure *closure,
       if(param_info)
       {
 	g_value_unset(param_value);
-	//g_value_init(param_value,param_info->type);
 	golem_closure_invoke_get_value(invoke,param_index,param_value);
-
 	if((G_VALUE_TYPE(param_value) == param_info->type )||(g_type_is_a(G_VALUE_TYPE(param_value),param_info->type)))
 	  {
 	    golem_cinvoke_push_value(cinvoke,param_value);
@@ -685,6 +684,7 @@ golem_symbol_invoke (GolemClosure *closure,
     }
   else
     {
+      g_print("error");
       golem_closure_invoke_set_error(invoke,error);
     }
 
@@ -914,7 +914,6 @@ golem_closure_info_parse(GolemParser * parser,GError ** error)
 		  if(golem_parser_check_is_named(parser))
 		    {
 		      type_name = golem_parser_next_word(parser,NULL,TRUE);
-
 		      if(golem_parser_check_is_named(parser))
 			{
 			  name = golem_parser_next_word(parser,NULL,TRUE);
@@ -928,20 +927,20 @@ golem_closure_info_parse(GolemParser * parser,GError ** error)
 			      if(!golem_parser_next_word_check(parser,",") && !golem_parser_is_next_word(parser,")"))
 				{
 				  done = FALSE;
-				  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \",\" or \")\"");
+				  golem_parser_error(error,parser,"was expected \",\" or \")\"");
 				}
 			    }
 			}
 		      else
 			{
 			  done = FALSE;
-			  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the name of the parameter was expected");
+			  golem_parser_error(error,parser,"the name of the parameter was expected");
 			}
 		    }
 		  else
 		    {
 		      done = FALSE;
-		      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the type of the parameter was expected");
+		      golem_parser_error(error,parser,"the type of the parameter was expected");
 		    }
 
 		  if(!done)
@@ -951,19 +950,20 @@ golem_closure_info_parse(GolemParser * parser,GError ** error)
 	  else
 	    {
 	      done = FALSE;
-	      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected \"(\"");
+
+	      golem_parser_error(error,parser,"expected \"(\"");
 	    }
 	}
       else
 	{
 	  done = FALSE;
-	  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected the function name");
+	  golem_parser_error(error,parser,"expected the function name");
 	}
     }
   else
     {
       done = FALSE;
-      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected a type");
+      golem_parser_error(error,parser,"expected a type");
     }
 
   if(!done)
@@ -1005,20 +1005,20 @@ golem_closure_info_parse_anonymous(GolemParser * parser,GError ** error)
 		      if(!golem_parser_next_word_check(parser,",") && !golem_parser_is_next_word(parser,")"))
 			{
 			  done = FALSE;
-			  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"was expected \",\" or \")\"");
+			  golem_parser_error(error,parser,"was expected \",\" or \")\"");
 			}
 		    }
 		}
 	      else
 		{
 		  done = FALSE;
-		  golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the name of the parameter was expected");
+		  golem_parser_error(error,parser,"the name of the parameter was expected");
 		}
 	    }
 	  else
 	    {
 	      done = FALSE;
-	      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"the type of the parameter was expected");
+	      golem_parser_error(error,parser,"the type of the parameter was expected");
 	    }
 
 	  if(!done)
@@ -1028,7 +1028,7 @@ golem_closure_info_parse_anonymous(GolemParser * parser,GError ** error)
   else
     {
       done = FALSE;
-      golem_throw(error,GOLEM_SYNTAXIS_ERROR,"expected \"(\"");
+      golem_parser_error(error,parser,"expected \"(\"");
     }
 
   if(!done)
@@ -1048,7 +1048,7 @@ golem_closure_info_resolve(GolemClosureInfo * info,GolemContext * context,GError
     {
       if(info->priv->return_type_name)
 	{
-	  if(!(info->priv->return_type = golem_resolve_type_name(context,info->priv->return_type_name)))
+	  if(!(info->priv->return_type = golem_context_get_type_define(context,info->priv->return_type_name,error)))
 	    {
 	      done =  FALSE;
 	      type_unresolved = info->priv->return_type_name;
@@ -1066,7 +1066,7 @@ golem_closure_info_resolve(GolemClosureInfo * info,GolemContext * context,GError
 	      GolemClosureParameter * param = (GolemClosureParameter*)params->data;
 	      if(param->type_name)
 		{
-		  if(!(param->type = golem_resolve_type_name(context,param->type_name)))
+		  if(!(param->type = golem_context_get_type_define(context,param->type_name,error)))
 		    {
 		      done = FALSE;
 		      type_unresolved = param->type_name;
@@ -1082,7 +1082,7 @@ golem_closure_info_resolve(GolemClosureInfo * info,GolemContext * context,GError
 	  if(done)
 	    info->priv->resolved = TRUE;
 	  else
-	    golem_throw(error,GOLEM_UNKNOWN_TYPE_ERROR,"unknown type \"%s\"",type_unresolved);
+	    golem_runtime_error(error,GOLEM_SYNTAXIS_ERROR,"unknown type \"%s\"",type_unresolved);
 	}
     }
   return done;

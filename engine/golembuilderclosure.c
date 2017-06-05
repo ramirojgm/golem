@@ -81,33 +81,32 @@ golem_builder_closure_parse(GolemParser * parser,GError ** error)
 		  self->priv->block = golem_block_parse(parser,error);
 		  if(!self->priv->block)
 		    {
-		      //TODO: error
+		      done = FALSE;
 		    }
 		}
 	      else
 		{
-		  //TODO: expected {
-
+		  golem_parser_error(error,parser,"was expected \"{\"");
 		}
 	    }
 	  else
 	    {
-	      //TODO: error
+	      done = FALSE;
 	    }
 	}
       else
 	{
-	  //TODO:expected (
+	  golem_parser_error(error,parser,"was expected \"(\"");
 	}
     }
   else
     {
-      //TODO: expected func
+      golem_parser_error(error,parser,"was expected \"do\"");
     }
 
   if(!done)
     {
-      //free all
+      g_clear_object(&self);
     }
   return GOLEM_EXPRESSION(self);
 }

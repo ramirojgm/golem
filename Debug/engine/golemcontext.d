@@ -100,7 +100,8 @@ engine/golemcontext.d: ../engine/golemcontext.c ../engine/golem.h \
   ../engine/golembuilderfunction.h ../engine/golembuilderclosure.h \
   ../engine/golemextends.h ../engine/golemcinvoke.h \
   ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemllm.h \
-  ../engine/golemtypeinfo.h ../engine/golemutils.h
+  ../engine/golemtypeinfo.h ../engine/golemutils.h \
+  /usr/include/glib-2.0/gmodule.h
 
 ../engine/golem.h:
 
@@ -349,3 +350,5 @@ engine/golemcontext.d: ../engine/golemcontext.c ../engine/golem.h \
 ../engine/golemtypeinfo.h:
 
 ../engine/golemutils.h:
+
+/usr/include/glib-2.0/gmodule.h:

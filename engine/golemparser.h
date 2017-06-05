@@ -32,9 +32,11 @@ struct _GolemParserClass
 
 GType		golem_parser_get_type(void);
 
-GolemParser * 	golem_parser_new();
+GolemParser * 	golem_parser_new(const gchar * source_name);
 
 gboolean	golem_parser_parse(GolemParser * parser,const gchar * str,gssize length);
+
+const gchar *	golem_parser_get_source_name(GolemParser * parser);
 
 gboolean	golem_parser_skip(GolemParser * parser);
 
