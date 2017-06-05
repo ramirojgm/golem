@@ -1,4 +1,4 @@
-sharedobject "libgtk-3.so.0"
+sharedobject "libgtk-3-0.dll"
 
 extends GApplication 
 {

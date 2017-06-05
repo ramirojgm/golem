@@ -16,7 +16,7 @@
  */
 
 #include "golem.h"
-#include <sys/mman.h>
+//#include <sys/mman.h>
 #include <errno.h>
 #include <memory.h>
 

@@ -68,7 +68,7 @@ golem_gobject_signal_on(GolemClosure * closure,
 
 
 void
-_golem_object_type_init() __attribute__((constructor))
+__attribute__((constructor)) _golem_object_type_init() 
 {
   GolemTypeInfo * type_info = golem_type_info_from_gtype(G_TYPE_OBJECT);
   golem_type_info_add_function(type_info,golem_function_closured_new("on",golem_gobject_signal_on));

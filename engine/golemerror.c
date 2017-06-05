@@ -33,7 +33,7 @@ golem_error_default_handle(GError * error)
     {
       g_printerr("%s **: %s\n",g_quark_to_string(error->domain), error->message);
       g_error_free(error);
-      raise(SIGTRAP);
+      //raise(SIGTRAP);
     }
 }
 
