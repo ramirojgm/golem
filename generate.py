@@ -1,10 +1,13 @@
+#!/usr/bin/env python3
+
 import os
 import subprocess
 
 sources = []
-original_path = '.\\'
-programname = 'Debug\\golem'
+original_path = './'
+programname = 'Debug/golem'
 scriptname = ''
+
 if os.name == 'nt':
     scriptname = 'make.bat'
 else:
@@ -25,14 +28,18 @@ def load_sources(path):
         
 load_sources(original_path)
 
-compile_flags = subprocess.check_output(['pkg-config', '--cflags','glib-2.0', 'gmodule-2.0', 'gio-2.0'])
-compile_flags = compile_flags[0:len(compile_flags) - 2].decode('utf-8')
-compile_libs = subprocess.check_output(['pkg-config', '--libs', 'glib-2.0', 'gmodule-2.0', 'gio-2.0'])
-compile_libs = compile_libs[0:len(compile_libs) - 2].decode('utf-8')
+compile_flags = subprocess.check_output(['pkg-config', '--cflags','glib-2.0', 'gmodule-2.0', 'gio-2.0']).decode('utf-8')
+compile_flags = compile_flags.replace('\n','').replace('\r','')
+compile_libs = subprocess.check_output(['pkg-config', '--libs', 'glib-2.0', 'gmodule-2.0', 'gio-2.0']).decode('utf-8')
+compile_libs = compile_libs.replace('\n','').replace('\r','')
 
 script = open(os.path.join(original_path,scriptname),'w')
+
 if os.name == 'nt':
     script.write('@echo off\n')
+else:
+	script.write('#!/bin/bash\n')
+
 objects = ''
 for src in sources:
     objectname = src[0:len(src) - 2] + '.o'
