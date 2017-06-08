@@ -186,17 +186,14 @@ golem_new_parse(GolemParser * parser,GError ** error)
 			}
 		      else
 			{
-
-			  //TODO: throw expected ':'
-			  g_print("throw expected ':'");
+			  golem_parser_error(error,parser,"was expected \":\"");
 			  break;
 			}
 		    }
 		  else
 		    {
 		      done = FALSE;
-		      g_print("throw expected name");
-		      //TODO:throw expected name
+		      golem_parser_error(error,parser,"was expected name");
 		      break;
 		    }
 

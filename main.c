@@ -63,7 +63,6 @@ golem_convert_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data
     {
       //TODO: expected 2 params
     }
-  g_print("done: %d\n",done);
   return done;
 }
 
@@ -144,7 +143,7 @@ main(gint argc,gchar ** argv)
   g_value_init(&const_false,G_TYPE_BOOLEAN);
 
   g_value_set_boolean(&const_true,TRUE);
-  g_value_set_boolean(&const_false,TRUE);
+  g_value_set_boolean(&const_false,FALSE);
 
   golem_context_set_auto(context,"true",&const_true,NULL);
   golem_context_set_auto(context,"false",&const_false,NULL);

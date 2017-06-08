@@ -10,20 +10,77 @@ extends GtkWidget
   extern void show();
 }
 
+extends GtkWindow
+{
+  extern void set_titlebar(GtkWidget bar);
+}
+
+extends GtkContainer
+{
+  extern void add(GtkWidget child);
+}
+
 extends GtkApplication
 {
   extern void add_window(GtkWindow win);
+}
+
+extends GtkGrid 
+{
+  extern void attach(GtkWidget child,int left,int top,int width,int height);
 }
 
 void main(int argc,pointer argv) {
   GtkApplication app = new GtkApplication {
     "application-id": "org.gnome.desktop.golem.hk"
   };
-  
+ 
   app.on("activate",do() {
-      GtkWindow w = new GtkWindow {
-	
+      GtkHeaderBar hb = new GtkHeaderBar {
+	"title": "Example 1",
+	"show-close-button": true,
+	"visible": true
       };
+      
+      GtkApplicationWindow w = new GtkApplicationWindow {
+	"resizable": false,
+	"default-width": 400,
+	"default-height": 300
+      };
+      
+      GtkLabel label0 = new GtkLabel {
+	"label": "Valor 1:",
+	"visible": true
+      };
+      
+      GtkLabel label1 = new GtkLabel {
+	"label": "Valor 2:",
+	"visible": true
+      };
+            
+      GtkEntry ent1 = new GtkEntry {
+	"text": "0",
+	"visible": true
+      };
+      
+      GtkEntry ent2 = new GtkEntry {
+      	"text": "0",
+      	"visible": true
+      };
+      
+      GtkGrid g = new GtkGrid {
+	"column-spacing": 5,
+	"row-spacing": 5,
+	"border-width": 20,
+	"visible": true
+      };
+      
+      w.set_titlebar(hb);
+      w.add(g);
+      g.attach(label0,0,0,1,1);
+      g.attach(label1,0,1,1,1);
+      g.attach(ent1,1,0,1,1);
+      g.attach(ent2,1,1,1,1);
       w.show();
       app.add_window(w);
   });

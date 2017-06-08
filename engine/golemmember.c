@@ -40,8 +40,7 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
       if(!G_VALUE_HOLDS_OBJECT(&instance))
 	{
 	  done = FALSE;
-	  //TODO: no instance object
-	  g_print("not is a object");
+	  golem_runtime_error(error,GOLEM_INVALID_CAST_ERROR,"the value not is a object");
 	}
       else
 	{
@@ -121,8 +120,7 @@ golem_member_parse(GolemParser * parser,GolemExpression * instance,GolemExpressi
 	}
       else
 	{
-	  //TODO: expected identificator
-
+	  golem_parser_error(error,parser,"was expected the member name");
 	}
     }
 

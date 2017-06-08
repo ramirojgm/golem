@@ -102,18 +102,18 @@ golem_if_parse(GolemParser * parser,GError ** error)
 		}
 	      else
 		{
-		  //TODO: expected )
+		  golem_parser_error(error,parser,"was expected \")\"");
 		}
 	    }
 	}
       else
 	{
-	  //TODO: expected (
+	  golem_parser_error(error,parser,"was expected \"(\"");
 	}
     }
   else
     {
-      //TODO: expected if
+      golem_parser_error(error,parser,"was expected \"if\"");
     }
 
   if(!done)
