@@ -82,6 +82,7 @@ void main(int argc,pointer argv) {
       g.attach(ent1,1,0,1,1);
       g.attach(ent2,1,1,1,1);
       w.show();
+      
       app.add_window(w);
   });
   
