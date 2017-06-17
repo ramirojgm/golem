@@ -153,6 +153,12 @@ golem_type_info_class_init(GolemTypeInfoClass * info)
 
 }
 
+GType
+golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** error)
+{
+  return G_TYPE_NONE;
+}
+
 GolemTypeInfo*
 golem_type_info_from_gtype(GType type)
 {

@@ -30,19 +30,30 @@ struct _GolemBuilderClassPrivate
 struct _GolemBuilderClass
 {
   GolemStatement parent_instance;
-
   GolemBuilderClassPrivate * priv;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClass,golem_builder_class,GOLEM_TYPE_STATEMENT);
 
 
-
 gboolean
 _golem_builder_class_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
 {
-
-  return TRUE;
+  GolemBuilderClassPrivate * priv = golem_builder_class_get_instance_private(GOLEM_BUILDER_CLASS(sentence));
+  GType gtype = golem_type_info_register(priv->type_info,context,error);
+  if(gtype == G_TYPE_NONE)
+    {
+      GValue value = G_VALUE_INIT;
+      gboolean done = FALSE;
+      g_value_init(&value,G_TYPE_GTYPE);
+      done = golem_context_set_auto(context,g_type_name(gtype),&value,error);
+      g_value_unset(&value);
+      return done;
+    }
+  else
+    {
+      return FALSE;
+    }
 }
 
 static void

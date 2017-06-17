@@ -54,6 +54,8 @@ GolemTypeInfo* 	golem_type_info_new(const gchar * name);
 
 GolemTypeInfo*	golem_type_info_from_gtype(GType type);
 
+GType		golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** error);
+
 gboolean	golem_type_info_get_static(GType type,const gchar * name,GValue * dest,GError ** error);
 
 gboolean	golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError ** error);
