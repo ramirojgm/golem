@@ -34,19 +34,19 @@ struct _GolemBlock
 G_DEFINE_TYPE_WITH_PRIVATE(GolemBlock,golem_block,GOLEM_TYPE_STATEMENT)
 
 gboolean
-_golem_block_execute(GolemStatement * statement,GolemContext * context,GError ** error)
+_golem_block_execute(GolemStatement * statement,GolemRuntime * runtime,GError ** error)
 {
   gboolean done = TRUE;
-  GolemContext * block_context = golem_context_new(context);
+  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
   GList * statements = GOLEM_BLOCK(statement)->priv->statements;
   for(GList * iter = g_list_first(statements);iter;iter = g_list_next(iter))
     {
       GolemStatement * statement = GOLEM_STATEMENT(iter->data);
-      done = golem_statement_execute(statement,block_context,error);
-      if(!done)
+      done = golem_statement_execute(statement,runtime,error);
+      if(!done || !golem_runtime_running(runtime))
 	break;
     }
-  g_object_unref(block_context);
+  golem_runtime_exit(runtime);
   return done;
 }
 

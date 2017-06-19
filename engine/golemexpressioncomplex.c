@@ -16,6 +16,7 @@
  */
 
 #include "golem.h"
+#include <stdlib.h>
 
 typedef struct _GolemExpressionComplexPart GolemExpressionComplexPart;
 typedef struct _GolemExpressionComplexPhase GolemExpressionComplexPhase;

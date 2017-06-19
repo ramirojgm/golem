@@ -27,11 +27,11 @@ struct _GolemExtendsPrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemExtends,golem_extends,GOLEM_TYPE_STATEMENT)
 
 static gboolean
-_golem_extends_execute(GolemStatement * statement,GolemContext * context,GError ** error)
+_golem_extends_execute(GolemStatement * statement,GolemRuntime * runtime,GError ** error)
 {
   gboolean done = FALSE;
   GolemExtends * self = GOLEM_EXTENDS(statement);
-  GType gtype = golem_context_get_type_define(context,self->priv->type_name,error);
+  GType gtype = golem_context_get_type_define(golem_runtime_get_context(runtime),self->priv->type_name,error);
   if(gtype)
     {
       done = TRUE;

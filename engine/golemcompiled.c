@@ -76,15 +76,17 @@ gboolean
 golem_compiled_run(GolemCompiled * compiled,GolemContext * context,GError ** error)
 {
   GolemStatement * sentence;
+  GolemRuntime * runtime = golem_runtime_new(context);
   gboolean done = TRUE;
   for(GList * iter = g_list_first(compiled->priv->sentences);iter;iter = g_list_next(iter))
     {
       sentence = GOLEM_STATEMENT(iter->data);
-      done = golem_statement_execute(sentence,context,error);
+      done = golem_statement_execute(sentence,runtime,error);
       if(!done)
 	break;
 
     }
+  golem_runtime_exit(runtime);
   return done;
 }
 

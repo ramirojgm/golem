@@ -26,18 +26,18 @@ struct _GolemBuilderFunctionPrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderFunction,golem_builder_function,GOLEM_TYPE_STATEMENT)
 
 gboolean
-golem_builder_function_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
+golem_builder_function_execute(GolemStatement * sentence,GolemRuntime * runtime,GError ** error)
 {
   GolemBuilderFunction * self = GOLEM_BUILDER_FUNCTION(sentence);
   gboolean done;
-  done = golem_closure_info_resolve(self->priv->info,context,error);
+  done = golem_closure_info_resolve(self->priv->info,golem_runtime_get_context(runtime),error);
   if(done)
     {
       GValue func_value = G_VALUE_INIT;
       g_value_init(&func_value,G_TYPE_CLOSURE);
-      g_value_take_boxed(&func_value,golem_function_new(self->priv->info,context,self->priv->body));
-      golem_context_declare(context,golem_closure_info_get_name(self->priv->info),G_TYPE_CLOSURE,error);
-      golem_context_set(context,golem_closure_info_get_name(self->priv->info),&func_value,error);
+      g_value_take_boxed(&func_value,golem_function_new(self->priv->info,golem_runtime_get_context(runtime),self->priv->body));
+      golem_context_declare(golem_runtime_get_context(runtime),golem_closure_info_get_name(self->priv->info),G_TYPE_CLOSURE,error);
+      golem_context_set(golem_runtime_get_context(runtime),golem_closure_info_get_name(self->priv->info),&func_value,error);
       g_value_unset(&func_value);
       done = TRUE;
     }

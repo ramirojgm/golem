@@ -90,8 +90,9 @@ engine/golemsharedobject.d: ../engine/golemsharedobject.c \
   /usr/include/glib-2.0/gobject/gvaluetypes.h \
   /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
   ../engine/golemdebugobject.h ../engine/golemparser.h \
-  ../engine/golemcontext.h ../engine/golemstatement.h \
-  ../engine/golemsharedobject.h ../engine/golemexpression.h \
+  ../engine/golemcontext.h ../engine/golemruntime.h \
+  ../engine/golemstatement.h ../engine/golemsharedobject.h \
+  ../engine/golemreturn.h ../engine/golemexpression.h \
   ../engine/golemconstant.h ../engine/golemnew.h \
   ../engine/golemdeclaration.h ../engine/goleminvoke.h \
   ../engine/golemmember.h ../engine/golemexpressioncomplex.h \
@@ -302,9 +303,13 @@ engine/golemsharedobject.d: ../engine/golemsharedobject.c \
 
 ../engine/golemcontext.h:
 
+../engine/golemruntime.h:
+
 ../engine/golemstatement.h:
 
 ../engine/golemsharedobject.h:
+
+../engine/golemreturn.h:
 
 ../engine/golemexpression.h:
 

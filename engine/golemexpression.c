@@ -26,10 +26,10 @@ _golem_expression_evaluate(GolemExpression * expression,GolemContext * context,G
 }
 
 static gboolean
-_golem_expression_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
+_golem_expression_execute(GolemStatement * sentence,GolemRuntime * runtime,GError ** error)
 {
   GValue result = G_VALUE_INIT;
-  gboolean done = golem_expression_evaluate(GOLEM_EXPRESSION(sentence),context,&result,error);
+  gboolean done = golem_expression_evaluate(GOLEM_EXPRESSION(sentence),golem_runtime_get_context(runtime),&result,error);
   g_value_unset(&result);
   return done;
 }

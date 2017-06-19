@@ -26,7 +26,7 @@ struct _GolemSharedObjectPrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemSharedObject,golem_shared_object,GOLEM_TYPE_STATEMENT)
 
 static gboolean
-_golem_shared_object_execute(GolemStatement * statement,GolemContext * context,GError ** error)
+_golem_shared_object_execute(GolemStatement * statement,GolemRuntime * runtime,GError ** error)
 {
   GolemSharedObject * self = GOLEM_SHARED_OBJECT(statement);
   if(!g_module_open(self->priv->name,0))

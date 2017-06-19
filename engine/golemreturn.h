@@ -18,7 +18,27 @@
 #ifndef GOLEMRETURN_H_
 #define GOLEMRETURN_H_
 
+typedef struct _GolemReturnPrivate GolemReturnPrivate;
 
+#define GOLEM_TYPE_RETURN (golem_return_get_type())
+G_DECLARE_FINAL_TYPE(GolemReturn,golem_return,GOLEM,RETURN,GolemStatement)
+
+struct _GolemReturnClass
+{
+  GolemStatementClass parent_class;
+};
+
+struct _GolemReturn
+{
+  GolemStatement	     parent_instance;
+  GolemReturnPrivate * priv;
+};
+
+GType		 golem_return_get_type(void);
+
+gboolean	 golem_return_check(GolemParser * parser);
+
+GolemStatement * golem_return_parse(GolemParser * parser,GError ** error);
 
 
 #endif /* GOLEMRETURN_H_ */

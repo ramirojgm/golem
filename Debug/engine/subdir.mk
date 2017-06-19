@@ -29,6 +29,8 @@ C_SRCS += \
 ../engine/golemmember.c \
 ../engine/golemnew.c \
 ../engine/golemparser.c \
+../engine/golemreturn.c \
+../engine/golemruntime.c \
 ../engine/golemsharedobject.c \
 ../engine/golemstatement.c \
 ../engine/golemtypeinfo.c \
@@ -60,6 +62,8 @@ OBJS += \
 ./engine/golemmember.o \
 ./engine/golemnew.o \
 ./engine/golemparser.o \
+./engine/golemreturn.o \
+./engine/golemruntime.o \
 ./engine/golemsharedobject.o \
 ./engine/golemstatement.o \
 ./engine/golemtypeinfo.o \
@@ -91,6 +95,8 @@ C_DEPS += \
 ./engine/golemmember.d \
 ./engine/golemnew.d \
 ./engine/golemparser.d \
+./engine/golemreturn.d \
+./engine/golemruntime.d \
 ./engine/golemsharedobject.d \
 ./engine/golemstatement.d \
 ./engine/golemtypeinfo.d \

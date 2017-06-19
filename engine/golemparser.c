@@ -339,8 +339,6 @@ gboolean
 golem_parser_skip(GolemParser * parser)
 {
   GolemParserPrivate * priv;
-  GolemParserWord * word;
-
   priv = golem_parser_get_instance_private(parser);
 
   if(priv->cur_word)

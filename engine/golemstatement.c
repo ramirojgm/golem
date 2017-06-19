@@ -22,7 +22,7 @@
 G_DEFINE_ABSTRACT_TYPE(GolemStatement,golem_statement,G_TYPE_OBJECT)
 
 static gboolean
-_golem_statement_execute_real(GolemStatement * self,GolemContext * context,GError ** error)
+_golem_statement_execute_real(GolemStatement * self,GolemRuntime * runtime,GError ** error)
 {
   golem_runtime_error(error,
       GOLEM_NOT_IMPLEMENTED_ERROR,
@@ -45,10 +45,10 @@ golem_statement_class_init(GolemStatementClass * klass)
 
 
 gboolean
-golem_statement_execute(GolemStatement * self,GolemContext * context,GError ** error)
+golem_statement_execute(GolemStatement * self,GolemRuntime * runtime,GError ** error)
 {
   GolemStatementClass * klass = GOLEM_STATEMENT_GET_CLASS(self);
-  return klass->execute(self,context,error);
+  return klass->execute(self,runtime,error);
 }
 
 
@@ -65,6 +65,8 @@ golem_statement_parse(GolemParser * parser,GError ** error)
     return GOLEM_STATEMENT(golem_extends_parse(parser,error));
   else if(golem_builder_function_check(parser))
       return GOLEM_STATEMENT(golem_builder_function_parse(parser,error));
+  else if(golem_return_check(parser))
+      return GOLEM_STATEMENT(golem_return_parse(parser,error));
   else if(golem_declaration_check(parser))
     return GOLEM_STATEMENT(golem_declaration_parse(parser,error));
   else if(golem_block_check(parser))

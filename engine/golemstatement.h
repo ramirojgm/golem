@@ -27,12 +27,12 @@ struct _GolemStatementClass
 {
   GObjectClass parent_class;
 
-  gboolean (*execute)(GolemStatement *,GolemContext *,GError ** );
+  gboolean (*execute)(GolemStatement *,GolemRuntime *,GError ** );
 };
 
 GType	golem_statement_get_type(void);
 
-gboolean golem_statement_execute(GolemStatement * sentence,GolemContext * context,GError ** error);
+gboolean golem_statement_execute(GolemStatement * sentence,GolemRuntime * runtime,GError ** error);
 
 GolemStatement * golem_statement_parse(GolemParser * parser,GError ** error);
 

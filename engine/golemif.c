@@ -27,20 +27,20 @@ struct _GolemIfPrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemIf,golem_if,GOLEM_TYPE_STATEMENT)
 
 gboolean
-_golem_if_execute(GolemStatement * statement,GolemContext * context,GError ** error)
+_golem_if_execute(GolemStatement * statement,GolemRuntime * runtime,GError ** error)
 {
   gboolean done = FALSE;
   GolemIf * self = GOLEM_IF(statement);
   GValue condition = G_VALUE_INIT;
-  if(golem_expression_evaluate(GOLEM_EXPRESSION(self->priv->conditional),context,&condition,error))
+  if(golem_expression_evaluate(GOLEM_EXPRESSION(self->priv->conditional),golem_runtime_get_context(runtime),&condition,error))
     {
       if(condition.data[0].v_int)
 	{
-	  done = golem_statement_execute(self->priv->true_statement,context,error);
+	  done = golem_statement_execute(self->priv->true_statement,runtime,error);
 	}
       else if(self->priv->false_statement)
 	{
-	  done = golem_statement_execute(self->priv->false_statement,context,error);
+	  done = golem_statement_execute(self->priv->false_statement,runtime,error);
 	}
       else
 	{

@@ -26,18 +26,19 @@ struct _GolemWhilePrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemWhile,golem_while,GOLEM_TYPE_STATEMENT)
 
 gboolean
-_golem_while_execute(GolemStatement * statement,GolemContext * context,GError ** error)
+_golem_while_execute(GolemStatement * statement,GolemRuntime * runtime,GError ** error)
 {
   gboolean done = TRUE;
   GolemWhile * self = GOLEM_WHILE(statement);
   GValue condition = G_VALUE_INIT;
+  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOOP);
   while(done)
     {
-      if(golem_expression_evaluate(GOLEM_EXPRESSION(self->priv->conditional),context,&condition,error))
+      if(golem_expression_evaluate(GOLEM_EXPRESSION(self->priv->conditional),golem_runtime_get_context(runtime),&condition,error))
 	{
 	  if(condition.data[0].v_int)
 	    {
-	      done = golem_statement_execute(self->priv->do_statement,context,error);
+	      done = golem_statement_execute(self->priv->do_statement,runtime,error);
 	      g_value_unset(&condition);
 	    }
 	  else
@@ -51,7 +52,12 @@ _golem_while_execute(GolemStatement * statement,GolemContext * context,GError **
 	  done = FALSE;
 	  break;
 	}
+
+      if(!golem_runtime_running(runtime))
+	break;
     }
+
+  golem_runtime_exit(runtime);
   return done;
 }
 

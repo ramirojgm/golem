@@ -39,26 +39,26 @@ struct _GolemDeclarationPrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemDeclaration,golem_declaration,GOLEM_TYPE_STATEMENT)
 
 gboolean
-_golem_declaration_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
+_golem_declaration_execute(GolemStatement * sentence,GolemRuntime * runtime,GError ** error)
 {
   GolemDeclaration * self = GOLEM_DECLARATION(sentence);
   if(!self->priv->is_resolved)
     {
       self->priv->is_resolved = TRUE;
-      self->priv->type = golem_context_get_type_define(context,self->priv->type_name,error);
+      self->priv->type = golem_context_get_type_define(golem_runtime_get_context(runtime),self->priv->type_name,error);
     }
 
   if(self->priv->type != 0)
     {
-      if(golem_context_declare(context,self->priv->name,self->priv->type,error))
+      if(golem_context_declare(golem_runtime_get_context(runtime),self->priv->name,self->priv->type,error))
 	{
 	  if(self->priv->value)
 	    {
 	      GValue value = G_VALUE_INIT;
 	      gboolean done;
-	      if((done = golem_expression_evaluate(self->priv->value,context,&value,error)))
+	      if((done = golem_expression_evaluate(self->priv->value,golem_runtime_get_context(runtime),&value,error)))
 		{
-		  done = golem_context_set(context,self->priv->name,&value,error);
+		  done = golem_context_set(golem_runtime_get_context(runtime),self->priv->name,&value,error);
 		}
 	      return done;
 	    }
