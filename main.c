@@ -135,18 +135,7 @@ main(gint argc,gchar ** argv)
 {
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
-  GValue  const_true = G_VALUE_INIT,
-	  const_false = G_VALUE_INIT,
-	  main_func = G_VALUE_INIT;
-
-  g_value_init(&const_true,G_TYPE_BOOLEAN);
-  g_value_init(&const_false,G_TYPE_BOOLEAN);
-
-  g_value_set_boolean(&const_true,TRUE);
-  g_value_set_boolean(&const_false,FALSE);
-
-  golem_context_set_auto(context,"true",&const_true,NULL);
-  golem_context_set_auto(context,"false",&const_false,NULL);
+  GValue  main_func = G_VALUE_INIT;
 
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
   GolemClosure * input_closure = golem_closure_new(golem_input_func,NULL,NULL);

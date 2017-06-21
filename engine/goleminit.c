@@ -40,6 +40,33 @@ golem_type_get_prefix(const gchar * name)
   return prefix;
 }
 
+static gboolean
+golem_gobject_ref(GolemClosure * closure,
+			GolemClosureInvoke * invoke,
+			gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_FROM_INSTANCE(data));
+  g_value_set_object(&return_value,g_object_ref(data));
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
+
+static gboolean
+golem_gobject_unref(GolemClosure * closure,
+			GolemClosureInvoke * invoke,
+			gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_FROM_INSTANCE(data));
+  if(G_OBJECT(data)->ref_count > 1)
+    g_value_set_object(&return_value,g_object_ref(data));
+  else
+    g_value_set_object(&return_value,NULL);
+  g_object_unref(data);
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
 
 static gboolean
 golem_gobject_signal_on(GolemClosure * closure,
@@ -66,12 +93,33 @@ golem_gobject_signal_on(GolemClosure * closure,
   return TRUE;
 }
 
+static void
+_g_value_pointer_to_object(const GValue * src_value,GValue * dest_value)
+{
+  g_value_set_object(dest_value,g_value_get_pointer(src_value));
+}
+
+static void
+_g_value_object_to_pointer(const GValue * src_value,GValue * dest_value)
+{
+  g_value_set_pointer(dest_value,g_value_get_object(src_value));
+}
+
+
 
 void
 __attribute__((constructor)) _golem_object_type_init() 
 {
+  //convert
+  g_value_register_transform_func(G_TYPE_POINTER,G_TYPE_OBJECT,_g_value_pointer_to_object);
+  g_value_register_transform_func(G_TYPE_OBJECT,G_TYPE_POINTER,_g_value_object_to_pointer);
+
+  //object
   GolemTypeInfo * type_info = golem_type_info_from_gtype(G_TYPE_OBJECT);
   golem_type_info_add_function(type_info,golem_function_closured_new("on",golem_gobject_signal_on));
+  golem_type_info_add_function(type_info,golem_function_closured_new("ref",golem_gobject_ref));
+  golem_type_info_add_function(type_info,golem_function_closured_new("unref",golem_gobject_unref));
+
 }
 
 

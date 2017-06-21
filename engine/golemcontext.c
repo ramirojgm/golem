@@ -324,6 +324,24 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
       g_value_set_gtype(value,type);
       return TRUE;
     }
+  else if(g_strcmp0(name,"true") == 0)
+    {
+      g_value_init(value,G_TYPE_BOOLEAN);
+      g_value_set_boolean(value,TRUE);
+      return TRUE;
+    }
+  else if(g_strcmp0(name,"false") == 0)
+    {
+      g_value_init(value,G_TYPE_BOOLEAN);
+      g_value_set_boolean(value,FALSE);
+      return TRUE;
+    }
+  else if(g_strcmp0(name,"null") == 0)
+    {
+      g_value_init(value,G_TYPE_POINTER);
+      g_value_set_pointer(value,NULL);
+      return TRUE;
+    }
 
   g_mutex_lock(&(context->mutex));
   GolemContextPrivate * priv;
