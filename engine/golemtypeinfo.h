@@ -58,9 +58,9 @@ GType		golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GErr
 
 gboolean	golem_type_info_get_static(GType type,const gchar * name,GValue * dest,GError ** error);
 
-gboolean	golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError ** error);
+gboolean	golem_type_info_get(const GValue * instance,const gchar * name,GValue * dest,GError ** error);
 
-gboolean	golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GError ** error);
+gboolean	golem_type_info_set(const GValue * instance,const gchar * name,const GValue * src,GError ** error);
 
 void		golem_type_info_add_function(GolemTypeInfo * info,GolemFunctionSpec * spec);
 

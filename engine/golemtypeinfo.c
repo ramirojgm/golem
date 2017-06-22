@@ -302,22 +302,36 @@ golem_type_info_get_classed(GType type,const gchar * name,GValue * dest,GError *
 }
 
 void
-_golem_closure_attached_finalize(GolemClosure * closure,gpointer data)
+_golem_closure_object_finalize(GolemClosure * closure,gpointer data)
 {
   g_object_unref(data);
 }
 
-gboolean
-golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError ** error)
+void
+_golem_closure_value_finalize(GolemClosure * closure,gpointer data)
 {
-  GType	gtype = G_TYPE_FROM_INSTANCE(instance);
+  g_value_free((GValue*)data);
+}
+
+gboolean
+golem_type_info_get(const GValue * instance,const gchar * name,GValue * dest,GError ** error)
+{
+  GType	gtype = G_VALUE_TYPE(instance);
+  GolemTypeInfo * type_info = golem_type_info_from_gtype(gtype);
   GType gtype_function = G_TYPE_NONE;
-  GObjectClass * klass = G_OBJECT_GET_CLASS(instance);
+  gpointer object_instance = NULL;
+  GObjectClass * klass = NULL;
   GolemFunctionSpec * function = NULL;
   GParamSpec *  property = NULL;
   GolemClosure * closure = NULL;
   gboolean done = FALSE;
   gchar * dashed_name = g_strdup(name);
+
+  if(G_VALUE_HOLDS_OBJECT(instance))
+    {
+      object_instance = g_value_get_object(instance);
+      klass = G_OBJECT_GET_CLASS(object_instance);
+    }
 
   //make dashed named property
   for(gchar * dn = dashed_name;*dn;dn++)
@@ -329,7 +343,6 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
   //find function
   if((function = _golem_type_info_find_function(gtype,name,&gtype_function)))
     {
-      GolemTypeInfo * type_info = golem_type_info_from_gtype(gtype);
       if((function->info == NULL)||golem_closure_info_resolve(function->info,type_info->priv->define_context,error))
 	{
 	  done = TRUE;
@@ -340,7 +353,7 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
 	      g_module_symbol(global,function->data.symbol_name,&symbol);
 	      g_module_close(global);
 	      closure = golem_symbol_new(function->info,symbol);
-	      golem_closure_set_instance(closure,instance);
+	      golem_closure_set_this(closure,instance);
 	      g_value_init(dest,G_TYPE_CLOSURE);
 	      g_value_set_boxed(dest,closure);
 	      g_closure_unref(G_CLOSURE(closure));
@@ -356,7 +369,7 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
 
 	      if(G_TYPE_IS_INTERFACE(gtype_function))
 		{
-		  struct_function = g_type_interface_peek(instance,gtype_function);
+		  struct_function = g_type_interface_peek(object_instance,gtype_function);
 		}
 	      else
 		{
@@ -369,10 +382,11 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
 		    }
 		  struct_function = (gpointer)klass + gtype_offset;
 		}
+
 	      if(gtype_query.class_size > function->data.offset)
 		{
 		  closure = golem_symbol_new(function->info,(struct_function + function->data.offset));
-		  golem_closure_set_instance(closure,instance);
+		  golem_closure_set_this(closure,instance);
 		  g_value_init(dest,G_TYPE_CLOSURE);
 		  g_value_set_boxed(dest,closure);
 		  g_closure_unref(G_CLOSURE(closure));
@@ -380,66 +394,90 @@ golem_type_info_get(gpointer instance,const gchar * name,GValue * dest,GError **
 	    }
 	  else if(function->type == GOLEM_FUNCTION_INTERNAL)
 	    {
-	      GolemContext * context = g_object_get_data(instance,"_this_context_");
-	      if(!context)
+	      GolemContext * context = NULL;
+	      if(object_instance)
+		{
+		  context = GOLEM_CONTEXT(g_object_get_data(object_instance,"_ctx_"));
+		  if(!context)
+		    {
+		      context = golem_context_new(type_info->priv->define_context);
+		      golem_context_set_this(context,instance);
+		      g_object_set_data_full(object_instance,"_ctx_",g_object_ref(context),g_object_unref);
+		    }
+		}
+	      else
 		{
 		  context = golem_context_new(type_info->priv->define_context);
-		  golem_context_set_instance(context,instance);
-		  g_object_set_data_full(instance,"_this_context_",g_object_ref(context),g_object_unref);
+		  golem_context_set_this(context,instance);
 		}
 	      closure = golem_function_new(function->info,context,function->data.body);
+	      golem_closure_set_this(closure,instance);
 	      g_value_init(dest,G_TYPE_CLOSURE);
 	      g_value_set_boxed(dest,closure);
 	      g_closure_unref(G_CLOSURE(closure));
 	    }
 	  else if(function->type == GOLEM_FUNCTION_CLOSURED)
 	    {
-	      closure = golem_closure_new(function->data.func,_golem_closure_attached_finalize,g_object_ref(instance));
+	      if(object_instance)
+		{
+		  closure = golem_closure_new(function->data.func,_golem_closure_object_finalize,g_object_ref(object_instance));
+		}
+	      else
+		{
+		  GValue * instance_copy = g_new0(GValue,1);
+		  g_value_init(instance_copy,G_VALUE_TYPE(instance));
+		  g_value_copy(instance,instance_copy);
+		  closure = golem_closure_new(function->data.func,_golem_closure_value_finalize,instance_copy);
+		}
 	      g_value_init(dest,G_TYPE_CLOSURE);
 	      g_value_set_boxed(dest,closure);
 	      g_closure_unref(G_CLOSURE(closure));
 	    }
 	}
     }
-  //find property
-  else if((property = g_object_class_find_property(klass,name))||(property = g_object_class_find_property(klass,dashed_name)))
+  else if(object_instance)
     {
-      g_value_init(dest,property->value_type);
-      g_object_get_property(instance,property->name,dest);
-      done = TRUE;
-    }
-  //find data
-  else
-    {
-      GValue * data_value = (GValue*)(g_object_get_data(instance,name));
-      if(!data_value)
+      //find property
+      if((property = g_object_class_find_property(klass,name))||(property = g_object_class_find_property(klass,dashed_name)))
 	{
-	  data_value =  (GValue*)(g_object_get_data(instance,dashed_name));
-	}
-
-      if(data_value)
-	{
+	  g_value_init(dest,property->value_type);
+	  g_object_get_property(object_instance,property->name,dest);
 	  done = TRUE;
-	  g_value_init(dest,G_VALUE_TYPE(data_value));
-	  g_value_copy(data_value,dest);
 	}
       else
 	{
-	  done = TRUE;
-	  g_value_init(dest,G_TYPE_POINTER);
-	  g_value_set_pointer(dest,NULL);
+	  GValue * data_value = (GValue*)(g_object_get_data(object_instance,name));
+	  if(!data_value)
+	    {
+	      data_value =  (GValue*)(g_object_get_data(object_instance,dashed_name));
+	    }
+
+	  if(data_value)
+	    {
+	      done = TRUE;
+	      g_value_init(dest,G_VALUE_TYPE(data_value));
+	      g_value_copy(data_value,dest);
+	    }
 	}
     }
+  else
+    {
+      done = TRUE;
+      g_value_init(dest,G_TYPE_POINTER);
+      g_value_set_pointer(dest,NULL);
+    }
+
   g_free(dashed_name);
   return done;
 }
 
 gboolean
-golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GError ** error)
+golem_type_info_set(const GValue * instance,const gchar * name,const GValue * src,GError ** error)
 {
   gboolean done = FALSE;
-  GObjectClass * klass = G_OBJECT_GET_CLASS(instance);
-  GParamSpec * property = g_object_class_find_property(klass,name);
+  gpointer object_instance = NULL;
+  GObjectClass * klass = NULL;
+  GParamSpec * property = NULL;
   gchar * dashed_name = g_strdup(name);
 
   //make dashed named property
@@ -449,25 +487,26 @@ golem_type_info_set(gpointer instance,const gchar * name,const GValue * src,GErr
 	*dn = '-';
     }
 
-  if(!property)
+  if(G_VALUE_HOLDS_OBJECT(instance))
     {
-      property = g_object_class_find_property(klass,dashed_name);
-    }
+      object_instance = g_value_get_object(instance);
+      klass = G_OBJECT_GET_CLASS(object_instance);
 
-  if(property)
-    {
-      done = TRUE;
-      g_object_set_property(instance,property->name,src);
-    }
-  else
-    {
-      done = TRUE;
-      GValue * data_value = g_new0(GValue,1);
-      g_value_init(data_value,G_VALUE_TYPE(src));
-      g_value_copy(src,data_value);
-      g_object_set_data_full(instance,name,data_value,(GDestroyNotify)g_value_free);
-    }
-
+      //find property
+      if((property = g_object_class_find_property(klass,name))||(property = g_object_class_find_property(klass,dashed_name)))
+      	{
+	  g_object_set_property(instance,property->name,src);
+	  done = TRUE;
+      	}
+      else
+      	{
+	  GValue * data_value = g_new0(GValue,1);
+	  g_value_init(data_value,G_VALUE_TYPE(src));
+	  g_value_copy(src,data_value);
+	  g_object_set_data_full(instance,name,data_value,(GDestroyNotify)g_value_free);
+	  done = TRUE;
+      	}
+     }
   g_free(dashed_name);
   return done;
 }

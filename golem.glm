@@ -1,73 +1,24 @@
 sharedobject "libgtk-3.so.0"
 
-extends GApplication 
+/*
+ *  Hello Word
+ */
+
+extends GApplication
 {
   extern int run(int argc,pointer argv);
 }
 
-extends GtkWidget
+int main(int argc,pointer argv)
 {
-  extern void show();
-}
-
-extends GtkWindow
-{
-  extern void set_titlebar(GtkWidget bar);
-}
-
-extends GtkContainer
-{
-  extern void add(GtkWidget child);
-}
-
-extends GtkApplication
-{
-  extern void add_window(GtkWindow win);
-}
-
-extends GtkGrid 
-{
-  extern void attach(GtkWidget child,int left,int top,int width,int height);
-}
-
-GtkApplicationWindow 
-GContableWindow()
-{
-  GtkHeaderBar headerbar = new GtkHeaderBar {
-    "title":"GContable",
-    "show-close-button": true,
-    "visible": true
-  };
-  
-   
-  GtkApplicationWindow self = new GtkApplicationWindow {
-    "visible": false,
-    "append-page": do(GtkWidget page) {
-	return page == null;
-    }
-  };
-  
-  self.add(new GtkTextView {
-    "visible": true,
-    "buffer": new GtkTextBuffer {
-      "text": "Hola Mundo"
-    }
-  }.ref());
-  
-  self.set_titlebar(headerbar);
-  self.show();
-  return self;
-}
-
-void main(int argc,pointer argv) {
   GtkApplication app = new GtkApplication {
-    "application-id": "org.gnome.desktop.golem.hk"
+    "application-id": "org.gnome.desktop.golem"
   };
- 
-  app.on("activate",do() {
-      GtkApplicationWindow w = GContableWindow();
-      app.add_window(w);
+  
+  app.on("activate", do () {
+      print("Hello Word");      
   });
   
   app.run(argc,argv);
+  return 0;
 }

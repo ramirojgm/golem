@@ -17,8 +17,17 @@
 
 #include "golemparser.h"
 #include "ctype.h"
+
 typedef struct _GolemParserWord GolemParserWord;
 typedef struct _GolemParserPrivate GolemParserPrivate;
+typedef enum _GolemParserComment GolemParserComment;
+
+enum _GolemParserComment
+{
+  GOLEM_PARSER_COMMENT_NONE,
+  GOLEM_PARSER_COMMENT_LINE,
+  GOLEM_PARSER_COMMENT_MULTILINE
+};
 
 struct _GolemParserPrivate
 {
@@ -116,28 +125,39 @@ static const gchar*
 golem_parser_skip_space(const gchar * str,const gchar * end)
 {
   const gchar * iter = str;
-  gboolean in_comment = FALSE;
+  GolemParserComment comment = GOLEM_PARSER_COMMENT_NONE;
   for(;iter < end;iter++)
     {
-      if (in_comment)
-	{
-	  if ((*iter == '\n')||(*iter == '\r'))
-	    in_comment = FALSE;
-	}
-      else
-	{
-	  if (golem_parser_index_of(iter, golem_parser_spaces) == -1)
-	    {
-	      if (*iter == '#')
-		{
-		  in_comment = TRUE;
-		}
-	      else
-		{
-		  break;
-		}
-	    }
-	}
+      switch(comment)
+      {
+      case GOLEM_PARSER_COMMENT_NONE:
+	if(g_str_has_prefix(iter,"//"))
+	  {
+	    comment = GOLEM_PARSER_COMMENT_LINE;
+	  }
+	else if(g_str_has_prefix(iter,"/*"))
+	  {
+	    comment = GOLEM_PARSER_COMMENT_MULTILINE;
+	  }
+	else if(golem_parser_index_of(iter, golem_parser_spaces) == -1)
+	  {
+	    return iter;
+	  }
+	break;
+      case GOLEM_PARSER_COMMENT_LINE:
+	if(g_str_has_prefix(iter,"\n")|| g_str_has_prefix(iter,"\r"))
+	  {
+	    comment = GOLEM_PARSER_COMMENT_NONE;
+	  }
+	break;
+      case GOLEM_PARSER_COMMENT_MULTILINE:
+	if(g_str_has_prefix(iter,"*/"))
+	  {
+	    comment = GOLEM_PARSER_COMMENT_NONE;
+	    iter++;
+	  }
+	break;
+      }
     }
   if(str > end)
     return end;

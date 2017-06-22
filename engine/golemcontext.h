@@ -40,7 +40,7 @@ void		golem_context_set_parent(GolemContext * context,GolemContext * parent);
 
 GolemContext *	golem_context_get_parent(GolemContext * context);
 
-void		golem_context_set_instance(GolemContext * context,GObject * instance);
+void		golem_context_set_this(GolemContext * context,const GValue * instance);
 
 GType		golem_context_get_type_define(GolemContext * context,const gchar * name,GError ** error);
 

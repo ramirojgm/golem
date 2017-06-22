@@ -37,32 +37,22 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 
   if((done = golem_expression_evaluate(priv->instance,context,&instance,error)))
     {
-      if(!G_VALUE_HOLDS_OBJECT(&instance))
+      if(priv->new_value)
 	{
-	  done = FALSE;
-	  golem_runtime_error(error,GOLEM_INVALID_CAST_ERROR,"the value not is a object");
+	  if((done = golem_expression_evaluate(priv->new_value,context,&new_value,error)))
+	    {
+	      done = golem_type_info_set(&instance,priv->index,&new_value,error);
+	      if(done)
+		{
+		  g_value_init(result,G_VALUE_TYPE(&new_value));
+		  g_value_copy(&new_value,result);
+		}
+	      g_value_unset(&new_value);
+	    }
 	}
       else
 	{
-	  if(priv->new_value)
-	    {
-	      if((done = golem_expression_evaluate(priv->new_value,context,&new_value,error)))
-		{
-		  gpointer inst = g_value_get_object(&instance);
-		  done = golem_type_info_set(inst,priv->index,&new_value,error);
-		  if(done)
-		    {
-		      g_value_init(result,G_VALUE_TYPE(&new_value));
-		      g_value_copy(&new_value,result);
-		    }
-		  g_value_unset(&new_value);
-		}
-	    }
-	  else
-	    {
-	      gpointer inst = g_value_get_object(&instance);
-	      done = golem_type_info_get(inst,priv->index,result,error);
-	    }
+	  done = golem_type_info_get(&instance,priv->index,result,error);
 	}
       g_value_unset(&instance);
     }

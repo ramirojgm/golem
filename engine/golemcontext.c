@@ -26,7 +26,7 @@ typedef struct _GolemContextVariable GolemContextVariable;
 struct _GolemContextPrivate
 {
   GolemContext * parent;
-  GObject * instance;
+  GValue this_value;
   GList * variables;
 };
 
@@ -51,7 +51,8 @@ golem_context_dispose(GObject * object)
 {
   GolemContextPrivate * priv;
   priv = golem_context_get_instance_private(GOLEM_CONTEXT(object));
-  g_clear_object(&(priv->instance));
+  if(priv->this_value.g_type)
+      g_value_unset(&priv->this_value);
   g_list_free_full(priv->variables,(GDestroyNotify)golem_context_variable_free);
   G_OBJECT_CLASS(golem_context_parent_class)->dispose(object);
   g_mutex_clear(&(GOLEM_CONTEXT(object)->mutex));
@@ -63,7 +64,6 @@ golem_context_init(GolemContext * self)
   GolemContextPrivate * priv;
   priv = golem_context_get_instance_private(self);
   priv->parent = NULL;
-  priv->instance = NULL;
   priv->variables = NULL;
   g_mutex_init(&(self->mutex));
 }
@@ -136,41 +136,6 @@ golem_context_set(GolemContext * context,const gchar * name,GValue * value,GErro
 			  "invalid cast from type \"%s\" to type \"%s\"",
 			  g_type_name(value->g_type),
 			  g_type_name(variable->value.g_type));
-	      g_mutex_unlock(&(context->mutex));
-	      return FALSE;
-	    }
-	}
-    }
-
-  if(priv->instance)
-    {
-      GObjectClass * klass = G_OBJECT_GET_CLASS(priv->instance);
-      GParamSpec * property = g_object_class_find_property(klass,name);
-      if(property)
-	{
-	  if(value->g_type == property->value_type)
-	    {
-	      g_object_set_property(priv->instance,name,value);
-	      g_mutex_unlock(&(context->mutex));
-	      return TRUE;
-	    }
-	  else if(g_value_type_transformable(value->g_type,property->value_type))
-	    {
-	      GValue property_value = G_VALUE_INIT;
-	      g_value_init(&property_value,property->value_type);
-	      g_value_transform(value,&property_value);
-	      g_object_set_property(priv->instance,name,&property_value);
-	      g_value_unset(&property_value);
-	      g_mutex_unlock(&(context->mutex));
-	      return TRUE;
-	    }
-	  else
-	    {
-	      golem_runtime_error(error,
-			  GOLEM_INVALID_CAST_ERROR,
-			  "invalid cast from type \"%s\" to type \"%s\"",
-			  g_type_name(value->g_type),
-			  g_type_name(property->value_type));
 	      g_mutex_unlock(&(context->mutex));
 	      return FALSE;
 	    }
@@ -361,27 +326,16 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
 	}
     }
 
-  if(priv->instance)
+
+  if(priv->this_value.g_type)
       {
 	if(g_strcmp0(name,"this") == 0)
 	  {
+
 	    g_value_unset(value);
-	    g_value_init(value,G_TYPE_FROM_INSTANCE(priv->instance));
-	    g_value_set_object(value,priv->instance);
+	    g_value_init(value,G_VALUE_TYPE(&priv->this_value));
+	    g_value_copy(&priv->this_value,value);
 	    return TRUE;
-	  }
-	else
-	  {
-	    GObjectClass * klass = G_OBJECT_GET_CLASS(priv->instance);
-	    GParamSpec * property = g_object_class_find_property(klass,name);
-	    if(property)
-	      {
-		g_value_unset(value);
-		g_value_init(value,property->value_type);
-		g_object_get_property(priv->instance,name,value);
-		g_mutex_unlock(&(context->mutex));
-		return TRUE;
-	      }
 	  }
       }
 
@@ -415,10 +369,11 @@ golem_context_new(GolemContext * parent)
 }
 
 void
-golem_context_set_instance(GolemContext * context,GObject * instance)
+golem_context_set_this(GolemContext * context,const GValue * instance)
 {
   GolemContextPrivate * priv = golem_context_get_instance_private(context);
-  if(priv->instance)
-    g_object_unref(priv->instance);
-  priv->instance = instance;
+  if(priv->this_value.g_type)
+    g_value_unset(&priv->this_value);
+  g_value_init(&priv->this_value,G_VALUE_TYPE(instance));
+  g_value_copy(instance,&priv->this_value);
 }

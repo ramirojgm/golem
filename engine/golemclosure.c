@@ -253,8 +253,8 @@ golem_closure_finalizer(gpointer data,GClosure * closure)
 {
   GolemClosure * self = GOLEM_CLOSURE(closure);
 
-  if(self->context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
-    g_object_unref(self->context.instance);
+  if(self->this_value.g_type)
+      g_value_unset(&self->this_value);
 
   if(self->finalize_func)
     self->finalize_func(self,data);
@@ -299,8 +299,7 @@ golem_function_invoke (GolemClosure *closure,
   guint param_index = 0;
   gint n_param_values = golem_closure_invoke_get_length(invoke);
 
-
-  for(param_index = 0;param_index < n_param_values;param_index ++)
+    for(param_index = 0;param_index < n_param_values;param_index ++)
     {
       GValue param_value = G_VALUE_INIT;
       if(cur_param)
@@ -416,10 +415,18 @@ golem_symbol_invoke (GolemClosure *closure,
   gint n_param_values = golem_closure_invoke_get_length(invoke);
 
   GValue * param_values = g_new0(GValue,n_param_values);
-  if(closure->context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED)
-    golem_cinvoke_push_pointer(cinvoke,closure->context.instance);
-  else if(closure->context_type == GOLEM_CLOSURE_CONTEXT_CLASSED)
-    golem_cinvoke_push_pointer(cinvoke,golem_closure_get_type_class(closure));
+  if(closure->this_value.g_type)
+    {
+      if(G_VALUE_HOLDS_GTYPE(&closure->this_value))
+	{
+	  GTypeClass * klass = g_type_class_peek(g_value_get_gtype(&closure->this_value));
+	  golem_cinvoke_push_pointer(cinvoke,klass);
+	}
+      else
+	{
+	  golem_cinvoke_push_value(cinvoke,&closure->this_value);
+	}
+    }
 
   for(param_index = 0;param_index < n_param_values;param_index ++)
     {
@@ -515,9 +522,6 @@ GolemClosure *
 golem_closure_new(GolemClosureInvokeFunc invoke_func,GolemClosureFinalizeFunc finalize_func,gpointer data)
 {
   GolemClosure  * closure = GOLEM_CLOSURE(g_closure_new_simple(sizeof(GolemClosure),data));
-  closure->context_type = GOLEM_CLOSURE_CONTEXT_NONE;
-  closure->context.class_type = G_TYPE_NONE;
-  closure->context.instance = NULL;
   closure->invoke_func = invoke_func;
   closure->finalize_func = finalize_func;
   closure->data = data;
@@ -527,41 +531,16 @@ golem_closure_new(GolemClosureInvokeFunc invoke_func,GolemClosureFinalizeFunc fi
 }
 
 void
-golem_closure_set_instance(GolemClosure * closure,gpointer instance)
+golem_closure_set_this(GolemClosure * closure,const GValue * src)
 {
-  g_return_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_NONE);
-  closure->context_type = GOLEM_CLOSURE_CONTEXT_INSTANCED;
-  closure->context.instance = g_object_ref(instance);
+  g_value_unset(&closure->this_value);
+  if(src)
+    {
+      g_value_init(&closure->this_value,G_VALUE_TYPE(src));
+      g_value_copy(src,&closure->this_value);
+    }
 }
 
-gpointer
-golem_closure_get_instance(GolemClosure * closure)
-{
-  g_return_val_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_INSTANCED,NULL);
-  return closure->context.instance;
-}
-
-void
-golem_closure_set_class(GolemClosure * closure,GType klass)
-{
-  g_return_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_NONE);
-  closure->context_type = GOLEM_CLOSURE_CONTEXT_CLASSED;
-  closure->context.class_type = klass;
-}
-
-GType
-golem_closure_get_class(GolemClosure * closure)
-{
-  g_return_val_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_CLASSED,G_TYPE_NONE);
-  return closure->context.class_type;
-}
-
-GTypeClass *
-golem_closure_get_type_class(GolemClosure * closure)
-{
-  g_return_val_if_fail(closure->context_type == GOLEM_CLOSURE_CONTEXT_CLASSED,NULL);
-  return g_type_class_peek(closure->context.class_type);
-}
 
 gpointer
 golem_closure_hold_address(GolemClosure * closure)

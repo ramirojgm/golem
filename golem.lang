@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
- This file is part of GtkSourceView
+ This file is part of Golem
 
- Authors: Ramiro José García Moraga
- Copyright (C) 2016-2017 Ramiro José García Moraga <ramiro.jgmp@gmail.com>
+ Authors: Ramiro Jose Garcia Moraga
+ Copyright (C) 2017 Ramiro Jose Garcia Moraga <ramiro.jgmp@gmail.com>
 
  GtkSourceView is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
- version 3 of the License, or (at your option) any later version.
+ version 2.1 of the License, or (at your option) any later version.
 
  GtkSourceView is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,9 +23,9 @@
 -->
 <language id="golem" _name="Golem" version="2.0" _section="Source">
   <metadata>
-    <property name="mimetypes">text/x-golem;</property>
+    <property name="mimetypes">text/x-golem</property>
     <property name="globs">*.glm</property>
-    <property name="line-comment-start">#</property>
+    <property name="line-comment-start">//</property>
     <property name="block-comment-start">/*</property>
     <property name="block-comment-end">*/</property>
   </metadata>
@@ -48,18 +48,21 @@
     <style id="octal"             _name="Octal number"          map-to="def:base-n-integer"/>
     <style id="hexadecimal"       _name="Hexadecimal number"    map-to="def:base-n-integer"/>
     <style id="boolean"           _name="Boolean value"         map-to="def:boolean"/>
+    <style id="standard-stream"   _name="Standard stream"       map-to="def:constant"/>
+    <style id="signal-name"       _name="Signal name"           map-to="def:constant"/>
+    <style id="error"             _name="Error"                 map-to="def:error"/>
   </styles>
 
   <definitions>
 
     <!--regexs-->
-	<define-regex id="escaped-character" extended="true">
-		\\(                   # leading backslash
-		[\\\"\'nrbtfav\?] |   # escaped character
-		[0-7]{1,3} |          # one, two, or three octal digits
-		x[0-9A-Fa-f]+         # 'x' followed by hex digits
-		)
-	</define-regex>
+    <define-regex id="escaped-character" extended="true">
+      \\(                   # leading backslash
+      [\\\"\'nrbtfav\?] |   # escaped character
+      [0-7]{1,3} |          # one, two, or three octal digits
+      x[0-9A-Fa-f]+         # 'x' followed by hex digits
+      )
+    </define-regex>
 
     <context id="string" style-ref="string" end-at-line-end="true" class="string" class-disabled="no-spell-check">
       <start>L?"</start>
@@ -87,14 +90,6 @@
       </match>
     </context>
 
-    <context id="hexadecimal" style-ref="hexadecimal">
-      <match extended="true">
-        (?&lt;![\w\.])
-        0[xX][a-fA-F0-9]+[uUlL]*
-        (?![\w\.])
-      </match>
-    </context>
-
     <context id="decimal" style-ref="decimal">
       <match extended="true">
         (?&lt;![\w\.])
@@ -112,13 +107,24 @@
       <keyword>else</keyword>
       <keyword>enum</keyword>
       <keyword>for</keyword>
-      <keyword>foreach</keyword>
       <keyword>if</keyword>
       <keyword>return</keyword>
       <keyword>struct</keyword>
       <keyword>switch</keyword>
       <keyword>typedef</keyword>
       <keyword>while</keyword>
+      <keyword>sharedobject</keyword>
+      <keyword>using</keyword>
+      <keyword>extern</keyword>
+      <keyword>extends</keyword>
+      <keyword>new</keyword>
+      <keyword>property</keyword>
+      <keyword>class</keyword>
+      <keyword>interface</keyword>
+      <keyword>iterator</keyword>
+      <keyword>signal</keyword>
+      <keyword>set</keyword>
+      <keyword>get</keyword>
     </context>
 
     <context id="operators" style-ref="operator">
@@ -131,32 +137,30 @@
       <keyword>bool</keyword>
       <keyword>char</keyword>
       <keyword>uchar</keyword>
-      <keyword>double</keyword>
-      <keyword>float</keyword>
       <keyword>byte</keyword>
       <keyword>ubyte</keyword>
+      <keyword>double</keyword>
+      <keyword>float</keyword>
       <keyword>int</keyword>
       <keyword>uint</keyword>
-      <keyword>int64</keyword>
-      <keyword>uint64</keyword>
+      <keyword>var</keyword>
+      <keyword>pointer</keyword>
+      <keyword>string</keyword>
+      <keyword>object</keyword>
       <keyword>long</keyword>
       <keyword>ulong</keyword>
-      <keyword>pointer</keyword>
-      <keyword>array</keyword>
-      <keyword>object</keyword>
-      <keyword>string</keyword>
-      <keyword>var</keyword>
       <keyword>void</keyword>
+      <keyword>function</keyword>
+      <keyword>array</keyword>
     </context>
 
     <context id="storage-class" style-ref="storage-class">
       <keyword>const</keyword>
-      <keyword>extern</keyword>
-      <keyword>class</keyword>
+      <keyword>package</keyword>
+      <keyword>init</keyword>
+      <keyword>init_class</keyword>
+      <keyword>dispose</keyword>
       <keyword>private</keyword>
-      <keyword>interface</keyword>
-      <keyword>extends</keyword>
-      <keyword>virtual</keyword>
     </context>
 
     <!-- C99 booleans -->
@@ -171,6 +175,7 @@
       <keyword>priv</keyword>
     </context>
 
+
     <!--Main context-->
     <context id="golem" class="no-spell-check">
       <include>
@@ -181,8 +186,6 @@
         <context ref="string"/>
         <context ref="char"/>
         <context ref="float"/>
-        <context ref="hexadecimal"/>
-        <context ref="octal"/>
         <context ref="decimal"/>
         <context ref="keywords"/>
         <context ref="operators"/>
@@ -192,6 +195,5 @@
         <context ref="common-defines"/>
       </include>
     </context>
-
   </definitions>
 </language>
