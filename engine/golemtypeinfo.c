@@ -495,7 +495,7 @@ golem_type_info_set(const GValue * instance,const gchar * name,const GValue * sr
       //find property
       if((property = g_object_class_find_property(klass,name))||(property = g_object_class_find_property(klass,dashed_name)))
       	{
-	  g_object_set_property(instance,property->name,src);
+	  g_object_set_property(object_instance,property->name,src);
 	  done = TRUE;
       	}
       else
@@ -503,7 +503,7 @@ golem_type_info_set(const GValue * instance,const gchar * name,const GValue * sr
 	  GValue * data_value = g_new0(GValue,1);
 	  g_value_init(data_value,G_VALUE_TYPE(src));
 	  g_value_copy(src,data_value);
-	  g_object_set_data_full(instance,name,data_value,(GDestroyNotify)g_value_free);
+	  g_object_set_data_full(object_instance,name,data_value,(GDestroyNotify)g_value_free);
 	  done = TRUE;
       	}
      }
