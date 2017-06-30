@@ -25,6 +25,7 @@
 #include "golemdebugobject.h"
 #include "golemparser.h"
 #include "golemcontext.h"
+#include "golemstructinfo.h"
 #include "golemruntime.h"
 #include "golemstatement.h"
 #include "golemsharedobject.h"

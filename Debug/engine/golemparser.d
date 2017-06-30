@@ -61,6 +61,7 @@ engine/golemparser.d: ../engine/golemparser.c ../engine/golemparser.h \
   /usr/include/glib-2.0/glib/gtrashstack.h \
   /usr/include/glib-2.0/glib/gtree.h \
   /usr/include/glib-2.0/glib/gurifuncs.h \
+  /usr/include/glib-2.0/glib/guuid.h \
   /usr/include/glib-2.0/glib/gversion.h \
   /usr/include/glib-2.0/glib/deprecated/gallocator.h \
   /usr/include/glib-2.0/glib/deprecated/gcache.h \
@@ -226,6 +227,8 @@ engine/golemparser.d: ../engine/golemparser.c ../engine/golemparser.h \
 /usr/include/glib-2.0/glib/gtree.h:
 
 /usr/include/glib-2.0/glib/gurifuncs.h:
+
+/usr/include/glib-2.0/glib/guuid.h:
 
 /usr/include/glib-2.0/glib/gversion.h:
 

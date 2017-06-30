@@ -33,6 +33,7 @@ C_SRCS += \
 ../engine/golemruntime.c \
 ../engine/golemsharedobject.c \
 ../engine/golemstatement.c \
+../engine/golemstructinfo.c \
 ../engine/golemtypeinfo.c \
 ../engine/golemwhile.c 
 
@@ -66,6 +67,7 @@ OBJS += \
 ./engine/golemruntime.o \
 ./engine/golemsharedobject.o \
 ./engine/golemstatement.o \
+./engine/golemstructinfo.o \
 ./engine/golemtypeinfo.o \
 ./engine/golemwhile.o 
 
@@ -99,6 +101,7 @@ C_DEPS += \
 ./engine/golemruntime.d \
 ./engine/golemsharedobject.d \
 ./engine/golemstatement.d \
+./engine/golemstructinfo.d \
 ./engine/golemtypeinfo.d \
 ./engine/golemwhile.d 
 
@@ -107,7 +110,7 @@ C_DEPS += \
 engine/%.o: ../engine/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	clang -std=c99 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	clang -std=c99 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -O3 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

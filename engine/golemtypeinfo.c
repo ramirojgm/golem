@@ -36,9 +36,22 @@ struct _GolemTypeInfoPrivate {
     * parse;
 
   GList
+    * bases,
     * functions,
     * properties;
+};
 
+enum _GolemBaseType
+{
+  GOLEM_BASE_CLASS,
+  GOLEM_BASE_INTERFACE
+};
+
+struct _GolemBaseSpec
+{
+  GolemBaseType base_type;
+  GType 	type;
+  gchar * 	type_name;
 };
 
 struct _GolemFunctionSpec
@@ -61,76 +74,6 @@ struct _GolemPropertySpec {
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeInfo,golem_type_info,G_TYPE_OBJECT)
-
-/*static void
-golem_instance_generic_dispose(GObject * instance)
-{
-
-}
-
-static void
-golem_instance_generic_finalize(GObject * instance)
-{
-
-}
-
-static void
-golem_instance_generic_init(GObject * instance)
-{
-
-}
-
-static void
-golem_instance_generic_constructed(GObject * instance)
-{
-
-}
-
-static void
-golem_instance_generic_set_property(GObject        *object,
-                                    guint           property_id,
-                                    const GValue   *value,
-                                    GParamSpec     *pspec)
-{
-  GolemTypeInfo *  info = GOLEM_TYPE_INFO(g_object_get_data(object,"_type_info_"));
-
-}
-*/
-/*static void
-golem_instance_generic_get_property(GObject        *object,
-                                    guint           property_id,
-                                    GValue         *value,
-                                    GParamSpec     *pspec)
-{
-  GolemTypeInfo *  info = GOLEM_TYPE_INFO(g_object_get_data(object,"_type_info_"));
-  GObject * priv = G_OBJECT(g_object_get_data(object,"_priv_"));
-  for(GList * prop_iter = g_list_first(info->priv->properties);prop_iter;prop_iter = g_list_next(prop_iter))
-    {
-      GolemProperty * prop = (GolemProperty*)(prop_iter->data);
-      if(prop->param == pspec)
-	{
-	  GolemContext * context = golem_context_new(info->priv->define_context);
-	  GValue priv_value = G_VALUE_INIT;
-	  g_value_init(&priv_value,G_TYPE_OBJECT);
-	  g_value_set_object(&priv_value,priv);
-	  golem_context_set_auto(context,"priv",&priv_value,NULL);
-	  g_value_unset(&priv_value);
-
-	  g_object_unref(context);
-	  return;
-	}
-    }
-}
-
-static void
-golem_instance_generic_class_init(GObjectClass * klass)
-{
-  klass->constructed = golem_instance_generic_constructed;
-  klass->finalize = golem_instance_generic_finalize;
-  klass->dispose = golem_instance_generic_dispose;
-  klass->set_property = golem_instance_generic_set_property;
-  klass->get_property = golem_instance_generic_get_property;
-}*/
 
 static void
 golem_type_info_init(GolemTypeInfo * info)
@@ -184,6 +127,15 @@ golem_type_info_from_gtype(GType type)
   return type_info;
 }
 
+GolemTypeInfo *
+golem_type_info_new(const gchar * name)
+{
+  GolemTypeInfo * type_info = GOLEM_TYPE_INFO(g_object_new(GOLEM_TYPE_TYPE_INFO,NULL));
+  type_info->priv->name = g_strdup(name);
+  type_info->priv->gtype = G_TYPE_NONE;
+  return type_info;
+}
+
 
 const gchar *
 golem_type_info_get_name(GolemTypeInfo * type_info)
@@ -191,54 +143,11 @@ golem_type_info_get_name(GolemTypeInfo * type_info)
   return type_info->priv->name;
 }
 
-/*
 void
-golem_type_info_set_init(GolemTypeInfo * type_info,GolemStatement * statement)
+golem_type_info_add_base(GolemTypeInfo * type_info,GolemBaseSpec * base)
 {
-
+  type_info->priv->bases = g_list_append(type_info->priv->bases,base);
 }
-
-GolemStatement*
-golem_type_info_get_init(GolemTypeInfo * type_info)
-{
-
-}
-
-GolemStatement *
-golem_type_info_get_complete(GolemTypeInfo * type_info)
-{
-
-}
-
-void
-golem_type_info_set_complete(GolemTypeInfo * type_info,GolemStatement * statement)
-{
-
-}
-
-void
-golem_type_info_set_constructed(GolemTypeInfo * type_info,GolemStatement * statement)
-{
-
-}
-
-GolemStatement*
-golem_type_info_get_constructed(GolemTypeInfo * type_info)
-{
-
-}
-
-void
-golem_type_info_set_dispose(GolemTypeInfo * type_info,GolemStatement * statement)
-{
-
-}
-
-GolemStatement*
-golem_type_info_get_dispose(GolemTypeInfo * type_info)
-{
-
-}*/
 
 void
 golem_type_info_add_function(GolemTypeInfo * type_info,GolemFunctionSpec * function)
@@ -311,6 +220,14 @@ void
 _golem_closure_value_finalize(GolemClosure * closure,gpointer data)
 {
   g_value_free((GValue*)data);
+}
+
+void
+golem_type_info_set_context(GolemTypeInfo * info,GolemContext * context)
+{
+  GolemTypeInfoPrivate * priv = golem_type_info_get_instance_private(info);
+  if(!priv->define_context)
+    priv->define_context = GOLEM_CONTEXT(g_object_ref(context));
 }
 
 gboolean
@@ -394,6 +311,7 @@ golem_type_info_get(const GValue * instance,const gchar * name,GValue * dest,GEr
 	    }
 	  else if(function->type == GOLEM_FUNCTION_INTERNAL)
 	    {
+
 	      GolemContext * context = NULL;
 	      if(object_instance)
 		{
@@ -409,7 +327,9 @@ golem_type_info_get(const GValue * instance,const gchar * name,GValue * dest,GEr
 		{
 		  context = golem_context_new(type_info->priv->define_context);
 		  golem_context_set_this(context,instance);
+
 		}
+
 	      closure = golem_function_new(function->info,context,function->data.body);
 	      golem_closure_set_this(closure,instance);
 	      g_value_init(dest,G_TYPE_CLOSURE);
@@ -553,4 +473,14 @@ golem_function_closured_new(const gchar * name,GolemClosureInvokeFunc func)
   function->type = GOLEM_FUNCTION_CLOSURED;
   function->data.func = func;
   return function;
+}
+
+GolemBaseSpec *
+golem_base_new(GolemBaseType type,const gchar * type_name)
+{
+  GolemBaseSpec * base = g_new0(GolemBaseSpec,1);
+  base->base_type = type;
+  base->type_name = g_strdup(type_name);
+  base->type = 0;
+  return base;
 }

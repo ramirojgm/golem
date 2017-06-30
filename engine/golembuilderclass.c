@@ -78,11 +78,13 @@ GolemBuilderClass *
 golem_builder_class_parse(GolemParser * parser,GError ** error)
 {
   GolemBuilderClass * self = GOLEM_BUILDER_CLASS(g_object_new(GOLEM_TYPE_BUILDER_CLASS,NULL));
+  const gchar * class_name = NULL;
 
   if(golem_parser_next_word_check(parser,"class"))
     {
       if(golem_parser_check_is_named(parser))
 	{
+	  self->priv->type_info = golem_type_info_new(golem_parser_next_word(parser,NULL,TRUE));
 
 	}
       else

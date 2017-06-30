@@ -243,7 +243,7 @@ golem_closure_invoke_free(GolemClosureInvoke * closure_invoke)
 {
   g_list_free_full(closure_invoke->arguments,(GDestroyNotify)g_value_free);
   if(closure_invoke->error)
-    g_free(closure_invoke->error);
+    g_error_free(closure_invoke->error);
   g_value_unset(&closure_invoke->result);
 }
 
@@ -369,6 +369,8 @@ golem_function_invoke (GolemClosure *closure,
 
   if(!done)
     {
+      g_print("%s",error->message);
+      g_print("OK:%s -> %d\n",info->priv->name,done);
       golem_closure_invoke_set_error(invoke,error);
     }
   else

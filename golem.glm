@@ -4,6 +4,7 @@ sharedobject "libgtk-3.so.0"
  *  Hello Word
  */
 
+
 extends GApplication
 {
   extern int run(int argc,pointer argv);
@@ -11,12 +12,13 @@ extends GApplication
 
 int main(int argc,pointer argv)
 {
+  
   GtkApplication app = new GtkApplication {
     "application-id": "org.gnome.desktop.golem"
   };
   
   app.on("activate", do () {
-      print("Hello Word");      
+      print("Hello Word");
   });
   
   app.run(argc,argv);

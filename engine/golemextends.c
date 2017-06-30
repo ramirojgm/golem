@@ -36,6 +36,7 @@ _golem_extends_execute(GolemStatement * statement,GolemRuntime * runtime,GError 
     {
       done = TRUE;
       GolemTypeInfo * info = golem_type_info_from_gtype(gtype);
+      golem_type_info_set_context(info,golem_runtime_get_context(runtime));
       for(GList * func_iter = g_list_first(self->priv->functions);func_iter;func_iter = g_list_next(func_iter))
 	{
 	  golem_type_info_add_function(info,(GolemFunctionSpec *)func_iter->data);

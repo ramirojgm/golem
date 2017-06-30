@@ -62,6 +62,7 @@ engine/golemidentificator.d: ../engine/golemidentificator.c \
   /usr/include/glib-2.0/glib/gtrashstack.h \
   /usr/include/glib-2.0/glib/gtree.h \
   /usr/include/glib-2.0/glib/gurifuncs.h \
+  /usr/include/glib-2.0/glib/guuid.h \
   /usr/include/glib-2.0/glib/gversion.h \
   /usr/include/glib-2.0/glib/deprecated/gallocator.h \
   /usr/include/glib-2.0/glib/deprecated/gcache.h \
@@ -90,19 +91,20 @@ engine/golemidentificator.d: ../engine/golemidentificator.c \
   /usr/include/glib-2.0/gobject/gvaluetypes.h \
   /usr/include/glib-2.0/gobject/gobject-autocleanups.h \
   ../engine/golemdebugobject.h ../engine/golemparser.h \
-  ../engine/golemcontext.h ../engine/golemruntime.h \
-  ../engine/golemstatement.h ../engine/golemsharedobject.h \
-  ../engine/golemreturn.h ../engine/golemexpression.h \
-  ../engine/golemconstant.h ../engine/golemnew.h \
-  ../engine/golemdeclaration.h ../engine/goleminvoke.h \
-  ../engine/golemmember.h ../engine/golemexpressioncomplex.h \
-  ../engine/golemidentificator.h ../engine/golemblock.h \
-  ../engine/golemif.h ../engine/golemwhile.h ../engine/golemclosure.h \
-  ../engine/golembuilderclass.h ../engine/golembuilderextern.h \
-  ../engine/golembuilderfunction.h ../engine/golembuilderclosure.h \
-  ../engine/golemextends.h ../engine/golemcinvoke.h \
-  ../engine/golemcompiled.h ../engine/golemerror.h ../engine/golemllm.h \
-  ../engine/golemtypeinfo.h ../engine/golemutils.h
+  ../engine/golemcontext.h ../engine/golemstructinfo.h \
+  ../engine/golemruntime.h ../engine/golemstatement.h \
+  ../engine/golemsharedobject.h ../engine/golemreturn.h \
+  ../engine/golemexpression.h ../engine/golemconstant.h \
+  ../engine/golemnew.h ../engine/golemdeclaration.h \
+  ../engine/goleminvoke.h ../engine/golemmember.h \
+  ../engine/golemexpressioncomplex.h ../engine/golemidentificator.h \
+  ../engine/golemblock.h ../engine/golemif.h ../engine/golemwhile.h \
+  ../engine/golemclosure.h ../engine/golembuilderclass.h \
+  ../engine/golembuilderextern.h ../engine/golembuilderfunction.h \
+  ../engine/golembuilderclosure.h ../engine/golemextends.h \
+  ../engine/golemcinvoke.h ../engine/golemcompiled.h \
+  ../engine/golemerror.h ../engine/golemllm.h ../engine/golemtypeinfo.h \
+  ../engine/golemutils.h
 
 ../engine/golem.h:
 
@@ -242,6 +244,8 @@ engine/golemidentificator.d: ../engine/golemidentificator.c \
 
 /usr/include/glib-2.0/glib/gurifuncs.h:
 
+/usr/include/glib-2.0/glib/guuid.h:
+
 /usr/include/glib-2.0/glib/gversion.h:
 
 /usr/include/glib-2.0/glib/deprecated/gallocator.h:
@@ -301,6 +305,8 @@ engine/golemidentificator.d: ../engine/golemidentificator.c \
 ../engine/golemparser.h:
 
 ../engine/golemcontext.h:
+
+../engine/golemstructinfo.h:
 
 ../engine/golemruntime.h:
 
