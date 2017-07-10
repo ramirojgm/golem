@@ -4,10 +4,71 @@ sharedobject "libgtk-3.so.0"
  *  Hello Word
  */
 
+extends GtkWidget
+{
+  extern void show();
+}
+
+extends GtkContainer
+{
+  extern void add(GtkWidget child);
+}
+
+extends GtkNotebook 
+{
+  extern int append_page(GtkWidget child,GtkWidget label);
+}
+
+extends GtkPopover
+{
+  extern void popup();
+  extern void popdown();
+};
+
+class GtkDateEntry: GtkEntry
+{
+  init {
+    extern string g_strdup_printf(string format,int day,int month,int year);
+    
+    GtkPopover popover = new GtkPopover { "relative-to": this };
+    GtkCalendar calendar = new GtkCalendar { "visible": true };
+    popover.add(calendar);
+    
+    this.secondary_icon_name = "x-office-calendar-symbolic";
+    this.on("icon-release",do(GtkDateEntry entry, int icon_pos,GdkEvent event){
+	popover.popup();
+    });
+    calendar.on("day-selected-double-click",do(GtkCalendar cal) {
+	popover.popdown();
+	this.text = g_strdup_printf("%02d/%02d/%04d",cal.day,cal.month + 1,cal.year);
+    });
+  }
+}
+
+class MyWindow: GtkWindow {
+  
+   init {
+     this.notebook = new GtkNotebook { "visible": true};
+     this.btn = new GtkDateEntry { "visible": true,"margin-top":150,"margin-bottom": 150,"margin-left": 150,"margin-right": 150};
+     
+     this.notebook.append_page(this.btn,new GtkLabel { "label": "Hola Mundo", "visible": true }.ref());
+     this.title = "MyWindow";
+     this.add(this.notebook);
+   }
+   
+ 
+}
+
+
 
 extends GApplication
 {
   extern int run(int argc,pointer argv);
+}
+
+extends GtkApplication
+{
+  extern void add_window(GtkWindow win);
 }
 
 int main(int argc,pointer argv)
@@ -18,7 +79,11 @@ int main(int argc,pointer argv)
   };
   
   app.on("activate", do () {
-      print("Hello Word");
+      MyWindow mw = new MyWindow {
+	
+      };
+      mw.show();
+      app.add_window(mw);
   });
   
   app.run(argc,argv);

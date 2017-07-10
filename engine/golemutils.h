@@ -18,13 +18,6 @@
 #ifndef GOLEMUTILS_H_
 #define GOLEMUTILS_H_
 
-typedef gboolean (*GolemUsingOpenFunc)(const gchar * resource_name,gchar ** buffer,gsize * buffer_length,GError ** error);
-
-
-GolemUsingOpenFunc	golem_using_get_default_open_function();
-
-void			golem_using_set_default_open_function(GolemUsingOpenFunc func);
-
 GType			golem_resolve_type_name(GolemContext * context,const gchar * name);
 
 const gchar *		golem_type_get_prefix(const gchar * name);

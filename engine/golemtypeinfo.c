@@ -41,17 +41,12 @@ struct _GolemTypeInfoPrivate {
     * properties;
 };
 
-enum _GolemBaseType
+struct _GolemTypeSpec
 {
-  GOLEM_BASE_CLASS,
-  GOLEM_BASE_INTERFACE
-};
-
-struct _GolemBaseSpec
-{
-  GolemBaseType base_type;
   GType 	type;
+  GType		template_param;
   gchar * 	type_name;
+  gchar * 	template_param_name;
 };
 
 struct _GolemFunctionSpec
@@ -80,6 +75,7 @@ golem_type_info_init(GolemTypeInfo * info)
 {
   GolemTypeInfoPrivate * priv = golem_type_info_get_instance_private(info);
   info->priv = priv;
+  priv->gtype = 0;
   priv->init = NULL;
   priv->parse = NULL;
   priv->constructed = NULL;
@@ -91,6 +87,33 @@ golem_type_info_init(GolemTypeInfo * info)
 }
 
 static void
+_golem_virtual_init(GTypeInstance * instance, gpointer klass)
+{
+  GolemTypeInfo * info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(instance));
+  if(info)
+    {
+      if(info->priv->init)
+	{
+	  GValue this_value = G_VALUE_INIT;
+	  g_value_init(&this_value,G_TYPE_FROM_INSTANCE(instance));
+	  g_value_set_object(&this_value,instance);
+	  GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
+	  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
+	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
+	  golem_statement_execute(info->priv->init,runtime,NULL);
+	  golem_runtime_exit(runtime);
+	  g_value_unset(&this_value);
+	}
+    }
+}
+
+static void
+_golem_virtual_class_init(gpointer klass,gpointer klass_data)
+{
+
+}
+
+static void
 golem_type_info_class_init(GolemTypeInfoClass * info)
 {
 
@@ -99,7 +122,40 @@ golem_type_info_class_init(GolemTypeInfoClass * info)
 GType
 golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** error)
 {
-  return G_TYPE_NONE;
+    GType parent_type = G_TYPE_OBJECT;
+    GTypeQuery parent_query = {0,};
+    if(info->priv->bases)
+      {
+	GList * first_base = g_list_first(info->priv->bases);
+	parent_type = golem_type_spec_get((GolemTypeSpec*)first_base->data,context,error);
+	if(!parent_type)
+	  return 0;
+      }
+    g_type_query(parent_type,&parent_query);
+    info->priv->define_context = GOLEM_CONTEXT(g_object_ref(context));
+    info->priv->gtype = g_type_register_static_simple (
+				   parent_type,
+				   g_intern_static_string(info->priv->name),
+				   parent_query.class_size + sizeof(gpointer),
+				   _golem_virtual_class_init,
+				   parent_query.instance_size + sizeof(gpointer),
+				   _golem_virtual_init,
+				   0);
+  _golem_type_info = g_list_append(_golem_type_info,info);
+  return info->priv->gtype;
+}
+
+GolemStatement *
+golem_type_info_get_init(GolemTypeInfo * info)
+{
+  return info->priv->init;
+}
+
+void
+golem_type_info_set_init(GolemTypeInfo * info,GolemStatement * statement)
+{
+  g_clear_object(&(info->priv->init));
+  info->priv->init = statement;
 }
 
 GolemTypeInfo*
@@ -132,7 +188,7 @@ golem_type_info_new(const gchar * name)
 {
   GolemTypeInfo * type_info = GOLEM_TYPE_INFO(g_object_new(GOLEM_TYPE_TYPE_INFO,NULL));
   type_info->priv->name = g_strdup(name);
-  type_info->priv->gtype = G_TYPE_NONE;
+  type_info->priv->gtype = 0;
   return type_info;
 }
 
@@ -144,7 +200,7 @@ golem_type_info_get_name(GolemTypeInfo * type_info)
 }
 
 void
-golem_type_info_add_base(GolemTypeInfo * type_info,GolemBaseSpec * base)
+golem_type_info_add_base(GolemTypeInfo * type_info,GolemTypeSpec * base)
 {
   type_info->priv->bases = g_list_append(type_info->priv->bases,base);
 }
@@ -475,12 +531,51 @@ golem_function_closured_new(const gchar * name,GolemClosureInvokeFunc func)
   return function;
 }
 
-GolemBaseSpec *
-golem_base_new(GolemBaseType type,const gchar * type_name)
+GolemTypeSpec *
+golem_type_spec_new(const gchar * type_name)
 {
-  GolemBaseSpec * base = g_new0(GolemBaseSpec,1);
-  base->base_type = type;
-  base->type_name = g_strdup(type_name);
-  base->type = 0;
-  return base;
+  GolemTypeSpec * type_spec = g_new0(GolemTypeSpec,1);
+  type_spec->type_name = g_strdup(type_name);
+  type_spec->type = 0;
+  type_spec->template_param_name = NULL;
+  type_spec->template_param = 0;
+  return type_spec;
+}
+
+GolemTypeSpec *
+golem_type_spec_parse(GolemParser * parser,GError ** error)
+{
+  if(golem_parser_check_is_named(parser))
+    {
+      GolemTypeSpec * spec = g_new0(GolemTypeSpec,1);
+      spec->type_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+      if(golem_parser_next_word_check(parser,"<"))
+	{
+	  spec->template_param_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+	  if(!golem_parser_next_word_check(parser,">"))
+	    {
+	      golem_parser_error(error,parser,"was expected \">\"");
+	      g_free(spec->type_name);
+	      g_free(spec->template_param_name);
+	      g_free(spec);
+	      spec = NULL;
+	    }
+	}
+      return spec;
+    }
+  else
+    {
+      golem_parser_error(error,parser,"a type name was expected");
+      return NULL;
+    }
+}
+
+GType
+golem_type_spec_get(GolemTypeSpec * type_spec,GolemContext * context,GError ** error)
+{
+  if(!type_spec->type)
+    {
+      type_spec->type = golem_context_get_type_define(context,type_spec->type_name,error);
+    }
+  return type_spec->type;
 }

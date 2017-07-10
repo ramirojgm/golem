@@ -37,16 +37,16 @@ G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClass,golem_builder_class,GOLEM_TYPE_STAT
 
 
 gboolean
-_golem_builder_class_execute(GolemStatement * sentence,GolemContext * context,GError ** error)
+_golem_builder_class_execute(GolemStatement * sentence,GolemRuntime * runtime,GError ** error)
 {
   GolemBuilderClassPrivate * priv = golem_builder_class_get_instance_private(GOLEM_BUILDER_CLASS(sentence));
-  GType gtype = golem_type_info_register(priv->type_info,context,error);
-  if(gtype == G_TYPE_NONE)
+  GType gtype = golem_type_info_register(priv->type_info,golem_runtime_get_context(runtime),error);
+  if(gtype)
     {
       GValue value = G_VALUE_INIT;
       gboolean done = FALSE;
       g_value_init(&value,G_TYPE_GTYPE);
-      done = golem_context_set_auto(context,g_type_name(gtype),&value,error);
+      done = golem_context_set_auto(golem_runtime_get_context(runtime),g_type_name(gtype),&value,error);
       g_value_unset(&value);
       return done;
     }
@@ -65,7 +65,7 @@ golem_builder_class_init(GolemBuilderClass * self)
 static void
 golem_builder_class_class_init(GolemBuilderClassClass * klass)
 {
-
+  GOLEM_STATEMENT_CLASS(klass)->execute = _golem_builder_class_execute;
 }
 
 gboolean
@@ -78,14 +78,61 @@ GolemBuilderClass *
 golem_builder_class_parse(GolemParser * parser,GError ** error)
 {
   GolemBuilderClass * self = GOLEM_BUILDER_CLASS(g_object_new(GOLEM_TYPE_BUILDER_CLASS,NULL));
-  const gchar * class_name = NULL;
+  gboolean done = TRUE;
 
   if(golem_parser_next_word_check(parser,"class"))
     {
       if(golem_parser_check_is_named(parser))
 	{
 	  self->priv->type_info = golem_type_info_new(golem_parser_next_word(parser,NULL,TRUE));
+	  if(golem_parser_next_word_check(parser,":"))
+	    {
+	      do
+		{
+		  GolemTypeSpec * base_type = golem_type_spec_parse(parser,error);
+		  if(base_type)
+		    golem_type_info_add_base(self->priv->type_info,base_type);
+		  else
+		    done = FALSE;
+		}
+	      while(golem_parser_next_word_check(parser,","));
+	    }
 
+	  if(golem_parser_next_word_check(parser,"{"))
+	    {
+	      while(!golem_parser_next_word_check(parser,"}"))
+		{
+		  if(golem_parser_next_word_check(parser,"init"))
+		    {
+		      if(golem_block_check(parser)){
+			  GolemBlock * block = golem_block_parse(parser,error);
+			  if(block)
+			    golem_type_info_set_init(self->priv->type_info,GOLEM_STATEMENT(block));
+		      }
+		    }
+		  else if(golem_parser_next_word_check(parser,"@"))
+		    {
+
+		    }
+		  else if(golem_parser_next_word_check(parser,"property"))
+		    {
+
+		    }
+		  else if(golem_parser_next_word_check(parser,"constructed"))
+		    {
+
+		    }
+		  else if(golem_parser_next_word_check(parser,"dispose"))
+		    {
+
+		    }
+		}
+	    }
+	  else
+	    {
+	      golem_parser_error(error,parser,"was expected \"{\"");
+	      done = FALSE;
+	    }
 	}
       else
 	{

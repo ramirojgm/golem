@@ -21,10 +21,9 @@
 typedef struct _GolemTypeInfoPrivate GolemTypeInfoPrivate;
 typedef struct _GolemFunctionSpec GolemFunctionSpec;
 typedef struct _GolemPropertySpec GolemPropertySpec;
-typedef struct _GolemBaseSpec GolemBaseSpec;
+typedef struct _GolemTypeSpec GolemTypeSpec;
 
 typedef enum _GolemFunctionType GolemFunctionType;
-typedef enum _GolemBaseType GolemBaseType;
 
 
 #define GOLEM_TYPE_TYPE_INFO	(golem_type_info_get_type())
@@ -37,6 +36,7 @@ enum _GolemFunctionType
   GOLEM_FUNCTION_INTERNAL,
   GOLEM_FUNCTION_CLOSURED
 };
+
 
 struct _GolemTypeInfoClass
 {
@@ -57,6 +57,10 @@ GolemTypeInfo* 	golem_type_info_new(const gchar * name);
 
 GolemTypeInfo*	golem_type_info_from_gtype(GType type);
 
+GolemStatement *golem_type_info_get_init(GolemTypeInfo * info);
+
+void		golem_type_info_set_init(GolemTypeInfo * info,GolemStatement * statement);
+
 void		golem_type_info_set_context(GolemTypeInfo * info,GolemContext * context);
 
 GType		golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** error);
@@ -67,14 +71,18 @@ gboolean	golem_type_info_get(const GValue * instance,const gchar * name,GValue *
 
 gboolean	golem_type_info_set(const GValue * instance,const gchar * name,const GValue * src,GError ** error);
 
-void		golem_type_info_add_base(GolemTypeInfo * info,GolemBaseSpec * spec);
+void		golem_type_info_add_base(GolemTypeInfo * info,GolemTypeSpec * spec);
 
 void		golem_type_info_add_function(GolemTypeInfo * info,GolemFunctionSpec * spec);
 
 void		golem_type_info_add_property(GolemTypeInfo * info,GolemPropertySpec * spec);
 
 
-GolemBaseSpec *	    golem_base_new(GolemBaseType type,const gchar * type_name);
+GolemTypeSpec *	golem_type_spec_new(const gchar * type_name);
+
+GolemTypeSpec *	golem_type_spec_parse(GolemParser * parser,GError ** error);
+
+GType		golem_type_spec_get(GolemTypeSpec * type_spec,GolemContext * context,GError ** error);
 
 GolemFunctionSpec * golem_function_symbol_new(GolemClosureInfo * info,const gchar * symbol_name);
 

@@ -497,6 +497,8 @@ golem_symbol_invoke (GolemClosure *closure,
   if(done)
     {
       golem_cinvoke_invoke(cinvoke,func_data->symbol_address,&result_value);
+      golem_closure_invoke_set_result(invoke,&result_value);
+      g_value_unset(&result_value);
     }
   else
     {

@@ -535,7 +535,7 @@ golem_parser_check_is_named(GolemParser * parser)
   	  if(!isalnum(*c) && *c != '_')
   	    return FALSE;
   	}
-        return TRUE;
+        return golem_parser_index_of(word,golem_parser_spliters) == -1;
       }
     return FALSE;
 }
