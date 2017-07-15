@@ -18,12 +18,15 @@
 #include "golem.h"
 #include <gmodule.h>
 
+typedef struct _GolemPrivateInstance GolemPrivateInstance;
+
 static GList *	_golem_type_info = NULL;
 GMutex 		_golem_type_info_mutex = G_STATIC_MUTEX_INIT;
 
 struct _GolemTypeInfoPrivate {
   gchar * name;
   GType   gtype;
+  goffset private_offset;
 
   GolemContext
     * define_context;
@@ -68,6 +71,11 @@ struct _GolemPropertySpec {
   GolemStatement * set;
 };
 
+struct _GolemPrivateInstance
+{
+	gpointer priv_instance;
+};
+
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeInfo,golem_type_info,G_TYPE_OBJECT)
 
 static void
@@ -86,31 +94,47 @@ golem_type_info_init(GolemTypeInfo * info)
   g_mutex_init(&(info->mutex));
 }
 
+static gpointer
+_golem_type_info_get_instance_private(GolemTypeInfo * info,gpointer instance)
+{
+	GolemPrivateInstance * priv = (GolemPrivateInstance *)(instance + info->priv->private_offset);
+	return priv->priv_instance;
+}
+
 static void
 _golem_virtual_init(GTypeInstance * instance, gpointer klass)
 {
   GolemTypeInfo * info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(instance));
+  GolemPrivateInstance * priv = (GolemPrivateInstance *)(instance + info->priv->private_offset);
+  priv->priv_instance = g_object_new(G_TYPE_OBJECT,NULL);
   if(info)
     {
       if(info->priv->init)
 	{
 	  GValue this_value = G_VALUE_INIT;
+	  GValue priv_value = G_VALUE_INIT;
 	  g_value_init(&this_value,G_TYPE_FROM_INSTANCE(instance));
+	  g_value_init(&priv_value,G_TYPE_OBJECT);
 	  g_value_set_object(&this_value,instance);
+	  g_value_set_object(&priv_value,priv->priv_instance);
 	  GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
 	  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
 	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
+	  golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
 	  golem_statement_execute(info->priv->init,runtime,NULL);
 	  golem_runtime_exit(runtime);
 	  g_value_unset(&this_value);
+	  g_value_unset(&priv_value);
 	}
     }
 }
 
 static void
-_golem_virtual_class_init(gpointer klass,gpointer klass_data)
+_golem_virtual_class_init(GTypeClass * klass,gpointer klass_data)
 {
-
+	/*GolemTypeInfo * info = golem_type_info_from_gtype(klass->g_type);
+	if(info->priv->private_offset != 0)
+		g_type_class_adjust_private_offset(klass,info->priv->private_offset);*/
 }
 
 static void
@@ -141,6 +165,7 @@ golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** e
 				   parent_query.instance_size + sizeof(gpointer),
 				   _golem_virtual_init,
 				   0);
+    info->priv->private_offset = g_type_add_instance_private(info->priv->gtype,sizeof(GolemPrivateInstance));
   _golem_type_info = g_list_append(_golem_type_info,info);
   return info->priv->gtype;
 }

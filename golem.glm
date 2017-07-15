@@ -7,10 +7,11 @@ sharedobject "libgtk-3.so.0"
 extends GtkWidget
 {
   extern void show();
+  extern void hide();
+  
 }
 
-extends GtkContainer
-{
+extends GtkContainer {
   extern void add(GtkWidget child);
 }
 
@@ -30,16 +31,16 @@ class GtkDateEntry: GtkEntry
   init {
     extern string g_strdup_printf(string format,int day,int month,int year);
     
-    GtkPopover popover = new GtkPopover { "relative-to": this };
-    GtkCalendar calendar = new GtkCalendar { "visible": true };
-    popover.add(calendar);
+    priv.popover = new GtkPopover { "relative-to": this };
+    priv.calendar = new GtkCalendar { "visible": true };
+    priv.popover.add(priv.calendar);
     
     this.secondary_icon_name = "x-office-calendar-symbolic";
     this.on("icon-release",do(GtkDateEntry entry, int icon_pos,GdkEvent event){
-	popover.popup();
+	priv.popover.show();
     });
-    calendar.on("day-selected-double-click",do(GtkCalendar cal) {
-	popover.popdown();
+    priv.calendar.on("day-selected-double-click",do(GtkCalendar cal) {
+	priv.popover.hide();
 	this.text = g_strdup_printf("%02d/%02d/%04d",cal.day,cal.month + 1,cal.year);
     });
   }
