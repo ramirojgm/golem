@@ -61,6 +61,14 @@ GolemStatement *golem_type_info_get_init(GolemTypeInfo * info);
 
 void		golem_type_info_set_init(GolemTypeInfo * info,GolemStatement * statement);
 
+GolemStatement *golem_type_info_get_dispose(GolemTypeInfo * info);
+
+void		golem_type_info_set_dispose(GolemTypeInfo * info,GolemStatement * statement);
+
+GolemStatement *golem_type_info_get_constructed(GolemTypeInfo * info);
+
+void		golem_type_info_set_constructed(GolemTypeInfo * info,GolemStatement * statement);
+
 void		golem_type_info_set_context(GolemTypeInfo * info,GolemContext * context);
 
 GType		golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** error);

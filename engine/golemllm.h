@@ -18,8 +18,12 @@
 #ifndef GOLEMLLM_H_
 #define GOLEMLLM_H_
 
-typedef struct _GolemStructBuilder GolemStructBuilder;
-typedef union
+typedef union _gresult gresult;
+typedef struct _GolemLLMInvoke GolemLLMInvoke;
+
+typedef void (*GolemLLMVFunc)(gpointer instance,GolemLLMInvoke * invoke,gpointer data);
+
+union _gresult
 {
   gint8 int_8;
   guint8 uint_8;
@@ -33,7 +37,7 @@ typedef union
   gdouble double_64;
   gpointer pointer;
   gchar * string;
-}gresult;
+};
 
 struct _GolemStructBuilder
 {
@@ -43,25 +47,29 @@ struct _GolemStructBuilder
   gssize size;
 };
 
-GolemStructBuilder * golem_struct_builder_new(void);
+struct _GolemLLMInvoke
+{
+  va_list * 	va_args;
+  union _gresult result;
+};
 
-void		golem_struct_builder_append(GolemStructBuilder * struct_builder,const GValue * value);
-void		golem_struct_builder_append_string(GolemStructBuilder * struct_builder,const gchar * str1);
-void		golem_struct_builder_append_type(GolemStructBuilder * struct_builder,GType type);
-void		golem_struct_builder_append_pointer(GolemStructBuilder * struct_builder,gpointer pointer);
-void		golem_struct_builder_free(GolemStructBuilder * struct_builder);
+gpointer	golem_llm_new_vfunction(GolemLLMVFunc func,gpointer data);
+void		golem_llm_dispose_vfunction(gpointer vfunc);
 
-void		golem_invoke(gpointer address,GolemStructBuilder * args);
-guint8		golem_invoke_guint8(gpointer address,GolemStructBuilder * args);
-guint		golem_invoke_guint(gpointer address,GolemStructBuilder * args);
-guint64		golem_invoke_guint64(gpointer address,GolemStructBuilder * args);
-gulong		golem_invoke_gulong(gpointer address,GolemStructBuilder * args);
-gint8		golem_invoke_gint8(gpointer address,GolemStructBuilder * args);
-gint		golem_invoke_gint(gpointer address,GolemStructBuilder * args);
-gint64		golem_invoke_gint64(gpointer address,GolemStructBuilder * args);
-glong		golem_invoke_glong(gpointer address,GolemStructBuilder * args);
-gfloat		golem_invoke_gfloat(gpointer address,GolemStructBuilder * args);
-gdouble		golem_invoke_gdouble(gpointer address,GolemStructBuilder * args);
-gpointer	golem_invoke_gpointer(gpointer address,GolemStructBuilder * args);
+void		golem_llm_invoke_rewind(GolemLLMInvoke * invoke);
+guint8		golem_llm_invoke_get_guint8(GolemLLMInvoke * invoke);
+guint		golem_llm_invoke_get_guint(GolemLLMInvoke * invoke);
+guint64		golem_llm_invoke_get_guint64(GolemLLMInvoke * invoke);
+gulong		golem_llm_invoke_get_gulong(GolemLLMInvoke * invoke);
+gint8		golem_llm_invoke_get_gint8(GolemLLMInvoke * invoke);
+gint		golem_llm_invoke_get_gint(GolemLLMInvoke * invoke);
+gint64		golem_llm_invoke_get_gint64(GolemLLMInvoke * invoke);
+glong		golem_llm_invoke_get_glong(GolemLLMInvoke * invoke);
+gfloat		golem_llm_invoke_get_gfloat(GolemLLMInvoke * invoke);
+gdouble		golem_llm_invoke_get_gdouble(GolemLLMInvoke * invoke);
+gpointer	golem_llm_invoke_get_gpointer(GolemLLMInvoke * invoke);
+const va_list *	golem_llm_invoke_get_va_list(GolemLLMInvoke * invoke);
+
+void		golem_llm_invoke_set_result(GolemLLMInvoke * invoke,gresult * result);
 
 #endif /* GOLEMLLM_H_ */

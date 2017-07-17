@@ -44,6 +44,10 @@ class GtkDateEntry: GtkEntry
 	this.text = g_strdup_printf("%02d/%02d/%04d",cal.day,cal.month + 1,cal.year);
     });
   }
+  
+  dispose {
+    print("Disposed");
+  }
 }
 
 class MyWindow: GtkWindow {
@@ -57,7 +61,9 @@ class MyWindow: GtkWindow {
      this.add(this.notebook);
    }
    
- 
+   dispose {
+     print("Disposed window");
+   }
 }
 
 
@@ -65,6 +71,7 @@ class MyWindow: GtkWindow {
 extends GApplication
 {
   extern int run(int argc,pointer argv);
+  extern void quit();
 }
 
 extends GtkApplication

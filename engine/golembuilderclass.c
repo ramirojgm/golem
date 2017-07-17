@@ -104,11 +104,12 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 		{
 		  if(golem_parser_next_word_check(parser,"init"))
 		    {
-		      if(golem_block_check(parser)){
+		      if(golem_block_check(parser))
+			{
 			  GolemBlock * block = golem_block_parse(parser,error);
 			  if(block)
 			    golem_type_info_set_init(self->priv->type_info,GOLEM_STATEMENT(block));
-		      }
+			}
 		    }
 		  else if(golem_parser_next_word_check(parser,"@"))
 		    {
@@ -120,11 +121,21 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 		    }
 		  else if(golem_parser_next_word_check(parser,"constructed"))
 		    {
-
+		      if(golem_block_check(parser))
+			{
+			  GolemBlock * block = golem_block_parse(parser,error);
+			  if(block)
+			    golem_type_info_set_constructed(self->priv->type_info,GOLEM_STATEMENT(block));
+			}
 		    }
 		  else if(golem_parser_next_word_check(parser,"dispose"))
 		    {
-
+		      if(golem_block_check(parser))
+			{
+			  GolemBlock * block = golem_block_parse(parser,error);
+			  if(block)
+			    golem_type_info_set_dispose(self->priv->type_info,GOLEM_STATEMENT(block));
+			}
 		    }
 		}
 	    }
