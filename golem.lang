@@ -160,6 +160,7 @@
       <keyword>init</keyword>
       <keyword>init_class</keyword>
       <keyword>dispose</keyword>
+      <keyword>constructed</keyword>
       <keyword>private</keyword>
     </context>
 
