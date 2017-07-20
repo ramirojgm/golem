@@ -129,20 +129,9 @@ golem_input_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
   return TRUE;
 }
 
-void
-test_func(gpointer instance,GolemLLMInvoke * invoke,gpointer data)
-{
-
-}
-
 gint
 main(gint argc,gchar ** argv)
 {
-  void (*func)(gpointer data);
-  func = golem_llm_new_vfunction(test_func,0x25);
-
-  func(0x25);
-
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
   GValue  main_func = G_VALUE_INIT;

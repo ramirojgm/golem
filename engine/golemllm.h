@@ -18,6 +18,8 @@
 #ifndef GOLEMLLM_H_
 #define GOLEMLLM_H_
 
+#define GOLEM_VFUNC_TEMPLATE "template.o"
+
 typedef union _gresult gresult;
 typedef struct _GolemLLMInvoke GolemLLMInvoke;
 

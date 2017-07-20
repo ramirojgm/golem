@@ -74,12 +74,13 @@ struct _GolemPropertySpec {
   GolemStatement * set;
 };
 
-struct _GolemPrivateInstance
+struct _GolemTypePrivatePrivate
 {
-  gpointer priv_instance;
+  gpointer padding[5];
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeInfo,golem_type_info,G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE(GolemTypePrivate,golem_type_private,G_TYPE_OBJECT)
 
 static void
 golem_type_info_init(GolemTypeInfo * info)
@@ -99,130 +100,116 @@ golem_type_info_init(GolemTypeInfo * info)
   g_mutex_init(&(info->mutex));
 }
 
-static gpointer
-_golem_object_get_instance_private(GolemTypeInfo * info,gpointer instance)
+static void
+golem_type_private_init(GolemTypePrivate * self)
 {
-  GolemPrivateInstance * priv = (GolemPrivateInstance *)(instance + info->priv->private_offset);
-  return priv->priv_instance;
+	self->priv = golem_type_private_get_instance_private(self);
 }
 
 static void
-_golem_object_init(GTypeInstance * instance, gpointer klass)
+golem_type_private_class_init(GolemTypePrivateClass * klass)
 {
-  GolemTypeInfo * info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(instance));
+
+}
+
+static GolemTypePrivate *
+_golem_object_get_instance_private(GolemTypeInfo * info,gpointer instance)
+{
+  return GOLEM_TYPE_PRIVATE(*((GolemTypePrivate**)(instance + info->priv->private_offset)));
+}
+
+GolemTypePrivate *
+golem_type_private_new()
+{
+	return GOLEM_TYPE_PRIVATE(g_object_new(GOLEM_TYPE_TYPE_PRIVATE,NULL));
+}
+
+
+void
+_golem_object_init(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
+{
+  GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
   if(info)
     {
-      GolemPrivateInstance * priv = (GolemPrivateInstance *)(instance + info->priv->private_offset);
-      priv->priv_instance = g_object_new(G_TYPE_OBJECT,NULL);
+	  GolemTypePrivate * priv = golem_type_private_new();
+      *((GolemTypePrivate**)(instance + info->priv->private_offset)) = priv;
       if(info->priv->init)
 	{
 	  GValue this_value = G_VALUE_INIT;
 	  GValue priv_value = G_VALUE_INIT;
 	  g_value_init(&this_value,G_TYPE_FROM_INSTANCE(instance));
 	  g_value_init(&priv_value,G_TYPE_OBJECT);
-	  g_value_set_object(&this_value,instance);
-	  g_value_set_object(&priv_value,priv->priv_instance);
+	  g_value_take_object(&this_value,instance);
+	  g_value_take_object(&priv_value,priv);
 	  GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
 	  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
 	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
 	  golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
 	  golem_statement_execute(info->priv->init,runtime,NULL);
 	  golem_runtime_exit(runtime);
-	  g_value_unset(&this_value);
-	  g_value_unset(&priv_value);
 	}
     }
 }
 
-static void
-_golem_object_constructed(GObject * instance)
+void
+_golem_object_constructed(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
 {
-  GolemTypeInfo * info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(instance));
+  GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
   if(info)
     {
-      gpointer * priv = _golem_object_get_instance_private(info,instance);
+      GolemTypePrivate * priv = _golem_object_get_instance_private(info,instance);
       if(info->priv->constructed)
 	{
 	  GValue this_value = G_VALUE_INIT;
 	  GValue priv_value = G_VALUE_INIT;
 	  g_value_init(&this_value,G_TYPE_FROM_INSTANCE(instance));
 	  g_value_init(&priv_value,G_TYPE_OBJECT);
-	  g_value_set_object(&this_value,instance);
-	  g_value_set_object(&priv_value,priv);
+	  g_value_take_object(&this_value,instance);
+	  g_value_take_object(&priv_value,priv);
 	  GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
 	  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
 	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
 	  golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
 	  golem_statement_execute(info->priv->constructed,runtime,NULL);
 	  golem_runtime_exit(runtime);
-	  g_value_unset(&this_value);
-	  g_value_unset(&priv_value);
 	}
     }
 }
 
-static void
-_golem_object_run_dispose(GType type,GObject * instance)
+void
+_golem_object_dispose(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
 {
-  GolemTypeInfo * info = golem_type_info_from_gtype(type);
-
+  GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
   if(info)
     {
-      gpointer * priv = _golem_object_get_instance_private(info,instance);
+	  GolemTypePrivate * priv = _golem_object_get_instance_private(info,instance);
       if(info->priv->dispose)
 	{
-	  GValue this_value = G_VALUE_INIT;
 	  GValue priv_value = G_VALUE_INIT;
-	  g_value_init(&this_value,G_TYPE_FROM_INSTANCE(instance));
+	  GValue this_value = G_VALUE_INIT;
 	  g_value_init(&priv_value,G_TYPE_OBJECT);
-	  g_value_set_object(&this_value,instance);
-	  g_value_set_object(&priv_value,priv);
+	  g_value_init(&this_value,G_TYPE_OBJECT);
+	  g_value_take_object(&priv_value,priv);
+	  g_value_take_object(&this_value,priv);
 	  GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
 	  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
-	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
 	  golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
+	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
 	  golem_statement_execute(info->priv->dispose,runtime,NULL);
 	  golem_runtime_exit(runtime);
-	  g_value_unset(&this_value);
-	  g_value_unset(&priv_value);
 	}
       g_object_unref(priv);
     }
+  info->priv->parent_dispose(instance);
 }
 
-static void
-_golem_object_dispose(GObject * instance)
+void
+_golem_object_class_init(gpointer klass, GolemLLMInvoke * invoke,gpointer data)
 {
-  GolemTypeInfo * info = golem_type_info_from_gtype(0);
-  if(info)
-    {
-      gpointer * priv = _golem_object_get_instance_private(info,instance);
-      if(info->priv->dispose)
-	{
-	  GValue this_value = G_VALUE_INIT;
-	  GValue priv_value = G_VALUE_INIT;
-	  g_value_init(&this_value,G_TYPE_FROM_INSTANCE(instance));
-	  g_value_init(&priv_value,G_TYPE_OBJECT);
-	  g_value_set_object(&this_value,instance);
-	  g_value_set_object(&priv_value,priv);
-	  GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
-	  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
-	  golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
-	  golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
-	  golem_statement_execute(info->priv->dispose,runtime,NULL);
-	  golem_runtime_exit(runtime);
-	  g_value_unset(&this_value);
-	  g_value_unset(&priv_value);
-	}
-      g_object_unref(priv);
-    }
-}
-
-static void
-_golem_object_class_init(gpointer klass,gpointer klass_data)
-{
-  G_OBJECT_CLASS(klass)->dispose = _golem_object_dispose;
-  G_OBJECT_CLASS(klass)->constructed = _golem_object_constructed;
+  GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
+  info->priv->parent_dispose = G_OBJECT_CLASS(klass)->dispose;
+  G_OBJECT_CLASS(klass)->dispose = golem_llm_new_vfunction(_golem_object_dispose,info);
+  G_OBJECT_CLASS(klass)->constructed = golem_llm_new_vfunction(_golem_object_constructed,info);
 }
 
 static void
@@ -248,12 +235,12 @@ golem_type_info_register(GolemTypeInfo * info,GolemContext * context,GError ** e
   info->priv->gtype = g_type_register_static_simple (
 				 parent_type,
 				 g_intern_static_string(info->priv->name),
-				 parent_query.class_size + sizeof(gpointer),
-				 _golem_object_class_init,
-				 parent_query.instance_size + sizeof(gpointer),
-				 _golem_object_init,
+				 parent_query.class_size,
+				 golem_llm_new_vfunction(_golem_object_class_init,info),
+				 parent_query.instance_size + sizeof(GolemTypePrivate*),
+				 golem_llm_new_vfunction(_golem_object_init,info),
 				 0);
-  info->priv->private_offset = g_type_add_instance_private(info->priv->gtype,sizeof(GolemPrivateInstance));
+  info->priv->private_offset = parent_query.instance_size;
   _golem_type_info = g_list_append(_golem_type_info,info);
   return info->priv->gtype;
 }

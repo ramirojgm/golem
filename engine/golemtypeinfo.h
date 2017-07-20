@@ -19,15 +19,21 @@
 #define GOLEMTYPEINFO_H_
 
 typedef struct _GolemTypeInfoPrivate GolemTypeInfoPrivate;
+
 typedef struct _GolemFunctionSpec GolemFunctionSpec;
 typedef struct _GolemPropertySpec GolemPropertySpec;
 typedef struct _GolemTypeSpec GolemTypeSpec;
+
+typedef struct _GolemTypePrivatePrivate GolemTypePrivatePrivate;
 
 typedef enum _GolemFunctionType GolemFunctionType;
 
 
 #define GOLEM_TYPE_TYPE_INFO	(golem_type_info_get_type())
 G_DECLARE_FINAL_TYPE(GolemTypeInfo,golem_type_info,GOLEM,TYPE_INFO,GObject)
+
+#define GOLEM_TYPE_TYPE_PRIVATE	(golem_type_private_get_type())
+G_DECLARE_FINAL_TYPE(GolemTypePrivate,golem_type_private,GOLEM,TYPE_PRIVATE,GObject)
 
 enum _GolemFunctionType
 {
@@ -50,6 +56,21 @@ struct _GolemTypeInfo
   GMutex mutex;
   GolemTypeInfoPrivate * priv;
 };
+
+struct _GolemTypePrivateClass
+{
+	GObjectClass parent_class;
+};
+
+struct _GolemTypePrivate
+{
+	GObject parent_instance;
+	GolemTypePrivatePrivate * priv;
+};
+
+GType 		golem_type_private_get_type(void);
+
+GolemTypePrivate * golem_type_private_new(void);
 
 GType 		golem_type_info_get_type(void);
 

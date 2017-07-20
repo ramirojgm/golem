@@ -46,7 +46,7 @@ class GtkDateEntry: GtkEntry
   }
   
   dispose {
-    print("Disposed");
+
   }
 }
 
@@ -61,8 +61,13 @@ class MyWindow: GtkWindow {
      this.add(this.notebook);
    }
    
+   constructed {
+        
+   }
+   
    dispose {
-     print("Disposed window");
+        priv.notebook.unref();
+        priv.btn.unref();
    }
 }
 
