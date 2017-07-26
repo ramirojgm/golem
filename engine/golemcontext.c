@@ -377,3 +377,48 @@ golem_context_set_this(GolemContext * context,const GValue * instance)
   g_value_init(&priv->this_value,G_VALUE_TYPE(instance));
   g_value_copy(instance,&priv->this_value);
 }
+
+gpointer
+golem_context_address_of(GolemContext * context,const gchar * name,GError ** error)
+{
+  g_mutex_lock(&(context->mutex));
+  GolemContextPrivate * priv;
+  GolemContextVariable * variable;
+
+  priv = golem_context_get_instance_private(context);
+  for(GList * iter = g_list_first(priv->variables);iter;iter = g_list_next(iter))
+    {
+      variable = (GolemContextVariable *)(iter->data);
+      if(g_strcmp0(name,variable->name) == 0)
+	{
+	  g_mutex_unlock(&(context->mutex));
+	  return &(variable->value.data[0].v_pointer);
+	}
+    }
+
+
+  if(priv->this_value.g_type)
+      {
+	if(g_strcmp0(name,"this") == 0)
+	  {
+	    g_mutex_unlock(&(context->mutex));
+	    return &(priv->this_value.data[0].v_pointer);
+	  }
+      }
+
+    if(priv->parent)
+      {
+	g_mutex_unlock(&(context->mutex));
+        return golem_context_address_of(priv->parent,name,error);
+      }
+    else
+      {
+	golem_runtime_error(error,
+		    GOLEM_NOT_EXISTS_ERROR,
+		    "\"%s\" is undefined",
+		    name
+	);
+	g_mutex_unlock(&(context->mutex));
+        return NULL;
+      }
+}

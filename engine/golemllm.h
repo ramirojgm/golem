@@ -18,7 +18,7 @@
 #ifndef GOLEMLLM_H_
 #define GOLEMLLM_H_
 
-#define GOLEM_VFUNC_TEMPLATE "template.o"
+#define GOLEM_VFUNC_TEMPLATE "/dev/zero"
 
 typedef union _gresult gresult;
 typedef struct _GolemLLMInvoke GolemLLMInvoke;
