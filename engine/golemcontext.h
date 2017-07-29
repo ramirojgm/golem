@@ -42,6 +42,8 @@ GolemContext *	golem_context_get_parent(GolemContext * context);
 
 void		golem_context_set_this(GolemContext * context,const GValue * instance);
 
+gpointer	golem_context_address_of(GolemContext * context,const gchar * name,GError ** error);
+
 GType		golem_context_get_type_define(GolemContext * context,const gchar * name,GError ** error);
 
 gboolean	golem_context_declare(GolemContext * context,const gchar * name,GType type,GError ** error);

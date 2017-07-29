@@ -93,12 +93,7 @@ __attribute__((constructor)) _golem_invoke_vfunc_init()
 	}
       vfunc_size += 1;
     }
-
-  if(!g_file_test(GOLEM_VFUNC_FD,G_FILE_TEST_IS_REGULAR))
-    {
-	  g_file_set_contents(GOLEM_VFUNC_FD,vtemplate,_golem_invoke_vfunc_size,NULL);
-    }
-  _golem_invoke_vfunc_vfd = open(GOLEM_VFUNC_FD,O_RDWR);
+  _golem_invoke_vfunc_vfd = open(GOLEM_VFUNC_TEMPLATE,O_RDWR);
 }
 
 gpointer

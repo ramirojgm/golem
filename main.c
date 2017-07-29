@@ -83,6 +83,11 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
 	  gpointer instance = g_value_get_object(&value);
 	  g_print("<%s: %p>",G_VALUE_TYPE_NAME(&value),instance);
 	}
+      else if(G_VALUE_HOLDS_POINTER(&value))
+	{
+	  gpointer pointer = g_value_get_pointer(&value);
+	  g_print("%p",pointer);
+	}
       g_value_unset(&string_value);
       g_value_unset(&value);
     }

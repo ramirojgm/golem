@@ -35,6 +35,7 @@
 #include "golemnew.h"
 #include "golemdeclaration.h"
 #include "goleminvoke.h"
+#include "golempointerof.h"
 #include "golemmember.h"
 #include "golemexpressioncomplex.h"
 #include "golemidentificator.h"
