@@ -137,6 +137,30 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 			    golem_type_info_set_dispose(self->priv->type_info,GOLEM_STATEMENT(block));
 			}
 		    }
+		  else if(golem_parser_check_is_named(parser))
+		    {
+		      GolemClosureInfo * func_info = golem_closure_info_parse(parser,error);
+		      if(func_info)
+			{
+			  GolemStatement * body = NULL;
+			  if(golem_parser_is_next_word(parser,"{"))
+			    {
+			      if(!(body = GOLEM_STATEMENT(golem_block_parse(parser,error))))
+				{
+				  g_clear_object(&self);
+				}
+			      else
+				{
+				  golem_type_info_add_function(self->priv->type_info,golem_function_internal_new(func_info,body));
+				}
+			    }
+			  else
+			    {
+			      golem_parser_error(error,parser,"was expected \"{\"");
+			      g_clear_object(&func_info);
+			    }
+			}
+		    }
 		}
 	    }
 	  else

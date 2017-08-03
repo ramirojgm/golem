@@ -121,7 +121,7 @@ _golem_object_get_instance_private(GolemTypeInfo * info,gpointer instance)
 GolemTypePrivate *
 golem_type_private_new()
 {
-	return GOLEM_TYPE_PRIVATE(g_object_new(GOLEM_TYPE_TYPE_PRIVATE,NULL));
+  return GOLEM_TYPE_PRIVATE(g_object_new(GOLEM_TYPE_TYPE_PRIVATE,NULL));
 }
 
 
@@ -131,7 +131,7 @@ _golem_object_init(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
   GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
   if(info)
     {
-	  GolemTypePrivate * priv = golem_type_private_new();
+      GolemTypePrivate * priv = golem_type_private_new();
       *((GolemTypePrivate**)(instance + info->priv->private_offset)) = priv;
       if(info->priv->init)
 	{
@@ -182,7 +182,7 @@ _golem_object_dispose(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
   GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
   if(info)
     {
-	  GolemTypePrivate * priv = _golem_object_get_instance_private(info,instance);
+      GolemTypePrivate * priv = _golem_object_get_instance_private(info,instance);
       if(info->priv->dispose)
 	{
 	  GValue priv_value = G_VALUE_INIT;
@@ -493,23 +493,29 @@ golem_type_info_get(const GValue * instance,const gchar * name,GValue * dest,GEr
 	    }
 	  else if(function->type == GOLEM_FUNCTION_INTERNAL)
 	    {
+	      GolemContext * context = golem_context_new(type_info->priv->define_context);
+	      golem_context_set_this(context,instance);
 
-	      GolemContext * context = NULL;
 	      if(object_instance)
 		{
-		  context = GOLEM_CONTEXT(g_object_get_data(object_instance,"_ctx_"));
-		  if(!context)
+		  GolemTypeInfo * type_info_function = NULL;
+		  if(gtype_function != gtype)
 		    {
-		      context = golem_context_new(type_info->priv->define_context);
-		      golem_context_set_this(context,instance);
-		      g_object_set_data_full(object_instance,"_ctx_",g_object_ref(context),g_object_unref);
+		      type_info_function = golem_type_info_from_gtype(gtype_function);
 		    }
-		}
-	      else
-		{
-		  context = golem_context_new(type_info->priv->define_context);
-		  golem_context_set_this(context,instance);
+		  else
+		    {
+		      type_info_function = type_info;
+		    }
 
+		  if(type_info_function->priv->private_offset)
+		    {
+		      GValue priv_value = G_VALUE_INIT;
+		      g_value_init(&priv_value,GOLEM_TYPE_TYPE_PRIVATE);
+		      g_value_set_object(&priv_value,_golem_object_get_instance_private(type_info_function,object_instance));
+		      golem_context_set_auto(context,"priv",&priv_value,error);
+		      g_value_unset(&priv_value);
+		    }
 		}
 
 	      closure = golem_function_new(function->info,context,function->data.body);

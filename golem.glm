@@ -1,126 +1,7 @@
 sharedobject "libgtk-3.so.0"
 sharedobject "libsqlite3.so.0"
 
-
-
-class SQLiteDb
-{       
-    init {
-        extern int sqlite3_open(string filename,pointer pdb);
-        extern int sqlite3_close(pointer pdb);
-        
-        priv.sqlite_pdb = null;
-        
-        this.open = do(string filename)
-        {
-            if(!(priv.sqlite_pdb == null))
-                return false;
-                
-            pointer pdb;
-            if(sqlite3_open(filename,pointerof(pdb)) == 0)
-            {
-                priv.sqlite_pdb = pdb;
-                return true;
-            }
-            else
-            {
-                priv.sqlite_pdb = null;
-                return false;
-            }
-        };
-        
-        this.close = do(){
-            print("closed");
-            if(priv.sqlite_pdb == null)
-                return false;
-            sqlite3_close(priv.sqlite_pdb);
-            priv.sqlite_pdb = null;
-        };
-        
-        this.exec = do(string sql) {
-            extern int sqlite3_exec(pointer pdb,string sql,pointer callback,pointer data,pointer errormsg);
-            return sqlite3_exec(priv.sqlite_pdb,sql,null,null,null);
-        };
-    }
-    
-    dispose {
-        if(!(priv.sqlite_pdb == null))
-            this.close();
-    }
-}
-
-
-/*
- *  Hello Word
- */
-
-extends GtkWidget
-{
-  extern void show();
-  extern void hide();
-  
-}
-
-extends GtkContainer {
-  extern void add(GtkWidget child);
-}
-
-extends GtkNotebook 
-{
-  extern int append_page(GtkWidget child,GtkWidget label);
-}
-
-extends GtkPopover
-{
-  extern void popup();
-  extern void popdown();
-};
-
-class GtkDateEntry: GtkEntry
-{
-  init {
-    extern string g_strdup_printf(string format,int day,int month,int year);
-    
-    priv.popover = new GtkPopover { "relative-to": this };
-    priv.calendar = new GtkCalendar { "visible": true };
-    priv.popover.add(priv.calendar);
-    
-    this.secondary_icon_name = "x-office-calendar-symbolic";
-    this.on("icon-release",do(GtkDateEntry entry, int icon_pos,GdkEvent event){
-	priv.popover.show();
-    });
-    priv.calendar.on("day-selected-double-click",do(GtkCalendar cal) {
-	priv.popover.hide();
-	this.text = g_strdup_printf("%02d/%02d/%04d",cal.day,cal.month + 1,cal.year);
-    });
-  }
-  
-  dispose {
-
-  }
-}
-
-class MyWindow: GtkWindow {
-  
-   init {
-     priv.notebook = new GtkNotebook { "visible": true};
-     priv.entry = new GtkDateEntry { "visible": true,"margin-top":150,"margin-bottom": 150,"margin-left": 150,"margin-right": 150};
-     
-     priv.notebook.append_page(priv.entry,new GtkLabel { "label": "Hola Mundo", "visible": true }.ref());
-     priv.title = "MyWindow";
-     this.add(priv.notebook);
-   }
-   
-   constructed {
-        
-   }
-   
-   dispose {
-
-   }
-}
-
-
+/* complete metadata info */
 
 extends GApplication
 {
@@ -134,24 +15,91 @@ extends GtkApplication
   extern void remove_window(GtkWindow win);
 }
 
+extends GtkWidget
+{
+  extern void show();
+  extern void hide();
+  
+}
+
+extends GtkContainer 
+{
+  extern void add(GtkWidget child);
+}
+
+extends GtkNotebook 
+{
+  extern int append_page(GtkWidget child,GtkWidget label);
+}
+
+extends GtkPopover
+{
+  extern void popup();
+  extern void popdown();
+}
+
+/* class */
+
+class GContableApplication: GtkApplication
+{
+	init 
+	{
+		this.on("activate",do() 
+		{
+			GContableWindow window = new GContableWindow 
+			{
+			};
+			
+			window.add_page(new GContablePage {
+			  "visible": true
+			});
+			window.show();
+			this.add_window(window);
+		});
+	}
+}
+
+class GContableWindow: GtkApplicationWindow
+{
+	init 
+	{
+	  priv.notebook = new GtkNotebook {
+	    "visible": true
+	  };
+	  
+	  this.add(priv.notebook);
+	}
+
+	void add_page(GContablePage page) 
+	{
+	  priv.notebook.append_page(page,page.get_label_widget());
+	}
+}
+
+class GContablePage: GtkBin
+{
+	init 
+	{
+	  priv.label_widget = new GtkBox {
+	    "orientation": 1,
+	    "visible": true
+	  };
+	}
+	
+	GtkWidget get_label_widget()
+	{
+	  return priv.label_widget;
+	}
+}
+
+/* main function */
+
 int main(int argc,pointer argv)
 {
-  SQLiteDb db = new SQLiteDb {};
-  db.open("mydb.db");
-  db.exec("create table cliente (i
-   
-  GtkApplication app = new GtkApplication {
-    "application-id": "org.gnome.desktop.golem"
+  GContableApplication app = new GContableApplication 
+  {
+	"application-id":"org.gnome.desktop.gcontable"
   };
   
-  app.on("activate", do () {
-      MyWindow mw = new MyWindow {
-	
-      };
-      mw.show();
-      app.add_window(mw);
-  });
-  
-  app.run(argc,argv);
-  return 0;
+  return app.run(argc,argv);
 }
