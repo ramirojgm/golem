@@ -102,6 +102,8 @@ void			golem_closure_invoke_push(GolemClosureInvoke * closure_invoke,const GValu
 
 gboolean		golem_closure_invoke_next(GolemClosureInvoke * closure_invoke,GValue * value);
 
+GType			golem_closure_invoke_get_gtype(GolemClosureInvoke * closure_invoke,gint index);
+
 void			golem_closure_invoke_get_value(GolemClosureInvoke * closure_invoke,gint index,GValue * value);
 
 guchar			golem_closure_invoke_get_char(GolemClosureInvoke * closure_invoke,gint index);

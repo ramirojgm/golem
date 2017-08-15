@@ -68,7 +68,8 @@ _golem_invoke_vfunc_template(gpointer instance,...)
 }
 
 static void
-__attribute__((constructor)) _golem_invoke_vfunc_init()
+__attribute__((constructor))
+_golem_invoke_vfunc_init()
 {
   gpointer vtemplate = _golem_invoke_vfunc_template;
   gsize vfunc_size = 0;
@@ -115,79 +116,81 @@ golem_llm_dispose_vfunction(gpointer vfunc)
   munmap(vfunc,_golem_invoke_vfunc_size);
 }
 
-void
-golem_llm_invoke_rewind(GolemLLMInvoke * invoke)
-{}
-
 guint8
 golem_llm_invoke_get_guint8(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),int);
+  return va_arg(*(invoke->va_args),int);
 }
 
 guint
 golem_llm_invoke_get_guint(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),guint);
+  return va_arg(*(invoke->va_args),guint);
 }
 
 guint64
 golem_llm_invoke_get_guint64(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),guint64);
+  return va_arg(*(invoke->va_args),guint64);
 }
 
 gulong
 golem_llm_invoke_get_gulong(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),gulong);
+  return va_arg(*(invoke->va_args),gulong);
 }
 
 gint8
 golem_llm_invoke_get_gint8(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),int);
+  return va_arg(*(invoke->va_args),int);
 }
 
 gint
 golem_llm_invoke_get_gint(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),gint);
+  return va_arg(*(invoke->va_args),gint);
 }
 
-gint64		golem_llm_invoke_get_gint64(GolemLLMInvoke * invoke)
+gint64
+golem_llm_invoke_get_gint64(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),gint64);
+  return va_arg(*(invoke->va_args),gint64);
 }
 
-glong		golem_llm_invoke_get_glong(GolemLLMInvoke * invoke)
+glong
+golem_llm_invoke_get_glong(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),glong);
+  return va_arg(*(invoke->va_args),glong);
 }
 
-gfloat		golem_llm_invoke_get_gfloat(GolemLLMInvoke * invoke)
+gfloat
+golem_llm_invoke_get_gfloat(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),gdouble);
-}
-gdouble		golem_llm_invoke_get_gdouble(GolemLLMInvoke * invoke)
-{
-	return va_arg(*(invoke->va_args),gdouble);
+  return va_arg(*(invoke->va_args),gdouble);
 }
 
-gpointer	golem_llm_invoke_get_gpointer(GolemLLMInvoke * invoke)
+gdouble
+golem_llm_invoke_get_gdouble(GolemLLMInvoke * invoke)
 {
-	return va_arg(*(invoke->va_args),gpointer);
+  return va_arg(*(invoke->va_args),gdouble);
+}
+
+gpointer
+golem_llm_invoke_get_gpointer(GolemLLMInvoke * invoke)
+{
+  return va_arg(*(invoke->va_args),gpointer);
 }
 
 const va_list *
 golem_llm_invoke_get_va_list(GolemLLMInvoke * invoke)
 {
-	return invoke->va_args;
+  return invoke->va_args;
 }
 
 void
 golem_llm_invoke_set_result(GolemLLMInvoke * invoke,gresult * result)
 {
-	invoke->result.int_64 = result->int_64;
+  invoke->result.int_64 = result->int_64;
 }
 

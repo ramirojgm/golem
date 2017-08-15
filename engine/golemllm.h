@@ -58,7 +58,6 @@ struct _GolemLLMInvoke
 gpointer	golem_llm_new_vfunction(GolemLLMVFunc func,gpointer data);
 void		golem_llm_dispose_vfunction(gpointer vfunc);
 
-void		golem_llm_invoke_rewind(GolemLLMInvoke * invoke);
 guint8		golem_llm_invoke_get_guint8(GolemLLMInvoke * invoke);
 guint		golem_llm_invoke_get_guint(GolemLLMInvoke * invoke);
 guint64		golem_llm_invoke_get_guint64(GolemLLMInvoke * invoke);

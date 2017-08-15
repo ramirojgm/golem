@@ -151,6 +151,13 @@ golem_closure_invoke_get_int(GolemClosureInvoke * closure_invoke,gint index)
   return g_value_get_int(argument);
 }
 
+GType
+golem_closure_invoke_get_gtype(GolemClosureInvoke * closure_invoke,gint index)
+{
+  GValue * argument = _golem_closure_invoke_get_value_at(closure_invoke,index);
+  return g_value_get_gtype(argument);
+}
+
 gint64
 golem_closure_invoke_get_int64(GolemClosureInvoke * closure_invoke,gint index)
 {

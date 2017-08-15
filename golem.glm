@@ -5,9 +5,10 @@ sharedobject "libsqlite3.so.0"
 
 extends GApplication
 {
-  extern int run(int argc,pointer argv);
+  extern int run(int argc,array argv);
   extern void quit();
 }
+
 
 extends GtkApplication
 {
@@ -36,6 +37,11 @@ extends GtkPopover
 {
   extern void popup();
   extern void popdown();
+}
+
+extends GtkListStore
+{
+  extern GtkListStore new(int n);
 }
 
 /* class */
@@ -92,14 +98,16 @@ class GContablePage: GtkBin
 	}
 }
 
+
 /* main function */
 
-int main(int argc,pointer argv)
+int main(int argc,array argv)
 {
+
   GContableApplication app = new GContableApplication 
   {
 	"application-id":"org.gnome.desktop.gcontable"
   };
-  
+
   return app.run(argc,argv);
 }

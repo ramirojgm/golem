@@ -1433,7 +1433,18 @@ golem_cinvoke_push_value(GolemCInvoke * invoke,const GValue * value)
       golem_cinvoke_push_pointer(invoke,(gpointer)g_value_get_string(value));
       break;
     case G_TYPE_BOXED:
-      golem_cinvoke_push_pointer(invoke,g_value_get_boxed(value));
+      if(G_VALUE_TYPE(value) == G_TYPE_ARRAY)
+	{
+	  GArray * array = g_value_get_boxed(value);
+	  if(array)
+	    golem_cinvoke_push_pointer(invoke,array->data);
+	  else
+	    golem_cinvoke_push_pointer(invoke,NULL);
+	}
+      else
+	{
+	  golem_cinvoke_push_pointer(invoke,g_value_get_boxed(value));
+	}
       break;
     case G_TYPE_OBJECT:
       golem_cinvoke_push_pointer(invoke,g_value_get_object(value));

@@ -105,6 +105,70 @@ _g_value_object_to_pointer(const GValue * src_value,GValue * dest_value)
   g_value_set_pointer(dest_value,g_value_get_object(src_value));
 }
 
+static gboolean
+golem_garray_append(GolemClosure * closure,
+		    GolemClosureInvoke * invoke,
+		    gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_UINT64);
+  g_value_set_uint64(&return_value,0);
+
+  if(golem_closure_invoke_get_length(invoke) == 1)
+    {
+
+
+    }
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
+
+static gboolean
+golem_garray_get(GolemClosure * closure,
+		GolemClosureInvoke * invoke,
+		gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_UINT64);
+  g_value_set_uint64(&return_value,0);
+
+  if(golem_closure_invoke_get_length(invoke) == 2)
+    {
+      GArray * array = (GArray*)g_value_get_boxed((GValue*)data);
+      GType gtype = golem_closure_invoke_get_gtype(invoke,0);
+      guint index = golem_closure_invoke_get_int(invoke,1);
+      g_value_unset(&return_value);
+      g_value_init(&return_value,gtype);
+      g_value_set_string(&return_value,g_array_index(array,gchar*,index));
+    }
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
+
+static gboolean
+golem_garray_set(GolemClosure * closure,
+		GolemClosureInvoke * invoke,
+		gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_UINT64);
+  g_value_set_uint64(&return_value,0);
+
+  if(golem_closure_invoke_get_length(invoke) == 2)
+    {
+      const gchar * details = golem_closure_invoke_get_string(invoke,0);
+      GClosure * closure = G_CLOSURE(golem_closure_invoke_get_boxed(invoke,1));
+      guint64 signal_handler =  g_signal_connect_closure(
+	      data,
+	      details,
+	      closure,
+	      FALSE);
+
+      g_value_set_uint64(&return_value,signal_handler);
+    }
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
 
 
 void
@@ -119,6 +183,14 @@ __attribute__((constructor)) _golem_object_type_init()
   golem_type_info_add_function(type_info,golem_function_closured_new("on",golem_gobject_signal_on));
   golem_type_info_add_function(type_info,golem_function_closured_new("ref",golem_gobject_ref));
   golem_type_info_add_function(type_info,golem_function_closured_new("unref",golem_gobject_unref));
+
+  //array
+  type_info = golem_type_info_from_gtype(G_TYPE_ARRAY);
+  golem_type_info_add_function(type_info,golem_function_closured_new("append",golem_garray_append));
+  golem_type_info_add_function(type_info,golem_function_closured_new("remove",golem_garray_set));
+  golem_type_info_add_function(type_info,golem_function_closured_new("get",golem_garray_get));
+  golem_type_info_add_function(type_info,golem_function_closured_new("set",golem_garray_set));
+  golem_type_info_add_function(type_info,golem_function_closured_new("size",golem_garray_set));
 
 }
 

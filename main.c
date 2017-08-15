@@ -46,7 +46,6 @@ golem_convert_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data
 	    }
 	  else
 	    {
-
 	      //TODO: can't transform this to it
 	    }
 	}
@@ -94,81 +93,49 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
   return TRUE;
 }
 
-static gboolean
-golem_input_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
-{
-  GValue type_value = G_VALUE_INIT;
-  GValue result_value = G_VALUE_INIT;
-  GType type = G_TYPE_STRING;
-
-  if(golem_closure_invoke_next(invoke,&type_value))
-    {
-      if(G_VALUE_HOLDS_INT(&type_value))
-	type = G_TYPE_INT;
-      else if(G_VALUE_HOLDS_DOUBLE(&type_value))
-	type = G_TYPE_DOUBLE;
-      else if(G_VALUE_HOLDS_FLOAT(&type_value))
-      	type = G_TYPE_FLOAT;
-      g_value_unset(&type_value);
-    }
-  gchar input[1024];
-  fgets(input,1024,stdin);
-  g_value_init(&result_value,type);
-  switch(type)
-  {
-    case G_TYPE_STRING:
-      g_value_set_string(&result_value,input);
-      break;
-    case G_TYPE_INT:
-      g_value_set_int(&result_value,atoi(input));
-      break;
-    case G_TYPE_FLOAT:
-      g_value_set_float(&result_value,atof(input));
-      break;
-    case G_TYPE_DOUBLE:
-      g_value_set_double(&result_value,atof(input));
-      break;
-  }
-  golem_closure_invoke_set_result(invoke,&result_value);
-  g_value_unset(&result_value);
-  return TRUE;
-}
-
 gint
 main(gint argc,gchar ** argv)
 {
+  if(argc < 1)
+    {
+      g_error("no input file");
+      return 0;
+    }
+
   GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
   GValue  main_func = G_VALUE_INIT;
 
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
-  GolemClosure * input_closure = golem_closure_new(golem_input_func,NULL,NULL);
   GolemClosure * convert_closure = golem_closure_new(golem_convert_func,NULL,NULL);
 
   golem_context_add_function(context,"print",print_closure);
-  golem_context_add_function(context,"input",input_closure);
   golem_context_add_function(context,"convert",convert_closure);
 
   g_closure_unref(G_CLOSURE(print_closure));
-  g_closure_unref(G_CLOSURE(input_closure));
   g_closure_unref(G_CLOSURE(convert_closure));
 
-  g_file_get_contents("golem.glm",&script_file_content,NULL,NULL);
+  g_file_get_contents(argv[1],&script_file_content,NULL,NULL);
   GolemCompiled * compilation = golem_compiled_new();
-  golem_compiled_add_string(compilation,"golem.glm",script_file_content,-1,NULL);
+  golem_compiled_add_string(compilation,argv[1],script_file_content,-1,NULL);
   g_free(script_file_content);
   golem_compiled_run(compilation,context,NULL);
 
   if(golem_context_get(context,"main",&main_func,NULL))
     {
+      GArray * array = g_array_sized_new(TRUE,TRUE,sizeof(gchar*),TRUE);
+
+      for(gint iarg = 1;iarg < argc;iarg ++)
+	g_array_append_val(array,argv[iarg]);
+
       GValue main_argc = G_VALUE_INIT,
 	     main_argv = G_VALUE_INIT;
 
       g_value_init(&main_argc,G_TYPE_INT);
-      g_value_init(&main_argv,G_TYPE_POINTER);
+      g_value_init(&main_argv,G_TYPE_ARRAY);
 
-      g_value_set_int(&main_argc,argc);
-      g_value_set_pointer(&main_argv,argv);
+      g_value_set_int(&main_argc,argc-1);
+      g_value_set_boxed(&main_argv,array);
 
       GolemClosureInvoke * invoke = golem_closure_invoke_new();
       golem_closure_invoke_push(invoke,&main_argc);
@@ -176,6 +143,8 @@ main(gint argc,gchar ** argv)
       golem_closure_invoke(GOLEM_CLOSURE(g_value_get_boxed(&main_func)), invoke);
       g_value_unset(&main_argc);
       g_value_unset(&main_argv);
+      g_array_free(array,TRUE);
+
       golem_closure_invoke_free(invoke);
     }
   g_object_unref(context);
