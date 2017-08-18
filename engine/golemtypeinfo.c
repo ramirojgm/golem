@@ -40,6 +40,8 @@ struct _GolemTypeInfoPrivate {
     * parse;
 
   void (*parent_dispose)(GObject * object);
+  void (*parent_set_property)(GObject * ,guint ,const GValue * ,GParamSpec *);
+  void (*parent_get_property)(GObject * ,guint ,GValue * ,GParamSpec *);
 
   GList
     * bases,
@@ -70,8 +72,8 @@ struct _GolemFunctionSpec
 
 struct _GolemPropertySpec {
   GParamSpec * param;
-  GolemStatement * get;
-  GolemStatement * set;
+  GolemStatement * getter;
+  GolemStatement * setter;
 };
 
 struct _GolemTypePrivatePrivate
@@ -204,12 +206,106 @@ _golem_object_dispose(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
 }
 
 void
+_golem_object_get_property(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
+{
+  GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
+  guint property_id = golem_llm_invoke_get_guint(invoke);
+  GValue * value = (GValue*)golem_llm_invoke_get_gpointer(invoke);
+  GParamSpec * param_spec = (GParamSpec *)golem_llm_invoke_get_gpointer(invoke);
+
+  g_mutex_lock(&info->mutex);
+  GolemPropertySpec * property = (GolemPropertySpec *)g_list_nth_data(g_list_first( info->priv->properties),property_id - 1);
+  g_mutex_unlock(&info->mutex);
+
+  if(property && property->getter)
+    {
+      GolemTypePrivate * priv = _golem_object_get_instance_private(info,instance);
+      GValue priv_value = G_VALUE_INIT;
+      GValue this_value = G_VALUE_INIT;
+      GValue return_value = G_VALUE_INIT;
+      g_value_init(&priv_value,G_TYPE_OBJECT);
+      g_value_init(&this_value,G_TYPE_OBJECT);
+      g_value_take_object(&priv_value,priv);
+      g_value_take_object(&this_value,priv);
+      GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
+      golem_runtime_enter(runtime,GOLEM_RUNTIME_FUNCTION);
+      golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
+      golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
+      golem_statement_execute(property->getter,runtime,NULL);
+      golem_runtime_get_return(runtime,&return_value);
+      golem_runtime_exit(runtime);
+      g_value_copy(&return_value,value);
+      g_value_unset(&return_value);
+    }
+  /*if(info->priv->parent_get_property)
+    info->priv->parent_get_property(instance,property_id,value,param_spec);*/
+}
+
+void
+_golem_object_set_property(gpointer instance, GolemLLMInvoke * invoke,gpointer data)
+{
+  GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
+  guint property_id = golem_llm_invoke_get_guint(invoke);
+  GValue * value = (GValue*)golem_llm_invoke_get_gpointer(invoke);
+  GParamSpec * param_spec = (GParamSpec *)golem_llm_invoke_get_gpointer(invoke);
+
+  g_mutex_lock(&info->mutex);
+  GolemPropertySpec * property = (GolemPropertySpec *)g_list_nth_data(g_list_first( info->priv->properties),property_id - 1);
+  g_mutex_unlock(&info->mutex);
+
+  if(property && property->setter)
+    {
+      GolemTypePrivate * priv = _golem_object_get_instance_private(info,instance);
+      GValue priv_value = G_VALUE_INIT;
+      GValue this_value = G_VALUE_INIT;
+      g_value_init(&priv_value,G_TYPE_OBJECT);
+      g_value_init(&this_value,G_TYPE_OBJECT);
+      g_value_take_object(&priv_value,priv);
+      g_value_take_object(&this_value,priv);
+      GolemRuntime * runtime = golem_runtime_new(info->priv->define_context);
+      golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
+      golem_context_set_auto(golem_runtime_get_context(runtime),"priv",&priv_value,NULL);
+      golem_context_set_auto(golem_runtime_get_context(runtime),"this",&this_value,NULL);
+      golem_context_set_auto(golem_runtime_get_context(runtime),"value",value,NULL);
+      golem_statement_execute(property->setter,runtime,NULL);
+      golem_runtime_exit(runtime);
+    }
+  /*if(info->priv->parent_set_property)
+      info->priv->parent_set_property(instance,property_id,value,param_spec);*/
+}
+
+void
 _golem_object_class_init(gpointer klass, GolemLLMInvoke * invoke,gpointer data)
 {
   GolemTypeInfo * info = GOLEM_TYPE_INFO(data);
+
   info->priv->parent_dispose = G_OBJECT_CLASS(klass)->dispose;
+  info->priv->parent_set_property = G_OBJECT_CLASS(klass)->set_property;
+  info->priv->parent_get_property = G_OBJECT_CLASS(klass)->get_property;
+
   G_OBJECT_CLASS(klass)->dispose = golem_llm_new_vfunction(_golem_object_dispose,info);
   G_OBJECT_CLASS(klass)->constructed = golem_llm_new_vfunction(_golem_object_constructed,info);
+  G_OBJECT_CLASS(klass)->set_property = golem_llm_new_vfunction(_golem_object_set_property,info);
+  G_OBJECT_CLASS(klass)->get_property = golem_llm_new_vfunction(_golem_object_get_property,info);
+
+  guint property_id;
+  guint property_count;
+  GList * property_iter_spec = NULL;
+  GolemPropertySpec * property_spec = NULL;
+
+  property_count = g_list_length(g_list_first(info->priv->properties));
+  property_iter_spec = g_list_first(info->priv->properties);
+  if(property_iter_spec)
+    property_spec = (GolemPropertySpec*)property_iter_spec->data;
+
+
+  for(property_id = 1;property_id <= property_count;property_id ++ )
+    {
+      g_object_class_install_property(klass,property_id,property_spec->param);
+      property_iter_spec = g_list_next(property_iter_spec);
+      if(property_iter_spec)
+	property_spec = (GolemPropertySpec*)property_iter_spec->data;
+    }
 }
 
 static void
@@ -386,11 +482,6 @@ golem_type_info_get_static(GType type,const gchar * name,GValue * dest,GError **
   return FALSE;
 }
 
-gboolean
-golem_type_info_get_classed(GType type,const gchar * name,GValue * dest,GError ** error)
-{
-  return FALSE;
-}
 
 void
 _golem_closure_object_finalize(GolemClosure * closure,gpointer data)
@@ -710,4 +801,14 @@ golem_type_spec_get(GolemTypeSpec * type_spec,GolemContext * context,GError ** e
       type_spec->type = golem_context_get_type_define(context,type_spec->type_name,error);
     }
   return type_spec->type;
+}
+
+GolemPropertySpec *
+golem_property_spec_new(GParamSpec * param,GolemStatement * get,GolemStatement * set)
+{
+  GolemPropertySpec * spec = g_new0(GolemPropertySpec,1);
+  spec->param = param;
+  spec->getter = get;
+  spec->setter = set;
+  return spec;
 }

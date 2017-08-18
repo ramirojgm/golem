@@ -24,6 +24,8 @@ typedef struct _GolemFunctionSpec GolemFunctionSpec;
 typedef struct _GolemPropertySpec GolemPropertySpec;
 typedef struct _GolemTypeSpec GolemTypeSpec;
 
+typedef struct _GolemIterator GolemIterator;
+
 typedef struct _GolemTypePrivatePrivate GolemTypePrivatePrivate;
 
 typedef enum _GolemFunctionType GolemFunctionType;
@@ -48,6 +50,14 @@ struct _GolemTypeInfoClass
 {
   GObjectClass	parent_class;
 
+};
+
+struct _GolemIterator
+{
+  GType    iterable_type;
+  gpointer (*init)(GolemIterator * iter,gpointer instance);
+  gboolean (*next)(GolemIterator * iter,gpointer instance,gpointer data,GValue * dest);
+  void	   (*finalize)(GolemIterator * iter,gpointer instance,gpointer data);
 };
 
 struct _GolemTypeInfo
@@ -121,5 +131,7 @@ GolemFunctionSpec * golem_function_internal_new(GolemClosureInfo * info,GolemSta
 
 GolemFunctionSpec * golem_function_closured_new(const gchar * name,GolemClosureInvokeFunc func);
 
+
+GolemPropertySpec * golem_property_spec_new(GParamSpec * spec,GolemStatement * get,GolemStatement * set);
 
 #endif /* GOLEMTYPEINFO_H_ */

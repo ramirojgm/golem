@@ -117,7 +117,16 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 		    }
 		  else if(golem_parser_next_word_check(parser,"property"))
 		    {
+		      GParamSpec * spec = NULL;
+		      GolemStatement * getter = NULL;
+		      GolemStatement * setter = NULL;
+		      if(golem_parser_next_word_check(parser,"{"))
+			{
+			  while(!golem_parser_next_word_check(parser,"}"))
+			    {
 
+			    }
+			}
 		    }
 		  else if(golem_parser_next_word_check(parser,"constructed"))
 		    {

@@ -77,6 +77,10 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
 	{
 	  g_print("%s",g_value_get_string(&string_value));
 	}
+      else if(G_VALUE_HOLDS_GTYPE(&value))
+	{
+	  g_print("<type: %s>",g_type_name(g_value_get_gtype(&value)));
+	}
       else if(G_VALUE_HOLDS_OBJECT(&value) || G_VALUE_HOLDS_BOXED(&value))
 	{
 	  gpointer instance = g_value_get_object(&value);
