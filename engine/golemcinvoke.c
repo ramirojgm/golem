@@ -1455,6 +1455,18 @@ golem_cinvoke_push_value(GolemCInvoke * invoke,const GValue * value)
     case G_TYPE_FLAGS:
       golem_cinvoke_push_uint(invoke,g_value_get_flags(value));
       break;
+    default:
+      {
+	if(G_VALUE_HOLDS_GTYPE(value))
+	  {
+	    golem_cinvoke_push_int(invoke,g_value_get_gtype(value));
+	  }
+	else
+	  {
+	    g_print("No type found:%s\n",G_VALUE_TYPE_NAME(value));
+	  }
+      }
+      break;
   }
 }
 

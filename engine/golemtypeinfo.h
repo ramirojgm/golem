@@ -132,6 +132,6 @@ GolemFunctionSpec * golem_function_internal_new(GolemClosureInfo * info,GolemSta
 GolemFunctionSpec * golem_function_closured_new(const gchar * name,GolemClosureInvokeFunc func);
 
 
-GolemPropertySpec * golem_property_spec_new(GParamSpec * spec,GolemStatement * get,GolemStatement * set);
+GolemPropertySpec * golem_property_spec_new(GolemTypeSpec * type_spec,const gchar * property_name,GolemStatement * get,GolemStatement * set);
 
 #endif /* GOLEMTYPEINFO_H_ */

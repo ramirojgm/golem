@@ -27,19 +27,12 @@ struct _GolemParameter
 
 struct _GolemNewPrivate
 {
+  gboolean referenced;
   gchar * type_name;
   GList * params;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemNew,golem_new,GOLEM_TYPE_EXPRESSION)
-
-static void
-_golem_constructor_value_free(gpointer data)
-{
-  GValue * val = (GValue*)data;
-  g_value_unset(val);
-  g_free(val);
-}
 
 static gboolean
 _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue * result,GError ** error)
@@ -111,12 +104,31 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 	      GValue * param_value = g_new0(GValue,1);
 	      g_value_init(param_value,(params_data[params_index].value).g_type);
 	      g_value_copy(&(params_data[params_index].value),param_value);
-	      g_object_set_data_full(instance,params_data[params_index].name,param_value,_golem_constructor_value_free);
+	      g_object_set_data_full(instance,params_data[params_index].name,param_value,(GDestroyNotify)g_value_free);
 	    }
 	  g_value_init(result,type);
-	  g_value_take_object(result,instance);
+	  if(self->priv->referenced)
+	    g_value_set_object(result,instance);
+	  else
+	    g_value_take_object(result,instance);
 	}
-      //TODO: free all
+
+      for(gint params_index = 0;params_index < params_construct_n;params_index ++)
+	{
+	  g_free((gchar*)params_construct[params_index].name);
+	  g_value_unset(&params_construct[params_index].value);
+	}
+
+      g_free(params_construct);
+
+      for(gint params_index = 0;params_index < params_data_n;params_index ++)
+	{
+	  g_free((gchar*)params_data[params_index].name);
+	  g_value_unset(&params_data[params_index].value);
+	}
+
+      g_free(params_data);
+
     }
   return done;
 }
@@ -149,6 +161,11 @@ golem_new_parse(GolemParser * parser,GError ** error)
   gboolean done = TRUE;
   if((done = golem_parser_next_word_check(parser,"new")))
     {
+      if(golem_parser_next_word_check(parser,"@"))
+	{
+	  expression->priv->referenced = TRUE;
+	}
+
       if(golem_parser_check_is_named(parser))
 	{
 	  expression->priv->type_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));

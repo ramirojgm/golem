@@ -49,13 +49,19 @@ golem_context_variable_free(GolemContextVariable * variable)
 static void
 golem_context_dispose(GObject * object)
 {
-  GolemContextPrivate * priv;
-  priv = golem_context_get_instance_private(GOLEM_CONTEXT(object));
-  if(priv->this_value.g_type)
-      g_value_unset(&priv->this_value);
-  g_list_free_full(priv->variables,(GDestroyNotify)golem_context_variable_free);
-  G_OBJECT_CLASS(golem_context_parent_class)->dispose(object);
-  g_mutex_clear(&(GOLEM_CONTEXT(object)->mutex));
+  if(GOLEM_CONTEXT(object)->is_disposed)
+    {
+      GolemContextPrivate * priv;
+      priv = golem_context_get_instance_private(GOLEM_CONTEXT(object));
+      if(priv->this_value.g_type)
+	  g_value_unset(&priv->this_value);
+      g_list_free_full(priv->variables,(GDestroyNotify)golem_context_variable_free);
+      G_OBJECT_CLASS(golem_context_parent_class)->dispose(object);
+      if(priv->parent)
+	  g_object_unref(priv->parent);
+      g_mutex_clear(&(GOLEM_CONTEXT(object)->mutex));
+      GOLEM_CONTEXT(object)->is_disposed = TRUE;
+    }
 }
 
 static void
@@ -65,6 +71,7 @@ golem_context_init(GolemContext * self)
   priv = golem_context_get_instance_private(self);
   priv->parent = NULL;
   priv->variables = NULL;
+  self->is_disposed = FALSE;
   g_mutex_init(&(self->mutex));
 }
 
@@ -197,6 +204,8 @@ golem_context_get_type_from_name(const gchar * name)
 #ifdef GOLEM_TYPE_IMPORT
    if(g_strcmp0(name,"void") == 0)
      return G_TYPE_NONE;
+   else if(g_strcmp0(name,"debug") == 0)
+      return GOLEM_TYPE_DEBUG_OBJECT;
    else if(g_strcmp0(name,"var") == 0)
      return G_TYPE_VALUE;
    else if(g_strcmp0(name,"bool") == 0)
@@ -391,8 +400,13 @@ golem_context_address_of(GolemContext * context,const gchar * name,GError ** err
       variable = (GolemContextVariable *)(iter->data);
       if(g_strcmp0(name,variable->name) == 0)
 	{
+	  gpointer result = NULL;
+	  if(variable->type == G_TYPE_VALUE)
+	      result = &(variable->value);
+	  else
+	      result = &(variable->value.data[0].v_pointer);
 	  g_mutex_unlock(&(context->mutex));
-	  return &(variable->value.data[0].v_pointer);
+	  return result;
 	}
     }
 

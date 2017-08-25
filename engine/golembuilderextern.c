@@ -20,6 +20,7 @@
 
 struct _GolemBuilderExternPrivate
 {
+  gchar * symbol_name;
   GolemClosureInfo * info;
 };
 
@@ -36,7 +37,7 @@ golem_builder_extern_execute(GolemStatement * sentence,GolemRuntime * runtime,GE
   done = golem_closure_info_resolve(self->priv->info,golem_runtime_get_context(runtime),error);
   if(done)
     {
-      if(g_module_symbol(global_module,golem_closure_info_get_name(self->priv->info),&address))
+      if(g_module_symbol(global_module,self->priv->symbol_name,&address))
 	{
 	  GValue func_value = G_VALUE_INIT;
 	  g_value_init(&func_value,G_TYPE_CLOSURE);
@@ -51,7 +52,7 @@ golem_builder_extern_execute(GolemStatement * sentence,GolemRuntime * runtime,GE
 	  golem_runtime_error(error,
 		      GOLEM_NOT_EXISTS_ERROR,
 		      "the function \"%s\" not exists",
-		      golem_closure_info_get_name(self->priv->info)
+		      self->priv->symbol_name
 	  );
 	}
     }
@@ -88,6 +89,13 @@ golem_builder_extern_parse(GolemParser * parser,GError ** error)
     {
       GolemClosureInfo * info = golem_closure_info_parse(parser,error);
       priv->info = info;
+      priv->symbol_name = g_strdup(golem_closure_info_get_name(info));
+      if(golem_parser_next_word_check(parser,":"))
+	{
+	  g_free(priv->symbol_name);
+	  priv->symbol_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+	}
+
       if(!golem_parser_next_word_check(parser,";"))
 	{
 	  //TODO: throw error expected ';'

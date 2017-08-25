@@ -54,6 +54,7 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 	{
 	  done = golem_type_info_get(&instance,priv->index,result,error);
 	}
+
       g_value_unset(&instance);
     }
   return done;

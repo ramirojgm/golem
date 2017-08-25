@@ -55,6 +55,7 @@ golem_runtime_enter(GolemRuntime * runtime,GolemRuntimeType type)
   context->context = golem_context_new(golem_runtime_get_context(runtime));
   context->type = type;
   runtime->contexts = g_list_append(runtime->contexts,context);
+
 }
 
 GolemContext *
@@ -160,6 +161,14 @@ golem_runtime_return(GolemRuntime * runtime,const GValue * value)
     }
 }
 
+static void
+_golem_runtime_context_free(gpointer context_item)
+{
+  GolemRuntimeContext * context = (GolemRuntimeContext *)context_item;
+  g_object_unref(context->context);
+  g_free(context);
+}
+
 void
 golem_runtime_exit(GolemRuntime * runtime)
 {
@@ -167,7 +176,6 @@ golem_runtime_exit(GolemRuntime * runtime)
   GList * iter = g_list_last(runtime->contexts);
   GolemRuntimeContext * context = (GolemRuntimeContext *)(iter->data);
   runtime->contexts = g_list_remove_link(runtime->contexts,iter);
-  g_object_unref(context->context);
   if(runtime->contexts)
     {
       if(context->type == GOLEM_RUNTIME_LOOP)
@@ -176,11 +184,14 @@ golem_runtime_exit(GolemRuntime * runtime)
 	  runtime->stop = GOLEM_RUNTIME_STOP_NONE;
       }
     }
-  else
-    {
-      g_value_unset(&(runtime->return_val));
-      g_free(runtime);
-    }
-  g_free(context);
+  _golem_runtime_context_free(context);
+}
+
+void
+golem_runtime_destroy(GolemRuntime * runtime)
+{
+  g_list_free_full(runtime->contexts,_golem_runtime_context_free);
+  g_value_unset(&(runtime->return_val));
+  g_free(runtime);
 }
 

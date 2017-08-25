@@ -56,7 +56,7 @@ _golem_while_execute(GolemStatement * statement,GolemRuntime * runtime,GError **
       if(!golem_runtime_running(runtime))
 	break;
     }
-
+  g_value_unset(&condition);
   golem_runtime_exit(runtime);
   return done;
 }

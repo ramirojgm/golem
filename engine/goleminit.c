@@ -135,11 +135,64 @@ golem_garray_get(GolemClosure * closure,
   if(golem_closure_invoke_get_length(invoke) == 2)
     {
       GArray * array = (GArray*)g_value_get_boxed((GValue*)data);
-      GType gtype = golem_closure_invoke_get_gtype(invoke,0);
+      GType gtype =  golem_closure_invoke_get_gtype(invoke,0);
       guint index = golem_closure_invoke_get_int(invoke,1);
       g_value_unset(&return_value);
       g_value_init(&return_value,gtype);
-      g_value_set_string(&return_value,g_array_index(array,gchar*,index));
+      switch(G_TYPE_FUNDAMENTAL(gtype))
+      {
+	case G_TYPE_BOOLEAN:
+	  g_value_set_boolean(&return_value,g_array_index(array,gboolean,index));
+	  break;
+	case G_TYPE_CHAR:
+	  g_value_set_schar(&return_value,g_array_index(array,gchar,index));
+	  break;
+	case G_TYPE_UCHAR:
+	  g_value_set_uchar(&return_value,g_array_index(array,guchar,index));
+	  break;
+	case G_TYPE_INT:
+	  g_value_set_int(&return_value,g_array_index(array,gint,index));
+	  break;
+	case G_TYPE_UINT:
+	  g_value_set_uint(&return_value,g_array_index(array,guint,index));
+	  break;
+	case G_TYPE_INT64:
+	  g_value_set_int(&return_value,g_array_index(array,gint64,index));
+	  break;
+	case G_TYPE_UINT64:
+	  g_value_set_uint64(&return_value,g_array_index(array,guint64,index));
+	  break;
+	case G_TYPE_LONG:
+	  g_value_set_long(&return_value,g_array_index(array,glong,index));
+	  break;
+	case G_TYPE_ULONG:
+	  g_value_set_long(&return_value,g_array_index(array,gulong,index));
+	  break;
+	case G_TYPE_FLOAT:
+	  g_value_set_float(&return_value,g_array_index(array,gfloat,index));
+	  break;
+	case G_TYPE_DOUBLE:
+	  g_value_set_double(&return_value,g_array_index(array,gdouble,index));
+	  break;
+	case G_TYPE_POINTER:
+	  g_value_set_pointer(&return_value,g_array_index(array,gpointer,index));
+	  break;
+	case G_TYPE_OBJECT:
+	  g_value_set_object(&return_value,g_array_index(array,gpointer,index));
+	  break;
+	case G_TYPE_BOXED:
+	  g_value_set_boxed(&return_value,g_array_index(array,gpointer,index));
+	  break;
+	case G_TYPE_FLAGS:
+	  g_value_set_flags(&return_value,g_array_index(array,gint,index));
+	  break;
+	case G_TYPE_ENUM:
+	  g_value_set_enum(&return_value,g_array_index(array,gint,index));
+	  break;
+	case G_TYPE_STRING:
+	  g_value_set_string(&return_value,g_array_index(array,gchar*,index));
+	  break;
+      }
     }
   golem_closure_invoke_set_result(invoke,&return_value);
   return TRUE;
@@ -188,10 +241,8 @@ __attribute__((constructor)) _golem_object_type_init()
   type_info = golem_type_info_from_gtype(G_TYPE_ARRAY);
   golem_type_info_add_function(type_info,golem_function_closured_new("append",golem_garray_append));
   golem_type_info_add_function(type_info,golem_function_closured_new("remove",golem_garray_set));
-  golem_type_info_add_function(type_info,golem_function_closured_new("get",golem_garray_get));
-  golem_type_info_add_function(type_info,golem_function_closured_new("set",golem_garray_set));
-  golem_type_info_add_function(type_info,golem_function_closured_new("size",golem_garray_set));
-
+  golem_type_info_add_function(type_info,golem_function_closured_new("get_at",golem_garray_get));
+  golem_type_info_add_function(type_info,golem_function_closured_new("set_at",golem_garray_set));
 }
 
 

@@ -1,0 +1,169 @@
+using repository.gtk;
+
+class Application: GtkApplication
+{
+	init 
+	{
+		this.on("activate",do() 
+		{
+			Window window = new @Window
+			{
+				"role": "toolbox"
+			};
+
+			
+			window.show();
+
+			this.add_window(window);
+		});
+	}
+}
+
+class PersonDialog: GtkDialog
+{
+	property string name 
+	{
+		getter { return priv.entry_name.text; }
+		setter { priv.entry_name.text = value; }
+	}
+
+	property string phone_number 
+	{
+		getter { return priv.entry_phone_number.text; }
+		setter { priv.entry_phone_number.text = value; }
+	}
+
+	property string address
+	{
+		getter { return priv.entry_address.text; }
+		setter { priv.entry_name.address = value; }
+	}
+
+
+	init
+	{
+		priv.entry_name = new GtkEntry {};
+		priv.entry_phone_number = new GtkEntry {};
+		priv.entry_address = new GtkEntry {};
+
+		priv.button_save = new GtkButton {
+			"label": "Save",
+			"visible": true
+		};
+
+		priv.button_cancel = new GtkButton {
+			"label": "Cancel",
+			"visible": true
+		};
+
+		priv.header_bar = this.get_header_bar();
+		this.title = "Person";		
+	}
+
+	constructed
+	{
+		priv.header_bar.pack_start(priv.button_cancel);
+		priv.header_bar.pack_end(priv.button_save);
+
+		priv.button_save.get_style_context().add_class("suggested-action");
+		priv.button_save.on("clicked",do() {
+			this.response(1);
+		});
+
+		priv.button_cancel.on("clicked",do() {
+			this.response(0);
+		});
+	}
+}
+
+class Window: GtkApplicationWindow
+{
+	init {
+		GtkTreeViewColumn column_name = null;
+		GtkTreeViewColumn column_phone_number = null;
+		GtkTreeViewColumn column_address = null;
+
+		GtkCellRendererText cell;
+
+		priv.model = GtkListStore.new(2,int,string,string,string);
+
+		priv.tree_view = new GtkTreeView {
+			"model": priv.model,
+			"visible": true
+		};
+
+		priv.scrolled_window = new GtkScrolledWindow {
+			"visible": true
+		};
+
+		priv.box = new GtkBox {
+			"visible": true,
+			"orientation": GtkOrientation.vertical
+		};
+		
+		priv.action_bar = new GtkActionBar {
+			"visible": true
+		};
+
+		priv.button_add = new GtkButton {
+			"image": new @GtkImage {
+				"visible": true,
+				"icon-name": "list-add-symbolic"
+			},
+			"visible": true
+		};
+
+		column_name = new @GtkTreeViewColumn { "title": "Name", "resizable": true };
+		column_phone_number = new @GtkTreeViewColumn { "title": "Phone Number","resizable": true };
+		column_address = new @GtkTreeViewColumn { "title": "Address" };
+
+		//tree_view
+		priv.tree_view.append_column(column_name);
+		priv.tree_view.append_column(column_phone_number);
+		priv.tree_view.append_column(column_address);
+
+		//packing		
+		this.add(priv.box);
+		priv.scrolled_window.add(priv.tree_view);
+		priv.box.pack_start(priv.scrolled_window,true,true,0);
+		priv.box.pack_end(priv.action_bar);
+		priv.action_bar.pack_start(priv.button_add);
+
+		//signals
+		priv.button_add.on("clicked",do(){
+			PersonDialog dialog = new @PersonDialog {
+				"use-header-bar": true,
+				"name": "",
+				"phone-number": "Nothing",
+				"address": "",
+				"transient-for": this,
+				"default-height": 200,
+				"default-width": 400
+			};
+			
+			if(dialog.run())
+			{
+				
+			}
+			dialog.destroy();
+		});
+
+		this.title = "Address Book";
+	}
+
+	void update()
+	{
+		
+	}
+}
+
+
+int main(int argc,array argv)
+{
+	Application app = new Application 
+	{
+		"application-id":"org.gnome.example.addressbook"
+	};
+
+	return app.run(argc,argv);
+}

@@ -53,4 +53,6 @@ void		golem_runtime_return(GolemRuntime * runtime,const GValue * value);
 
 void		golem_runtime_exit(GolemRuntime * runtime);
 
+void		golem_runtime_destroy(GolemRuntime * runtime);
+
 #endif /* ENGINE_GOLEMRUNTIME_H_ */

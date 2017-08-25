@@ -59,6 +59,7 @@ _golem_declaration_execute(GolemStatement * sentence,GolemRuntime * runtime,GErr
 	      if((done = golem_expression_evaluate(self->priv->value,golem_runtime_get_context(runtime),&value,error)))
 		{
 		  done = golem_context_set(golem_runtime_get_context(runtime),self->priv->name,&value,error);
+		  g_value_unset(&value);
 		}
 	      return done;
 	    }

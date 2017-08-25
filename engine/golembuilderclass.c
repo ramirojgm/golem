@@ -117,14 +117,52 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 		    }
 		  else if(golem_parser_next_word_check(parser,"property"))
 		    {
-		      GParamSpec * spec = NULL;
-		      GolemStatement * getter = NULL;
-		      GolemStatement * setter = NULL;
-		      if(golem_parser_next_word_check(parser,"{"))
+		      GolemTypeSpec * type_spec = NULL;
+		      if((type_spec = golem_type_spec_parse(parser,error)))
 			{
-			  while(!golem_parser_next_word_check(parser,"}"))
-			    {
+			  //TODO: add error for wrong definition
 
+			  g_autofree gchar * property_name = NULL;
+			  GolemStatement * getter = NULL;
+			  GolemStatement * setter = NULL;
+			  if(golem_parser_check_is_named(parser))
+			    {
+			      property_name = g_strdup(golem_parser_next_word(parser,NULL,TRUE));
+			      for(gchar * iter_name = property_name;*iter_name;iter_name++)
+				{
+				  if(*iter_name == '_')
+				    *iter_name = '-';
+				}
+
+			      if(golem_parser_next_word_check(parser,"{"))
+				{
+				  while(!golem_parser_next_word_check(parser,"}"))
+				    {
+				      if(golem_parser_next_word_check(parser,"getter"))
+					{
+					  if(getter)
+					    g_object_unref(getter);
+					  getter = GOLEM_STATEMENT(golem_block_parse(parser,error));
+					}
+				      else if(golem_parser_next_word_check(parser,"setter"))
+					{
+					  if(setter)
+					    g_object_unref(getter);
+					  setter = GOLEM_STATEMENT(golem_block_parse(parser,error));
+					}
+				      else
+					{
+					  //TODO: add error for wrong definition
+					  break;
+					}
+				    }
+				  golem_type_info_add_property(self->priv->type_info,golem_property_spec_new(type_spec,property_name,getter,setter));
+				}
+			      else
+				{
+				  //TODO: add error for wrong definition
+				  //TODO: free type spec
+				}
 			    }
 			}
 		    }

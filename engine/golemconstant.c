@@ -67,9 +67,10 @@ golem_constant_check(GolemParser * parser)
 }
 
 GolemExpression *
-golem_constant_parse(GolemParser * parser,GError ** error)
+golem_constant_parse(GolemParser * parser,gboolean const_signed,GError ** error)
 {
   GolemConstant * self = GOLEM_CONSTANT(g_object_new(GOLEM_TYPE_CONSTANT,NULL));
+  gdouble signed_value = const_signed ? -1.0 : 1;
   if(golem_parser_check_is_number(parser))
     {
       const gchar * number = golem_parser_next_word(parser,NULL,TRUE);
@@ -80,12 +81,12 @@ golem_constant_parse(GolemParser * parser,GError ** error)
 	  if(g_str_has_suffix(number,"f"))
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_FLOAT);
-	      g_value_set_float(&(self->priv->value),g_ascii_strtod(buff,NULL));
+	      g_value_set_float(&(self->priv->value),g_ascii_strtod(buff,NULL)*signed_value);
 	    }
 	  else
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_DOUBLE);
-	      g_value_set_double(&(self->priv->value),g_ascii_strtod(buff,NULL));
+	      g_value_set_double(&(self->priv->value),g_ascii_strtod(buff,NULL)*signed_value);
 	    }
 	}
       else
@@ -93,39 +94,39 @@ golem_constant_parse(GolemParser * parser,GError ** error)
 	  if(g_str_has_suffix(number,"l"))
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_LONG);
-	      g_value_set_long(&(self->priv->value),g_ascii_strtoll(number,NULL,10));
+	      g_value_set_long(&(self->priv->value),g_ascii_strtoll(number,NULL,10)*signed_value);
 	    }
 	  else if(g_str_has_suffix(number,"b"))
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_CHAR);
-	      g_value_set_schar(&(self->priv->value),atoi(number));
+	      g_value_set_schar(&(self->priv->value),atoi(number)*signed_value);
 	    }
 	  if(g_str_has_suffix(number,"ul"))
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_ULONG);
-	      g_value_set_ulong(&(self->priv->value),g_ascii_strtoull(number,NULL,10));
+	      g_value_set_ulong(&(self->priv->value),g_ascii_strtoull(number,NULL,10)*signed_value);
 	    }
 	  else if(g_str_has_suffix(number,"ub"))
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_UCHAR);
-	      g_value_set_uchar(&(self->priv->value),atoi(number));
+	      g_value_set_uchar(&(self->priv->value),atoi(number)*signed_value);
 	    }
 	  else if(g_str_has_suffix(number,"u"))
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_UINT);
-	      g_value_set_uint(&(self->priv->value),atoi(number));
+	      g_value_set_uint(&(self->priv->value),atoi(number)*signed_value);
 	    }
 	  else
 	    {
 	      g_value_init(&(self->priv->value),G_TYPE_INT);
-	      g_value_set_int(&(self->priv->value),atoi(number));
+	      g_value_set_int(&(self->priv->value),atoi(number)*signed_value);
 	    }
 	}
     }
   else if(golem_parser_check_is_hex(parser))
     {
       const gchar * hex = golem_parser_next_word(parser,NULL,TRUE);
-      gint64 value = g_ascii_strtoll(hex + 2,NULL,16);
+      gint64 value = g_ascii_strtoll(hex + 2,NULL,16) *signed_value;
       g_value_init(&(self->priv->value),G_TYPE_UINT64);
       g_value_set_int64(&(self->priv->value),value);
     }

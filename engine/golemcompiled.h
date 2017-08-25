@@ -39,6 +39,8 @@ GType 		golem_compiled_get_type();
 
 GolemCompiled * golem_compiled_new();
 
+gchar **	golem_compiled_get_references(GolemCompiled * compiled,gsize * length);
+
 gboolean	golem_compiled_add_string(GolemCompiled * compiled,const gchar * source_name,const gchar * str,gssize length,GError ** error);
 
 gboolean	golem_compiled_add_data(GolemCompiled * compiled,const guint8 * data,gsize length,GError ** error);

@@ -123,8 +123,8 @@
       <keyword>interface</keyword>
       <keyword>iterator</keyword>
       <keyword>signal</keyword>
-      <keyword>set</keyword>
-      <keyword>get</keyword>
+      <keyword>setter</keyword>
+      <keyword>getter</keyword>
     </context>
 
     <context id="operators" style-ref="operator">
@@ -173,6 +173,7 @@
       <keyword>null</keyword>
       <keyword>this</keyword>
       <keyword>priv</keyword>
+      <keyword>value</keyword>
     </context>
 
 

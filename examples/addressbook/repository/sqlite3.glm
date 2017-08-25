@@ -1,0 +1,123 @@
+sharedobject "libsqlite3.so.0"
+
+extern int API_sqlite3_open(string filename,pointer dbptr): sqlite3_open;
+extern int API_sqlite3_exec(pointer dbptr,string sql,pointer callback,pointer data,pointer errmsg): sqlite3_exec;
+
+extern int API_sqlite3_prepare(string filename,pointer dbptr): sqlite3_prepare;
+extern int API_sqlite3_bind_parameter_count(pointer stmtptr):sqlite3_bind_parameter_count;
+extern int API_sqlite3_bind_parameter_name(pointer stmtptr,int index): sqlite3_bind_parameter_name;
+
+extern int API_sqlite3_step(pointer stmt_ptr): sqlite3_step;
+extern int API_sqlite3_close(pointer dbptr): sqlite3_close;
+
+class SQLite
+{
+	property pointer stmt_ptr {
+		setter {
+			priv.stmt_ptr = value;
+		}
+	}
+
+	property int count
+	{
+		getter {
+			return 0;
+		}
+	}
+	
+	init {
+		priv.stmt_ptr = null;
+	}
+
+	bool step()
+	{
+
+		return false;
+	}
+
+	string get_column_name(int index)
+	{
+		
+	}
+
+	int get_column_index(string column_name)
+	{}
+
+	var get(int index)
+	{
+
+	}
+
+	var get_by_name(string name)
+	{
+
+	}
+
+	void finalize()
+	{
+		if(priv.stmt_ptr != null)
+		{
+			priv.stmt_ptr = null;
+		}
+	}
+
+	dispose {
+		if(priv.stmt_ptr != null)
+			this.finalize();
+	}
+}
+
+
+class SQLite
+{
+	property string filename {
+		setter {
+			priv.filename = value;
+		}
+	}
+
+	init 
+	{
+		priv.filename = null;
+	}
+
+	constructed 
+	{
+		pointer ptr_db = null;
+		if(API_sqlite3_open(priv.filename,pointerof(ptr_db)) == 0)
+		{
+			priv.ptr_db = ptr_db;
+		}
+		else
+		{
+			priv.ptr_db = null;
+		}
+	}
+
+	dispose {
+		this.close();
+	}
+
+	SQLiteResult query(string query,object data)
+	{
+		return new SQLiteResult {
+
+		};
+	}
+
+	void execute(string sql)
+	{
+		if(priv.ptr_db != null)
+			API_sqlite3_exec(priv.ptr_db,sql,null,null,null);
+	}
+
+	void close()
+	{
+		if(priv.ptr_db != null)
+		{
+			API_sqlite3_close(priv.ptr_db);
+			priv.ptr_db = null;
+		}
+	}
+}
+

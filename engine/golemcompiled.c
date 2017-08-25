@@ -16,19 +16,23 @@
  */
 
 #include "golem.h"
+#include <string.h>
 
 struct _GolemCompiledPrivate
 {
   GList * sentences;
+  GList * references;
 };
+
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemCompiled,golem_compiled,G_TYPE_OBJECT)
 
 static void
-_golem_compiled_disponse(GObject * object)
+_golem_compiled_dispose(GObject * object)
 {
   GolemCompiled * self = GOLEM_COMPILED(object);
   g_list_free_full(self->priv->sentences,g_object_unref);
+  g_list_free_full(self->priv->references,g_free);
   G_OBJECT_CLASS(golem_compiled_parent_class)->dispose(object);
 }
 
@@ -41,7 +45,7 @@ golem_compiled_init(GolemCompiled * self)
 static void
 golem_compiled_class_init(GolemCompiledClass * klass)
 {
-  G_OBJECT_CLASS(klass)->dispose = _golem_compiled_disponse;
+  G_OBJECT_CLASS(klass)->dispose = _golem_compiled_dispose;
 }
 
 gboolean
@@ -51,19 +55,32 @@ golem_compiled_add_string(GolemCompiled * compiled,const gchar * source_name,con
   gboolean done = TRUE;
   GolemParser * parser = golem_parser_new(source_name);
   golem_parser_parse(parser,str,length);
+
   GList * sentences = NULL;
   while(!golem_parser_is_end(parser))
     {
-      sentence = golem_statement_parse(parser,error);
-      if(sentence)
+      if(golem_parser_next_word_check(parser,"using"))
 	{
-	  sentences = g_list_append(sentences,sentence);
+	  gchar * reference = g_new0(gchar,1024);
+	  while(!(golem_parser_is_end(parser) || golem_parser_next_word_check(parser,";")))
+	    {
+	      strcat(reference,golem_parser_next_word(parser,NULL,TRUE));
+	    }
+	  compiled->priv->references = g_list_append(compiled->priv->references,reference);
 	}
       else
 	{
-	  g_list_free_full(sentences,g_object_unref);
-	  sentences = NULL;
-	  break;
+	  sentence = golem_statement_parse(parser,error);
+	  if(sentence)
+	    {
+	      sentences = g_list_append(sentences,sentence);
+	    }
+	  else
+	    {
+	      g_list_free_full(sentences,g_object_unref);
+	      sentences = NULL;
+	      break;
+	    }
 	}
     }
   if(sentences)
@@ -86,8 +103,24 @@ golem_compiled_run(GolemCompiled * compiled,GolemContext * context,GError ** err
 	break;
 
     }
-  golem_runtime_exit(runtime);
+  golem_runtime_destroy(runtime);
   return done;
+}
+
+gchar **
+golem_compiled_get_references(GolemCompiled * compiled,gsize * length)
+{
+  gsize count = g_list_length(g_list_first(compiled->priv->references));
+  if(length)
+    *length = count;
+  gchar ** result = g_new0(gchar*,count+1);
+  gint index = 0;
+  for(GList * iter = g_list_first(compiled->priv->references);iter;iter = g_list_next(iter))
+    {
+      result[index] = g_strdup((gchar*)iter->data);
+      index ++;
+    }
+  return result;
 }
 
 GolemCompiled *

@@ -39,7 +39,7 @@ GType			golem_constant_get_type(void);
 
 gboolean		golem_constant_check(GolemParser * parser);
 
-GolemExpression * 	golem_constant_parse(GolemParser * parser,GError ** error);
+GolemExpression * 	golem_constant_parse(GolemParser * parser,gboolean negative,GError ** error);
 
 
 #endif /* GOLEMCONSTANT_H_ */

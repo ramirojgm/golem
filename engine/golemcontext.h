@@ -31,6 +31,7 @@ struct _GolemContextClass
 struct _GolemContext
 {
   GObject parent_instace;
+  gboolean is_disposed;
   GMutex mutex;
 };
 
