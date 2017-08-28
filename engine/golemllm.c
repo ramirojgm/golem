@@ -1,9 +1,9 @@
 /*
-	Copyright (C) 2016 Ramiro Jose Garcia Moraga
+	Copyright (C) 2017 Ramiro Jose Garcia Moraga
 
 	This file is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 2 of the License, or
+	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
 	This file is distributed in the hope that it will be useful,
@@ -16,12 +16,16 @@
  */
 
 #include "golem.h"
-#include <sys/mman.h>
-#include <unistd.h>
-#include <stdio.h>
+
 #include <fcntl.h>
 #include <stdarg.h>
 #include <memory.h>
+
+#ifdef _WIN32
+  #include <windows.h>
+#else
+  #include <sys/mman.h>
+#endif
 
 /*void _golem_struct_builder_expand(GolemStructBuilder * struct_builder,gsize size)
 {
@@ -44,6 +48,7 @@
 }*/
 
 volatile gsize 		_golem_invoke_vfunc_size = 0;
+volatile gsize 		_golem_invoke_vfunc_page_size = 0;
 volatile goffset 	_golem_invoke_vfunc_vfunc_offset = 0;
 volatile goffset 	_golem_invoke_vfunc_vdata_offset = 0;
 volatile gint		_golem_invoke_vfunc_vfd = 0;
@@ -67,7 +72,7 @@ _golem_invoke_vfunc_template(gpointer instance,...)
   return invoke.result.int_64;
 }
 
-static void
+void
 __attribute__((constructor))
 _golem_invoke_vfunc_init()
 {
@@ -75,6 +80,15 @@ _golem_invoke_vfunc_init()
   gsize vfunc_size = 0;
   guint64 vfunc_data = GUINT64_TO_LE(0x00FF00FF00000000);
   guint64 vdata_data = GUINT64_TO_LE(0xFF00FF0000000000);
+
+#ifdef _WIN32
+  SYSTEM_INFO system_info;
+  GetSystemInfo(&system_info);
+  _golem_invoke_vfunc_page_size = system_info.dwPageSize;
+#else
+  _golem_invoke_vfunc_vfd = open(GOLEM_VFUNC_TEMPLATE,O_RDWR);
+#endif
+
   while(TRUE)
     {
       if(*((guint8*)(vtemplate + vfunc_size)) == 0xC3)
@@ -94,26 +108,62 @@ _golem_invoke_vfunc_init()
 	}
       vfunc_size += 1;
     }
-  _golem_invoke_vfunc_vfd = open(GOLEM_VFUNC_TEMPLATE,O_RDWR);
+}
+
+static gpointer
+golem_llm_mmap(gsize size)
+{
+#ifdef _WIN32
+  //Windows implementation
+  return VirtualAlloc(NULL, _golem_invoke_vfunc_page_size, MEM_COMMIT, PAGE_READWRITE);
+#else
+  //Unix implementation
+  return mmap(NULL,size,PROT_WRITE|PROT_READ,MAP_PRIVATE,_golem_invoke_vfunc_vfd,0);
+#endif
+}
+
+static void
+golem_llm_prot_exec(gpointer mem,gsize size)
+{
+#ifdef _WIN32
+  //Windows implementation
+  VirtualProtect(mem, size, PAGE_EXECUTE_READ, NULL);
+#else
+  //Unix implementation
+  mprotect(mem,size,PROT_READ|PROT_EXEC);
+#endif
+}
+
+static void
+golem_llm_munmap(gpointer mem,gsize size)
+{
+#ifdef _WIN32
+  //Windows implementation
+  VirtualFree(mem, 0, MEM_RELEASE);
+#else
+  //Unix implementation
+  munmap(mem,size);
+#endif
 }
 
 gpointer
 golem_llm_new_vfunction(GolemLLMVFunc func,gpointer data)
 {
   gpointer v_template = _golem_invoke_vfunc_template;
-  gpointer vfunc = mmap(NULL,_golem_invoke_vfunc_size,PROT_WRITE|PROT_READ|PROT_EXEC,MAP_PRIVATE, _golem_invoke_vfunc_vfd, 0);
+  gpointer vfunc = golem_llm_mmap(_golem_invoke_vfunc_size);
   guint64 vfunc_data = (guint64)func;
   guint64 vdata_data = (guint64)data;
   memcpy(vfunc,v_template,_golem_invoke_vfunc_size);
   memcpy(vfunc + _golem_invoke_vfunc_vfunc_offset,&vfunc_data ,sizeof(guint64));
   memcpy(vfunc + _golem_invoke_vfunc_vdata_offset,&vdata_data ,sizeof(guint64));
+  golem_llm_prot_exec(vfunc,_golem_invoke_vfunc_size);
   return vfunc;
 }
 
 void
 golem_llm_dispose_vfunction(gpointer vfunc)
 {
-  munmap(vfunc,_golem_invoke_vfunc_size);
+  golem_llm_munmap(vfunc,_golem_invoke_vfunc_size);
 }
 
 guint8

@@ -206,7 +206,6 @@ main(gint argc,gchar ** argv)
 	      g_value_unset(&main_argc);
 	      g_value_unset(&main_argv);
 	      g_array_free(array,TRUE);
-
 	      golem_closure_invoke_free(invoke);
 	    }
 	}

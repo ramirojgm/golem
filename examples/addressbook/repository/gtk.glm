@@ -39,6 +39,8 @@ extends GtkDialog
   extern const GtkButton add_button(string text,int response_id);
   extern const GtkHeaderBar get_header_bar();
   extern void response(int response_id);
+  extern const GtkBox get_content_area();
+
 }
 
 extends GtkWindow
@@ -92,6 +94,7 @@ extends GtkPopover
 extends GtkListStore
 {
   extern GtkListStore new(int n);
+  extern void clear();
   extern void set_column_types(int n,array types);
   extern void append(GtkTreeIter iter);
   extern void remove(GtkTreeIter iter);
@@ -117,4 +120,16 @@ extends GtkTreeIter
 extends GtkTreeView
 {
   extern void append_column(GtkTreeViewColumn column);
+}
+
+extends GtkGrid
+{
+  extern void attach(GtkWidget child, int left,int top, int width,int height);
+}
+
+extends GtkTreeViewColumn
+{
+  extern void pack_start(GtkCellRenderer cell,bool expand);
+  extern void pack_end(GtkCellRenderer cell,bool expand);
+  extern void add_attribute(GtkCellRenderer cell,string attributename,int column);
 }

@@ -1,24 +1,5 @@
 using repository.gtk;
 
-class Application: GtkApplication
-{
-	init 
-	{
-		this.on("activate",do() 
-		{
-			Window window = new @Window
-			{
-				"role": "toolbox"
-			};
-
-			
-			window.show();
-
-			this.add_window(window);
-		});
-	}
-}
-
 class PersonDialog: GtkDialog
 {
 	property string name 
@@ -42,9 +23,23 @@ class PersonDialog: GtkDialog
 
 	init
 	{
-		priv.entry_name = new GtkEntry {};
-		priv.entry_phone_number = new GtkEntry {};
-		priv.entry_address = new GtkEntry {};
+		priv.entry_name = new GtkEntry { "visible": true, "hexpand": true };
+		priv.entry_phone_number = new GtkEntry { "visible": true, "hexpand": true };
+		priv.entry_address = new GtkEntry {	"visible": true, "hexpand": true };
+		priv.body = new GtkGrid {
+			"border-width": 20,
+			"column-spacing": 10,
+			"row-spacing": 10,
+			"visible": true
+		};
+
+		priv.body.attach(new @GtkLabel { "label":"Name", "visible": true },0,0,1,1);
+		priv.body.attach(new @GtkLabel { "label":"Phone Number", "visible": true },0,1,1,1);
+		priv.body.attach(new @GtkLabel { "label":"Address", "visible": true },0,2,1,1);
+
+		priv.body.attach(priv.entry_name,1,0,1,1);
+		priv.body.attach(priv.entry_phone_number,1,1,1,1);
+		priv.body.attach(priv.entry_address,1,2,1,1);
 
 		priv.button_save = new GtkButton {
 			"label": "Save",
@@ -58,6 +53,8 @@ class PersonDialog: GtkDialog
 
 		priv.header_bar = this.get_header_bar();
 		this.title = "Person";		
+		
+		this.get_content_area().pack_start(priv.body,true,true,0);
 	}
 
 	constructed
@@ -79,15 +76,18 @@ class PersonDialog: GtkDialog
 class Window: GtkApplicationWindow
 {
 	init {
-		GtkTreeViewColumn column_name = null;
-		GtkTreeViewColumn column_phone_number = null;
-		GtkTreeViewColumn column_address = null;
+		GtkTreeViewColumn column_name = new @GtkTreeViewColumn { "title": "Name", "resizable": true };
+		GtkTreeViewColumn column_phone_number = new @GtkTreeViewColumn { "title": "Phone Number","resizable": true };
+		GtkTreeViewColumn column_address = new @GtkTreeViewColumn { "title": "Address" };
 
-		GtkCellRendererText cell;
+		GtkCellRendererText cell_name = new @GtkCellRendererText {};
+		GtkCellRendererText cell_phone_number = new @GtkCellRendererText {};
+		GtkCellRendererText cell_address = new @GtkCellRendererText {};
 
 		priv.model = GtkListStore.new(2,int,string,string,string);
 
 		priv.tree_view = new GtkTreeView {
+			"enable-grid-lines": GtkTreeViewGridLines.both,
 			"model": priv.model,
 			"visible": true
 		};
@@ -113,14 +113,43 @@ class Window: GtkApplicationWindow
 			"visible": true
 		};
 
-		column_name = new @GtkTreeViewColumn { "title": "Name", "resizable": true };
-		column_phone_number = new @GtkTreeViewColumn { "title": "Phone Number","resizable": true };
-		column_address = new @GtkTreeViewColumn { "title": "Address" };
+		priv.button_remove = new GtkButton {
+			"image": new @GtkImage {
+				"visible": true,
+				"icon-name": "list-remove-symbolic"
+			},
+			"visible": true
+		};
+
+		priv.button_refresh = new GtkButton {
+			"image": new @GtkImage {
+				"visible": true,
+				"icon-name": "view-refresh-symbolic"
+			},
+			"visible": true
+		};
+
+		priv.button_edit = new GtkButton {
+			"image": new @GtkImage {
+				"visible": true,
+				"icon-name": "document-edit-symbolic"
+			},
+			"visible": true
+		};
 
 		//tree_view
 		priv.tree_view.append_column(column_name);
 		priv.tree_view.append_column(column_phone_number);
 		priv.tree_view.append_column(column_address);
+
+		column_name.pack_start(cell_name,true);
+		column_name.add_attribute(cell_name,"text",1);
+
+		column_phone_number.pack_start(cell_phone_number,true);
+		column_phone_number.add_attribute(cell_phone_number,"text",2);
+
+		column_address.pack_start(cell_address,true);
+		column_address.add_attribute(cell_address,"text",3);
 
 		//packing		
 		this.add(priv.box);
@@ -128,6 +157,9 @@ class Window: GtkApplicationWindow
 		priv.box.pack_start(priv.scrolled_window,true,true,0);
 		priv.box.pack_end(priv.action_bar);
 		priv.action_bar.pack_start(priv.button_add);
+		priv.action_bar.pack_start(priv.button_remove);
+		priv.action_bar.pack_start(priv.button_edit);
+		priv.action_bar.pack_start(priv.button_refresh);
 
 		//signals
 		priv.button_add.on("clicked",do(){
@@ -143,20 +175,80 @@ class Window: GtkApplicationWindow
 			
 			if(dialog.run())
 			{
-				
+				this.insert(dialog);
 			}
 			dialog.destroy();
 		});
 
-		this.title = "Address Book";
+		priv.button_delete.on("clicked",do(){
+		});
+
+		priv.button_edit.on("clicked",do(){
+			PersonDialog dialog = new @PersonDialog {
+				"use-header-bar": true,
+				"name": "",
+				"phone-number": "Nothing",
+				"address": "",
+				"transient-for": this,
+				"default-height": 200,
+				"default-width": 400
+			};
+			
+			if(dialog.run())
+			{
+				this.update(0,dialog);
+			}
+			dialog.destroy();
+		});
+
+		priv.button_refresh.on("clicked",do(){
+			this.refresh();
+		});
+
 	}
 
-	void update()
+	constructed {
+		this.title = "Address Book";
+		this.default_width = 600;
+		this.default_height = 400;
+		this.refresh();
+	}
+
+	void refresh()
+	{
+		priv.model.clear();	
+	}
+
+	void update(int id_person,PersonDialog dialog)
 	{
 		
 	}
+
+	void insert(PersonDialog dialog)
+	{
+		print(dialog.name);
+	}
+
+	void delete(int id_person)
+	{
+
+	}
+
+	
 }
 
+class Application: GtkApplication
+{
+	init 
+	{
+		this.on("activate",do() 
+		{
+			Window window = new @Window	{	};
+			window.show();
+			this.add_window(window);
+		});
+	}
+}
 
 int main(int argc,array argv)
 {
