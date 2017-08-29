@@ -223,9 +223,51 @@ golem_garray_set(GolemClosure * closure,
   return TRUE;
 }
 
+static gboolean
+golem_pointer_offset(GolemClosure * closure,
+		GolemClosureInvoke * invoke,
+		gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_POINTER);
+  g_value_set_pointer(&return_value,NULL);
+
+  GValue * this_value = (GValue*)data;
+  if(G_VALUE_HOLDS_POINTER(this_value) && g_value_get_pointer(this_value))
+    {
+      if(golem_closure_invoke_get_length(invoke) == 1)
+	{
+            goffset offset = golem_closure_invoke_get_int64(invoke,0);
+            g_value_set_pointer(&return_value,g_value_get_pointer(this_value) + offset);
+	}
+    }
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
+
+golem_pointer_get(GolemClosure * closure,
+		GolemClosureInvoke * invoke,
+		gpointer data)
+{
+  GValue return_value = G_VALUE_INIT;
+  g_value_init(&return_value,G_TYPE_POINTER);
+  g_value_set_pointer(&return_value,NULL);
+
+  GValue * this_value = (GValue*)data;
+  if(G_VALUE_HOLDS_POINTER(this_value) && g_value_get_pointer(this_value))
+    {
+      if(golem_closure_invoke_get_length(invoke) == 1)
+	{
+            GType offset = golem_closure_invoke_get_int64(invoke,0);
+            g_value_set_pointer(&return_value,g_value_get_pointer(this_value) + offset);
+	}
+    }
+  golem_closure_invoke_set_result(invoke,&return_value);
+  return TRUE;
+}
 
 void
-__attribute__((constructor)) _golem_object_type_init() 
+__attribute__((constructor)) _golem_type_init()
 {
   //convert
   g_value_register_transform_func(G_TYPE_POINTER,G_TYPE_OBJECT,_g_value_pointer_to_object);
@@ -243,6 +285,13 @@ __attribute__((constructor)) _golem_object_type_init()
   golem_type_info_add_function(type_info,golem_function_closured_new("remove",golem_garray_set));
   golem_type_info_add_function(type_info,golem_function_closured_new("get_at",golem_garray_get));
   golem_type_info_add_function(type_info,golem_function_closured_new("set_at",golem_garray_set));
+
+  //pointer
+  type_info = golem_type_info_from_gtype(G_TYPE_POINTER);
+  golem_type_info_add_function(type_info,golem_function_closured_new("offset",golem_pointer_offset));
+  golem_type_info_add_function(type_info,golem_function_closured_new("get",golem_pointer_get));
+  golem_type_info_add_function(type_info,golem_function_closured_new("set",golem_pointer_set));
+  golem_type_info_add_function(type_info,golem_function_closured_new("free",golem_pointer_free));
 }
 
 

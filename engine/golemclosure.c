@@ -237,6 +237,9 @@ golem_closure_invoke_get_result(GolemClosureInvoke * closure_invoke,GValue * val
     {
       g_value_init(value,G_VALUE_TYPE(&(closure_invoke->result)));
       g_value_copy(&(closure_invoke->result),value);
+      if(G_VALUE_HOLDS_BOXED(value)){
+      	  g_print("<Boxed: %p>\n",g_value_get_boxed(&(closure_invoke->result)));
+      }
     }
   else
     {

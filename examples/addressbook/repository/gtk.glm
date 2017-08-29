@@ -112,14 +112,21 @@ extends GtkTreeModel
 extends GtkTreeIter
 {
   GtkTreeIter new() {
-	extern GtkTreeIter g_malloc(int size);
-	return g_malloc(128);
+    return new GtkTreeIter {
+    
+    };
   }
 }
 
 extends GtkTreeView
 {
   extern void append_column(GtkTreeViewColumn column);
+  extern const GtkTreeViewSelection get_selection();
+}
+
+extends GtkTreeSelection
+{
+  extern bool get_selected(pointer model,GtkTreeIter iter);
 }
 
 extends GtkGrid

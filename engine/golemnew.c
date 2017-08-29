@@ -63,72 +63,85 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 
   if(done)
     {
-      GObjectClass * klass = G_OBJECT_CLASS(g_type_class_ref(type));
-      params_construct_n = 0;
-      params_data_n = 0;
-      params_construct = g_new0(GParameter,g_list_length(self->priv->params));
-      params_data = g_new0(GParameter,g_list_length(self->priv->params));
+      if(G_TYPE_IS_OBJECT(type))
+	{
+	  GObjectClass * klass = G_OBJECT_CLASS(g_type_class_ref(type));
+	  params_construct_n = 0;
+	  params_data_n = 0;
+	  params_construct = g_new0(GParameter,g_list_length(self->priv->params));
+	  params_data = g_new0(GParameter,g_list_length(self->priv->params));
 
-      for(GList * param_iter = g_list_first(self->priv->params);param_iter;param_iter = g_list_next(param_iter))
-	{
-	  GolemParameter * param_exp = (GolemParameter*)(param_iter->data);
-	  GParamSpec * param = NULL;
-	  if(klass)
-	    param = g_object_class_find_property(klass,param_exp->name);
-	  if(param && klass)
-	    {
-	      params_construct[params_construct_n].name = g_strdup(param_exp->name);
-	      if(!(done = golem_expression_evaluate(param_exp->value,context,&(params_construct[params_construct_n].value),error)))
-		{
+	  for(GList * param_iter = g_list_first(self->priv->params);param_iter;param_iter = g_list_next(param_iter))
+	  {
+	    GolemParameter * param_exp = (GolemParameter*)(param_iter->data);
+	    GParamSpec * param = NULL;
+	    if(klass)
+	      param = g_object_class_find_property(klass,param_exp->name);
+	    if(param && klass)
+	      {
+		params_construct[params_construct_n].name = g_strdup(param_exp->name);
+		if(!(done = golem_expression_evaluate(param_exp->value,context,&(params_construct[params_construct_n].value),error)))
+		  {
+		    break;
+		  }
+		params_construct_n ++;
+	      }
+	    else
+	      {
+		params_data[params_data_n].name = g_strdup(param_exp->name);
+		if(!(done = golem_expression_evaluate(param_exp->value,context,&(params_data[params_data_n].value),error)))
+		  {
+		    break;
+		  }
+		params_data_n ++;
+	      }
+	  }
+	  if(done)
+	  {
+	    gpointer instance = g_object_newv(type,params_construct_n,params_construct);
+	    for(guint params_index = 0;params_index < params_data_n;params_index++)
+	      {
+		if(!(params_data[params_index].name))
 		  break;
-		}
-	      params_construct_n ++;
-	    }
-	  else
-	    {
-	      params_data[params_data_n].name = g_strdup(param_exp->name);
-	      if(!(done = golem_expression_evaluate(param_exp->value,context,&(params_data[params_data_n].value),error)))
-		{
-		  break;
-		}
-	      params_data_n ++;
-	    }
+		GValue * param_value = g_new0(GValue,1);
+		g_value_init(param_value,(params_data[params_index].value).g_type);
+		g_value_copy(&(params_data[params_index].value),param_value);
+		g_object_set_data_full(instance,params_data[params_index].name,param_value,(GDestroyNotify)g_value_free);
+	      }
+	    g_value_init(result,type);
+	    if(self->priv->referenced)
+	      g_value_set_object(result,instance);
+	    else
+	      g_value_take_object(result,instance);
+	  }
+
+	  for(gint params_index = 0;params_index < params_construct_n;params_index ++)
+	  {
+	    g_free((gchar*)params_construct[params_index].name);
+	    g_value_unset(&params_construct[params_index].value);
+	  }
+
+	  g_free(params_construct);
+
+	  for(gint params_index = 0;params_index < params_data_n;params_index ++)
+	  {
+	    g_free((gchar*)params_data[params_index].name);
+	    g_value_unset(&params_data[params_index].value);
+	  }
+
+	  g_free(params_data);
 	}
-      if(done)
+      else if(G_TYPE_IS_BOXED(type))
 	{
-	  gpointer instance = g_object_newv(type,params_construct_n,params_construct);
-	  for(guint params_index = 0;params_index < params_data_n;params_index++)
-	    {
-	      if(!(params_data[params_index].name))
-		break;
-	      GValue * param_value = g_new0(GValue,1);
-	      g_value_init(param_value,(params_data[params_index].value).g_type);
-	      g_value_copy(&(params_data[params_index].value),param_value);
-	      g_object_set_data_full(instance,params_data[params_index].name,param_value,(GDestroyNotify)g_value_free);
-	    }
 	  g_value_init(result,type);
-	  if(self->priv->referenced)
-	    g_value_set_object(result,instance);
-	  else
-	    g_value_take_object(result,instance);
+	  g_value_take_boxed(result,g_malloc0(1024));
+	  done = TRUE;
 	}
-
-      for(gint params_index = 0;params_index < params_construct_n;params_index ++)
+      else
 	{
-	  g_free((gchar*)params_construct[params_index].name);
-	  g_value_unset(&params_construct[params_index].value);
+	  g_value_init(result,G_TYPE_POINTER);
+	  g_value_set_pointer(result,NULL);
 	}
-
-      g_free(params_construct);
-
-      for(gint params_index = 0;params_index < params_data_n;params_index ++)
-	{
-	  g_free((gchar*)params_data[params_index].name);
-	  g_value_unset(&params_data[params_index].value);
-	}
-
-      g_free(params_data);
-
     }
   return done;
 }

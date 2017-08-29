@@ -84,7 +84,7 @@ class Window: GtkApplicationWindow
 		GtkCellRendererText cell_phone_number = new @GtkCellRendererText {};
 		GtkCellRendererText cell_address = new @GtkCellRendererText {};
 
-		priv.model = GtkListStore.new(2,int,string,string,string);
+		priv.model = GtkListStore.new(4,int,string,string,string);
 
 		priv.tree_view = new GtkTreeView {
 			"enable-grid-lines": GtkTreeViewGridLines.both,
@@ -175,30 +175,68 @@ class Window: GtkApplicationWindow
 			
 			if(dialog.run())
 			{
-				this.insert(dialog);
+				int idperson = this.insert(dialog);
+				GtkTreeIter iter =  GtkTreeIter.new();
+				print(iter);
+				priv.model.append(iter);
+				print(iter);
+				priv.model.set_value(iter,0,idperson);
+				priv.model.set_value(iter,1,dialog.name);
+				priv.model.set_value(iter,2,dialog.phone_number);
+				priv.model.set_value(iter,3,dialog.address);
 			}
 			dialog.destroy();
 		});
 
-		priv.button_delete.on("clicked",do(){
+		priv.button_remove.on("clicked",do(){
+		    GtkTreeSelection selection =  priv.tree_view.get_selection();
+            GtkTreeIter iter = GtkTreeIter.new();
+            
+
+            
+            if(selection.get_selected(null,iter)) {
+                var idperson;
+             
+                priv.model.get_value(iter,0,pointerof(idperson));                
+                this.delete(idperson);
+                priv.model.remove(iter);
+            }
 		});
 
 		priv.button_edit.on("clicked",do(){
-			PersonDialog dialog = new @PersonDialog {
-				"use-header-bar": true,
-				"name": "",
-				"phone-number": "Nothing",
-				"address": "",
-				"transient-for": this,
-				"default-height": 200,
-				"default-width": 400
-			};
+            GtkTreeSelection selection =  priv.tree_view.get_selection();
+            GtkTreeIter iter = GtkTreeIter.new();
+            
+            if(selection.get_selected(null,iter)) {
+                var idperson;
+                var name;
+                var phone_number;
+                var address;
+
+                priv.model.get_value(iter,0,pointerof(idperson));                
+                priv.model.get_value(iter,1,pointerof(name));
+                priv.model.get_value(iter,2,pointerof(phone_number));
+                priv.model.get_value(iter,3,pointerof(address));
+            
+                PersonDialog dialog = new @PersonDialog {
+				    "use-header-bar": true,
+				    "name": "",
+				    "phone-number": "Nothing",
+				    "address": "",
+				    "transient-for": this,
+				    "default-height": 200,
+				    "default-width": 400
+			    };
 			
-			if(dialog.run())
-			{
-				this.update(0,dialog);
-			}
-			dialog.destroy();
+			    if(dialog.run())
+			    {
+				    this.update(idperson,dialog);
+				    priv.model.set_value(iter,1,dialog.name);
+				    priv.model.set_value(iter,2,dialog.phone_number);
+				    priv.model.set_value(iter,3,dialog.address);
+			    }
+			    dialog.destroy();
+            }
 		});
 
 		priv.button_refresh.on("clicked",do(){
@@ -224,9 +262,10 @@ class Window: GtkApplicationWindow
 		
 	}
 
-	void insert(PersonDialog dialog)
+	int insert(PersonDialog dialog)
 	{
 		print(dialog.name);
+		return 0;
 	}
 
 	void delete(int id_person)

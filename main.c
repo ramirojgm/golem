@@ -133,9 +133,14 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
 	{
 	  g_print("<type: %s>",g_type_name(g_value_get_gtype(&value)));
 	}
-      else if(G_VALUE_HOLDS_OBJECT(&value) || G_VALUE_HOLDS_BOXED(&value))
+      else if(G_VALUE_HOLDS_OBJECT(&value))
 	{
 	  gpointer instance = g_value_get_object(&value);
+	  g_print("<%s: %p>",G_VALUE_TYPE_NAME(&value),instance);
+	}
+      else if(G_VALUE_HOLDS_BOXED(&value))
+	{
+	  gpointer instance = g_value_get_boxed(&value);
 	  g_print("<%s: %p>",G_VALUE_TYPE_NAME(&value),instance);
 	}
       else if(G_VALUE_HOLDS_POINTER(&value))
