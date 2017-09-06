@@ -18,7 +18,9 @@
 #ifndef ENGINE_GOLEMSTRUCTINFO_H_
 #define ENGINE_GOLEMSTRUCTINFO_H_
 
-typedef struct _GolemStructInfoPrivate GolemStructInfoPrivate;
+#define GOLEM_OFFSET_WITH_PADDING(offset,size) 	((offset) + ((size) > 1 && (offset > 0) ? ((size) - ((offset) % (size))) : 0))
+
+#define GOLEM_TYPE_STRUCT_INFO (golem_struct_info_get_type())
 G_DECLARE_FINAL_TYPE(GolemStructInfo,golem_struct_info,GOLEM,STRUCT_INFO,GObject)
 
 struct _GolemStructInfoClass
@@ -28,26 +30,26 @@ struct _GolemStructInfoClass
 
 struct _GolemStructInfo
 {
-  GObjectClass parent_instance;
-  GolemStructInfoPrivate * priv;
+  GObject parent_instance;
+  GMutex mutex;
+  GList * fields;
+  gsize size;
 };
 
-GType 		 golem_struct_info_get_type(void);
+GType			golem_struct_info_get_type(void);
 
-GolemStructInfo* golem_struct_info_new(void);
+GolemStructInfo *	golem_struct_info_new(void);
 
-gboolean	 golem_struct_info_resolve(GolemStructInfo * info,GolemContext * context);
+void			golem_struct_info_add_field(GolemStructInfo * struct_info,GType type,const gchar * name);
 
-GolemStructInfo* golem_struct_info_parse(GolemParser * parse,GError ** error);
+goffset			golem_struct_info_get_field_offset(GolemStructInfo * struct_info,const gchar * name);
 
-gsize		 golem_struct_info_get_size(GolemStructInfo * struct_info);
+gpointer		golem_struct_info_new_instance(GolemStructInfo * struct_info);
 
-void		 golem_struct_info_append_attibute(GolemStructInfo * struct_info,GType type,const gchar * name);
+gboolean		golem_struct_info_get(GolemStructInfo * struct_info,const gchar * name,GValue * dest,GError ** error);
 
-gboolean	 golem_struct_info_set(GolemStructInfo * struct_info,gpointer struct_instance,const gchar * name,const GValue * src,GError * error);
+gboolean		golem_struct_info_set(GolemStructInfo * struct_info,const gchar * name,const GValue * src,GError ** error);
 
-gboolean	 golem_struct_info_get(GolemStructInfo * struct_info,gpointer struct_instance,const gchar * name,GValue * dest,GError * error);
-
-void		 golem_struct_info_free(GolemStructInfo * struct_info,gpointer struct_instance);
+void			golem_struct_info_free_instance(GolemStructInfo * struct_info,gpointer instance);
 
 #endif /* ENGINE_GOLEMSTRUCTINFO_H_ */

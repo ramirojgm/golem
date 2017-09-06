@@ -290,8 +290,8 @@ __attribute__((constructor)) _golem_type_init()
   type_info = golem_type_info_from_gtype(G_TYPE_POINTER);
   golem_type_info_add_function(type_info,golem_function_closured_new("offset",golem_pointer_offset));
   golem_type_info_add_function(type_info,golem_function_closured_new("get",golem_pointer_get));
-  golem_type_info_add_function(type_info,golem_function_closured_new("set",golem_pointer_set));
-  golem_type_info_add_function(type_info,golem_function_closured_new("free",golem_pointer_free));
+  /*golem_type_info_add_function(type_info,golem_function_closured_new("set",golem_pointer_set));
+  golem_type_info_add_function(type_info,golem_function_closured_new("free",golem_pointer_free));*/
 }
 
 
