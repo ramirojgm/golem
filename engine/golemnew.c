@@ -46,7 +46,7 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 
   if(self->priv->type_name)
     {
-      type = golem_context_get_type_define(context,self->priv->type_name,error);
+      type = golem_type_from_name(self->priv->type_name);
       if(type == 0)
 	{
 	  done = FALSE;
@@ -141,6 +141,7 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 	{
 	  g_value_init(result,G_TYPE_POINTER);
 	  g_value_set_pointer(result,NULL);
+	  done = TRUE;
 	}
     }
   return done;

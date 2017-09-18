@@ -1,0 +1,80 @@
+class Rectangle
+{
+	property int x {
+		getter {
+			return this.property_data_x;
+		}
+		setter {
+			this.property_data_x = value;
+		}
+	}
+
+	property int y {
+		getter {
+			return this.property_data_y;
+		}
+		setter {
+			this.property_data_y = value;
+		}
+	}
+
+	property int width {
+		getter {
+			return this.property_data_width;
+		}
+		setter {
+			this.property_data_width = value;
+		}
+	}
+
+	property int height {
+		getter {
+			return this.property_data_height;
+		}
+		setter {
+			this.property_data_height = value;
+		}
+	}
+
+
+	init {
+		
+	}
+
+	constructed {
+
+	}
+	
+	void print()
+	{
+		print("Rectangle: \n\tx:", this.property_data_x,"\n\ty:",this.property_data_y,"\n\twidth:",this.property_data_width,"\n\theight:",this.property_data_height,"\n");
+	}	
+}
+
+class Cube: Rectangle
+{
+	property int z {
+		getter { return this.property_data_z; }
+		setter { this.property_data_z = value; }
+	}
+
+	property int large {
+		getter { return this.property_data_large; }
+		setter { this.property_data_large = value; }
+	}
+
+	void print()
+	{
+		print("Cube: \n\tx:", this.property_data_x,"\n\ty:",this.property_data_y,"\n\tz:",this.property_data_z,"\n\twidth:",this.property_data_width,"\n\theight:",this.property_data_height,"\n\tlarge:",this.property_data_large,"\n");
+	}	
+}
+
+int 
+main(int argc,array argv)
+{
+	Rectangle r = new Cube { x : 20, y: 45, width: 36, height: 25 };
+	r.print();
+	
+	print("Hola Mundo");
+	return 0;
+}

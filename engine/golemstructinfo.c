@@ -81,7 +81,10 @@ golem_struct_info_add_field(GolemStructInfo * struct_info,GType type,const gchar
       field->size = sizeof(glong);
       break;
     default:
-      field->size = sizeof(gpointer);
+      if(field->type == G_TYPE_GTYPE)
+	field->size = sizeof(GType);
+      else
+	field->size = sizeof(gpointer);
       break;
   }
 
@@ -150,15 +153,84 @@ golem_struct_info_new_instance(GolemStructInfo * struct_info)
 }
 
 gboolean
-golem_struct_info_get(GolemStructInfo * struct_info,const gchar * name,GValue * dest,GError ** error)
+golem_struct_info_get(GolemStructInfo * struct_info,gpointer instance,const gchar * name,GValue * dest,GError ** error)
 {
   GolemStructField * field = _golem_struct_info_get_field(struct_info,name);
   if(field)
     {
+      GType fundamental = G_TYPE_FUNDAMENTAL(field->type);
       g_mutex_lock(&struct_info->mutex);
       g_value_unset(dest);
-      g_value_init(dest,field->type);
-
+      if(field->type != G_TYPE_VALUE)
+	g_value_init(dest,field->type);
+      gpointer address = (instance + field->offset);
+      switch(fundamental)
+      {
+      	case G_TYPE_CHAR:
+      	  g_value_set_schar(dest,*((gchar*)address));
+      	  break;
+      	case G_TYPE_UCHAR:
+      	  g_value_set_uchar(dest,*((guchar*)address));
+      	  break;
+      	case G_TYPE_INT:
+      	  g_value_set_int(dest,*((gint*)address));
+      	  break;
+      	case G_TYPE_UINT:
+      	  g_value_set_uint(dest,*((guint*)address));
+      	  break;
+      	case G_TYPE_FLOAT:
+      	  g_value_set_float(dest,*((gfloat*)address));
+      	  break;
+      	case G_TYPE_FLAGS:
+      	  g_value_set_flags(dest,*((gint*)address));
+      	  break;
+      	case G_TYPE_ENUM:
+      	  g_value_set_enum(dest,*((gint*)address));
+      	  break;
+      	case G_TYPE_INT64:
+      	  g_value_set_int64(dest,*((gint64*)address));
+      	  break;
+      	case G_TYPE_UINT64:
+      	  g_value_set_uint64(dest,*((guint64*)address));
+      	  break;
+      	case G_TYPE_DOUBLE:
+      	  g_value_set_double(dest,*((gdouble*)address));
+      	  break;
+      	case G_TYPE_LONG:
+      	  g_value_set_long(dest,*((glong*)address));
+      	  break;
+      	case G_TYPE_POINTER:
+      	  g_value_set_pointer(dest,*((gpointer*)address));
+      	  break;
+      	case G_TYPE_STRING:
+      	  g_value_set_string(dest,*((gchar**)address));
+      	  break;
+      	case G_TYPE_BOXED:
+      	  g_value_set_boxed(dest,*((gpointer*)address));
+      	  break;
+      	case G_TYPE_OBJECT:
+      	  g_value_set_object(dest,*((gpointer*)address));
+      	  break;
+      	default:
+      	  if(field->type == G_TYPE_VALUE)
+      	    {
+      	      if(*((GValue**)address))
+      		{
+      		  g_value_init(dest,G_VALUE_TYPE(*((GValue**)address)));
+      		  g_value_copy(*((GValue**)address),dest);
+      		}
+      	      else
+      		{
+      		  g_value_init(dest,G_TYPE_POINTER);
+      		  g_value_set_pointer(dest,NULL);
+      		}
+      	    }
+      	  else if(field->type == G_TYPE_GTYPE)
+      	    {
+      	      g_value_set_gtype(dest,*((GType*)address));
+      	    }
+      	  break;
+      }
       g_mutex_unlock(&struct_info->mutex);
       return TRUE;
     }
@@ -202,18 +274,48 @@ golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gcha
 	  *((gint*)address) = g_value_get_enum(src);
 	  break;
 	case G_TYPE_INT64:
+	  *((gint64*)address) = g_value_get_int64(src);
+	  break;
 	case G_TYPE_UINT64:
+	  *((guint64*)address) = g_value_get_uint64(src);
+	  break;
 	case G_TYPE_DOUBLE:
-	  field->size = sizeof(gint64);
+	  *((gdouble*)address) = g_value_get_double(src);
 	  break;
 	case G_TYPE_LONG:
-	  field->size = sizeof(glong);
+	  *((glong*)address) = g_value_get_long(src);
+	  break;
+	case G_TYPE_POINTER:
+	  *((gpointer*)address) = g_value_get_pointer(src);
+	  break;
+	case G_TYPE_STRING:
+	  g_clear_pointer(((gchar**)address),g_free);
+	  *((gchar**)address) = g_value_dup_string(src);
+	  break;
+	case G_TYPE_BOXED:
+	  if(*((gpointer*)address))
+	    g_boxed_free(field->type,*((gpointer*)address));
+	  *((gpointer*)address) = g_value_dup_boxed(src);
+	  break;
+	case G_TYPE_OBJECT:
+	  g_clear_object(((gpointer*)address));
+	  *((gpointer*)address) = g_value_dup_object(src);
 	  break;
 	default:
-	  field->size = sizeof(gpointer);
+	  if(field->type == G_TYPE_VALUE)
+	    {
+	      if(*((GValue**)address))
+		g_value_free(*((GValue**)address));
+	      *((GValue**)address) = g_new0(GValue,1);
+	      g_value_init(*((GValue**)address),field->type);
+	      g_value_copy(src,*((GValue**)address));
+	    }
+	  else if(field->type == G_TYPE_GTYPE)
+	    {
+	      *((GType*)address) = g_value_get_gtype(src);
+	    }
 	  break;
       }
-
       g_mutex_unlock(&struct_info->mutex);
       return TRUE;
     }
@@ -227,6 +329,20 @@ golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gcha
 void
 golem_struct_info_free_instance(GolemStructInfo * struct_info,gpointer instance)
 {
-  //Free instance
+  g_mutex_lock(&struct_info->mutex);
+  for(GList * iter = g_list_first(struct_info->fields);iter; iter = g_list_next(iter))
+     {
+       GolemStructField * field = (GolemStructField*)iter->data;
+       gpointer address = *((gpointer*)(instance + field->offset));
+       if(field->type == G_TYPE_STRING)
+	 g_free(address);
+       else if(field->type == G_TYPE_VALUE)
+	 g_value_free((GValue*)address);
+       else if(G_TYPE_IS_BOXED(field->type))
+	 g_boxed_free(field->type,address);
+       else if(G_TYPE_IS_OBJECT(field->type))
+	 g_object_unref(address);
+     }
+   g_mutex_unlock(&struct_info->mutex);
   g_free(instance);
 }

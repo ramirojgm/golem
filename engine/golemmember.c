@@ -37,24 +37,37 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 
   if((done = golem_expression_evaluate(priv->instance,context,&instance,error)))
     {
-      if(priv->new_value)
+      GolemTypeInfo * info = NULL;
+      if(G_VALUE_HOLDS_OBJECT(&instance))
+	info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(g_value_get_object(&instance)));
+      else
+	info = golem_type_info_from_gtype(G_VALUE_TYPE(&instance));
+
+      if(info)
 	{
-	  if((done = golem_expression_evaluate(priv->new_value,context,&new_value,error)))
+	  if(priv->new_value)
 	    {
-	      done = golem_type_info_set(&instance,priv->index,&new_value,error);
-	      if(done)
+	      if((done = golem_expression_evaluate(priv->new_value,context,&new_value,error)))
 		{
-		  g_value_init(result,G_VALUE_TYPE(&new_value));
-		  g_value_copy(&new_value,result);
+		  done = golem_type_info_set_member(info,&instance,priv->index,&new_value,error);
+		  if(done)
+		    {
+		      g_value_init(result,G_VALUE_TYPE(&new_value));
+		      g_value_copy(&new_value,result);
+		    }
+		  g_value_unset(&new_value);
 		}
-	      g_value_unset(&new_value);
+	    }
+	  else
+	    {
+	      done = golem_type_info_get_member(info,&instance,priv->index,result,error);
 	    }
 	}
       else
 	{
-	  done = golem_type_info_get(&instance,priv->index,result,error);
+	  done = FALSE;
+	  golem_runtime_error(error,GOLEM_NOT_IMPLEMENTED_ERROR,"no member implementation for the type");
 	}
-
       g_value_unset(&instance);
     }
   return done;

@@ -28,7 +28,6 @@ struct _GolemDeclarationPrivate
 {
   gboolean 		is_resolved;
   gboolean 		is_constant;
-  gboolean		is_array;
   gchar *	  	type_name;
   GType			type;
   gchar *		name;
@@ -45,7 +44,7 @@ _golem_declaration_execute(GolemStatement * sentence,GolemRuntime * runtime,GErr
   if(!self->priv->is_resolved)
     {
       self->priv->is_resolved = TRUE;
-      self->priv->type = golem_context_get_type_define(golem_runtime_get_context(runtime),self->priv->type_name,error);
+      self->priv->type = golem_type_from_name(self->priv->type_name);
     }
 
   if(self->priv->type != 0)

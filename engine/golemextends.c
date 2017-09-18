@@ -31,15 +31,15 @@ _golem_extends_execute(GolemStatement * statement,GolemRuntime * runtime,GError 
 {
   gboolean done = FALSE;
   GolemExtends * self = GOLEM_EXTENDS(statement);
-  GType gtype = golem_context_get_type_define(golem_runtime_get_context(runtime),self->priv->type_name,error);
+  GType gtype = golem_type_from_name(self->priv->type_name);
   if(gtype)
     {
       done = TRUE;
-      GolemTypeInfo * info = golem_type_info_from_gtype(gtype);
-      golem_type_info_set_context(info,golem_runtime_get_context(runtime));
+      GolemClassInfo * info = golem_type_info_from_gtype(gtype);
+      //golem_type_class_set_context(info,golem_runtime_get_context(runtime));
       for(GList * func_iter = g_list_first(self->priv->functions);func_iter;func_iter = g_list_next(func_iter))
 	{
-	  golem_type_info_add_function(info,(GolemFunctionSpec *)func_iter->data);
+	  //golem_type_info_add_function(info,(GolemFunctionSpec *)func_iter->data);
 	}
     }
   return done;
@@ -66,7 +66,8 @@ golem_extends_check(GolemParser * parser)
 GolemExtends *
 golem_extends_parse(GolemParser * parser,GError ** error)
 {
-  GolemExtends * self = GOLEM_EXTENDS(g_object_new(GOLEM_TYPE_EXTENDS,NULL));
+  return NULL;
+  /*GolemExtends * self = GOLEM_EXTENDS(g_object_new(GOLEM_TYPE_EXTENDS,NULL));
   gboolean done = TRUE;
   if(golem_parser_next_word_check(parser,"extends"))
     {
@@ -160,5 +161,5 @@ golem_extends_parse(GolemParser * parser,GError ** error)
     }
   if(!done)
     g_clear_object(&self);
-  return self;
+  return self;*/
 }

@@ -15,16 +15,13 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMBUILDERCLASS_C_
-#define GOLEMBUILDERCLASS_C_
-
 #include "golem.h"
 
 typedef struct _GolemBuilderClassPrivate GolemBuilderClassPrivate;
 
 struct _GolemBuilderClassPrivate
 {
-  GolemTypeInfo * type_info;
+  GolemClassInfo * type_info;
 };
 
 struct _GolemBuilderClass
@@ -33,27 +30,13 @@ struct _GolemBuilderClass
   GolemBuilderClassPrivate * priv;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClass,golem_builder_class,GOLEM_TYPE_STATEMENT);
-
+G_DEFINE_TYPE_WITH_PRIVATE(GolemBuilderClass,golem_builder_class,GOLEM_TYPE_REGISTER);
 
 gboolean
-_golem_builder_class_execute(GolemStatement * sentence,GolemRuntime * runtime,GError ** error)
+_golem_builder_class_register_type(GolemRegister * reg,GolemModule * module,GError ** error)
 {
-  GolemBuilderClassPrivate * priv = golem_builder_class_get_instance_private(GOLEM_BUILDER_CLASS(sentence));
-  GType gtype = golem_type_info_register(priv->type_info,golem_runtime_get_context(runtime),error);
-  if(gtype)
-    {
-      GValue value = G_VALUE_INIT;
-      gboolean done = FALSE;
-      g_value_init(&value,G_TYPE_GTYPE);
-      done = golem_context_set_auto(golem_runtime_get_context(runtime),g_type_name(gtype),&value,error);
-      g_value_unset(&value);
-      return done;
-    }
-  else
-    {
-      return FALSE;
-    }
+  GolemBuilderClassPrivate * priv = golem_builder_class_get_instance_private(GOLEM_BUILDER_CLASS(reg));
+  return golem_type_info_register_type(priv->type_info,module,error) != 0;
 }
 
 static void
@@ -65,7 +48,7 @@ golem_builder_class_init(GolemBuilderClass * self)
 static void
 golem_builder_class_class_init(GolemBuilderClassClass * klass)
 {
-  GOLEM_STATEMENT_CLASS(klass)->execute = _golem_builder_class_execute;
+  GOLEM_REGISTER_CLASS(klass)->register_type = _golem_builder_class_register_type;
 }
 
 gboolean
@@ -84,14 +67,14 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
     {
       if(golem_parser_check_is_named(parser))
 	{
-	  self->priv->type_info = golem_type_info_new(golem_parser_next_word(parser,NULL,TRUE));
+	  self->priv->type_info = g_object_ref(golem_class_info_new(golem_parser_next_word(parser,NULL,TRUE)));
 	  if(golem_parser_next_word_check(parser,":"))
 	    {
 	      do
 		{
-		  GolemTypeSpec * base_type = golem_type_spec_parse(parser,error);
+		  const gchar * base_type = golem_parser_next_word(parser,NULL,TRUE);
 		  if(base_type)
-		    golem_type_info_add_base(self->priv->type_info,base_type);
+		    golem_class_info_set_parent(self->priv->type_info,base_type);
 		  else
 		    done = FALSE;
 		}
@@ -108,7 +91,7 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 			{
 			  GolemBlock * block = golem_block_parse(parser,error);
 			  if(block)
-			    golem_type_info_set_init(self->priv->type_info,GOLEM_STATEMENT(block));
+			    golem_class_info_set_init(self->priv->type_info,GOLEM_STATEMENT(block));
 			}
 		    }
 		  else if(golem_parser_next_word_check(parser,"@"))
@@ -117,8 +100,8 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 		    }
 		  else if(golem_parser_next_word_check(parser,"property"))
 		    {
-		      GolemTypeSpec * type_spec = NULL;
-		      if((type_spec = golem_type_spec_parse(parser,error)))
+		      const gchar * type_spec = NULL;
+		      if((type_spec = golem_parser_next_word(parser,NULL,TRUE)))
 			{
 			  //TODO: add error for wrong definition
 
@@ -156,7 +139,7 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 					  break;
 					}
 				    }
-				  golem_type_info_add_property(self->priv->type_info,golem_property_spec_new(type_spec,property_name,getter,setter));
+				  golem_class_info_add_property(self->priv->type_info,golem_property_spec_new(type_spec,property_name,getter,setter));
 				}
 			      else
 				{
@@ -172,7 +155,7 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 			{
 			  GolemBlock * block = golem_block_parse(parser,error);
 			  if(block)
-			    golem_type_info_set_constructed(self->priv->type_info,GOLEM_STATEMENT(block));
+			    golem_class_info_set_constructed(self->priv->type_info,GOLEM_STATEMENT(block));
 			}
 		    }
 		  else if(golem_parser_next_word_check(parser,"dispose"))
@@ -181,7 +164,7 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 			{
 			  GolemBlock * block = golem_block_parse(parser,error);
 			  if(block)
-			    golem_type_info_set_dispose(self->priv->type_info,GOLEM_STATEMENT(block));
+			    golem_class_info_set_dispose(self->priv->type_info,GOLEM_STATEMENT(block));
 			}
 		    }
 		  else if(golem_parser_check_is_named(parser))
@@ -198,7 +181,7 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 				}
 			      else
 				{
-				  golem_type_info_add_function(self->priv->type_info,golem_function_internal_new(func_info,body));
+				  golem_class_info_add_function(self->priv->type_info,golem_function_spec_new(func_info,body));
 				}
 			    }
 			  else
@@ -225,7 +208,11 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
     {
       //error
     }
+
+  if(!done)
+    {
+
+
+    }
   return self;
 }
-
-#endif /* GOLEMBUILDERCLASS_C_ */

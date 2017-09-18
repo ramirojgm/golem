@@ -55,15 +55,7 @@ golem_statement_execute(GolemStatement * self,GolemRuntime * runtime,GError ** e
 GolemStatement *
 golem_statement_parse(GolemParser * parser,GError ** error)
 {
-  if(golem_builder_class_check(parser))
-      return GOLEM_STATEMENT(golem_builder_class_parse(parser,error));
-  else if(golem_shared_object_check(parser))
-      return GOLEM_STATEMENT(golem_shared_object_parse(parser,error));
-  else if(golem_builder_extern_check(parser))
-    return GOLEM_STATEMENT(golem_builder_extern_parse(parser,error));
-  else if(golem_extends_check(parser))
-    return GOLEM_STATEMENT(golem_extends_parse(parser,error));
-  else if(golem_return_check(parser))
+  if(golem_return_check(parser))
     return GOLEM_STATEMENT(golem_return_parse(parser,error));
   else if(golem_builder_function_check(parser))
     return GOLEM_STATEMENT(golem_builder_function_parse(parser,error));

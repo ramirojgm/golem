@@ -22,11 +22,33 @@
 #include <glib-object.h>
 #include <glibconfig.h>
 
+typedef union _gresult gresult;
+
+union _gresult
+{
+  gint8 int_8;
+  guint8 uint_8;
+  gint16 int_16;
+  guint16 uint_16;
+  gint32 int_32;
+  guint32 uint_32;
+  gint64 int_64;
+  guint64 uint_64;
+  gfloat float_32;
+  gdouble double_64;
+  gpointer pointer;
+  gchar * string;
+};
+
+#include "golemmap.h"
 #include "golemdebugobject.h"
 #include "golemparser.h"
 #include "golemcontext.h"
+#include "golemmodule.h"
+#include "golemtypeinfo.h"
 #include "golemstructinfo.h"
 #include "golemruntime.h"
+#include "golemregister.h"
 #include "golemstatement.h"
 #include "golemsharedobject.h"
 #include "golemreturn.h"
@@ -49,10 +71,10 @@
 #include "golembuilderclosure.h"
 #include "golemextends.h"
 #include "golemcinvoke.h"
+#include "golemclassinfo.h"
 #include "golemcompiled.h"
 #include "golemerror.h"
 #include "golemllm.h"
-#include "golemtypeinfo.h"
 #include "golemutils.h"
 
 

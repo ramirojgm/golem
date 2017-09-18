@@ -24,6 +24,7 @@ typedef enum GolemError GolemError;
 
 enum GolemError
 {
+  GOLEM_UNHANDLED_ERROR,
   GOLEM_NOT_IMPLEMENTED_ERROR,
   GOLEM_SYNTAXIS_ERROR,
   GOLEM_INVALID_CAST_ERROR,

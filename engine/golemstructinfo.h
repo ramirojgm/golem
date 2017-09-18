@@ -15,8 +15,8 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ENGINE_GOLEMSTRUCTINFO_H_
-#define ENGINE_GOLEMSTRUCTINFO_H_
+#ifndef GOLEMSTRUCTINFO_H_
+#define GOLEMSTRUCTINFO_H_
 
 #define GOLEM_OFFSET_WITH_PADDING(offset,size) 	((offset) + ((size) > 1 && (offset > 0) ? ((size) - ((offset) % (size))) : 0))
 
@@ -46,9 +46,9 @@ goffset			golem_struct_info_get_field_offset(GolemStructInfo * struct_info,const
 
 gpointer		golem_struct_info_new_instance(GolemStructInfo * struct_info);
 
-gboolean		golem_struct_info_get(GolemStructInfo * struct_info,const gchar * name,GValue * dest,GError ** error);
+gboolean		golem_struct_info_get(GolemStructInfo * struct_info,gpointer instance,const gchar * name,GValue * dest,GError ** error);
 
-gboolean		golem_struct_info_set(GolemStructInfo * struct_info,const gchar * name,const GValue * src,GError ** error);
+gboolean		golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gchar * name,const GValue * src,GError ** error);
 
 void			golem_struct_info_free_instance(GolemStructInfo * struct_info,gpointer instance);
 

@@ -273,23 +273,23 @@ __attribute__((constructor)) _golem_type_init()
   g_value_register_transform_func(G_TYPE_POINTER,G_TYPE_OBJECT,_g_value_pointer_to_object);
   g_value_register_transform_func(G_TYPE_OBJECT,G_TYPE_POINTER,_g_value_object_to_pointer);
 
-  //object
-  GolemTypeInfo * type_info = golem_type_info_from_gtype(G_TYPE_OBJECT);
-  golem_type_info_add_function(type_info,golem_function_closured_new("on",golem_gobject_signal_on));
-  golem_type_info_add_function(type_info,golem_function_closured_new("ref",golem_gobject_ref));
-  golem_type_info_add_function(type_info,golem_function_closured_new("unref",golem_gobject_unref));
+  /*//object
+  GolemClassInfo * type_info = golem_type_info_from_gtype(G_TYPE_OBJECT);
+  golem_class_info_add_function(type_info,golem_function_closured_new("on",golem_gobject_signal_on));
+  golem_class_info_add_function(type_info,golem_function_closured_new("ref",golem_gobject_ref));
+  golem_class_info_add_function(type_info,golem_function_closured_new("unref",golem_gobject_unref));
 
   //array
   type_info = golem_type_info_from_gtype(G_TYPE_ARRAY);
-  golem_type_info_add_function(type_info,golem_function_closured_new("append",golem_garray_append));
-  golem_type_info_add_function(type_info,golem_function_closured_new("remove",golem_garray_set));
-  golem_type_info_add_function(type_info,golem_function_closured_new("get_at",golem_garray_get));
-  golem_type_info_add_function(type_info,golem_function_closured_new("set_at",golem_garray_set));
+  golem_class_info_add_function(type_info,golem_function_closured_new("append",golem_garray_append));
+  golem_class_info_add_function(type_info,golem_function_closured_new("remove",golem_garray_set));
+  golem_class_info_add_function(type_info,golem_function_closured_new("get_at",golem_garray_get));
+  golem_class_info_add_function(type_info,golem_function_closured_new("set_at",golem_garray_set));
 
   //pointer
   type_info = golem_type_info_from_gtype(G_TYPE_POINTER);
-  golem_type_info_add_function(type_info,golem_function_closured_new("offset",golem_pointer_offset));
-  golem_type_info_add_function(type_info,golem_function_closured_new("get",golem_pointer_get));
+  golem_class_info_add_function(type_info,golem_function_closured_new("offset",golem_pointer_offset));
+  golem_class_info_add_function(type_info,golem_function_closured_new("get",golem_pointer_get));*/
   /*golem_type_info_add_function(type_info,golem_function_closured_new("set",golem_pointer_set));
   golem_type_info_add_function(type_info,golem_function_closured_new("free",golem_pointer_free));*/
 }

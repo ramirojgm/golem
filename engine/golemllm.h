@@ -18,36 +18,9 @@
 #ifndef GOLEMLLM_H_
 #define GOLEMLLM_H_
 
-#define GOLEM_VFUNC_TEMPLATE "/dev/zero"
-
-typedef union _gresult gresult;
 typedef struct _GolemLLMInvoke GolemLLMInvoke;
 
 typedef void (*GolemLLMVFunc)(gpointer instance,GolemLLMInvoke * invoke,gpointer data);
-
-union _gresult
-{
-  gint8 int_8;
-  guint8 uint_8;
-  gint16 int_16;
-  guint16 uint_16;
-  gint32 int_32;
-  guint32 uint_32;
-  gint64 int_64;
-  guint64 uint_64;
-  gfloat float_32;
-  gdouble double_64;
-  gpointer pointer;
-  gchar * string;
-};
-
-struct _GolemStructBuilder
-{
-  guint8 * mem;
-  gssize allowed;
-  gssize offset;
-  gssize size;
-};
 
 struct _GolemLLMInvoke
 {

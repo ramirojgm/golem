@@ -768,7 +768,7 @@ golem_closure_info_resolve(GolemClosureInfo * info,GolemContext * context,GError
     {
       if(info->priv->return_type_name)
 	{
-	  if(!(info->priv->return_type = golem_context_get_type_define(context,info->priv->return_type_name,error)))
+	  if(!(info->priv->return_type = golem_type_from_name(info->priv->return_type_name)))
 	    {
 	      done =  FALSE;
 	      type_unresolved = info->priv->return_type_name;
@@ -786,7 +786,7 @@ golem_closure_info_resolve(GolemClosureInfo * info,GolemContext * context,GError
 	      GolemClosureParameter * param = (GolemClosureParameter*)params->data;
 	      if(param->type_name)
 		{
-		  if(!(param->type = golem_context_get_type_define(context,param->type_name,error)))
+		  if(!(param->type = golem_type_from_name(param->type_name)))
 		    {
 		      done = FALSE;
 		      type_unresolved = param->type_name;

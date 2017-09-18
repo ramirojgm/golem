@@ -27,20 +27,18 @@ GList * _resolved_references = NULL;
 typedef struct
 {
   gchar * name;
-  GolemCompiled * compiled;
+  GolemModule * module;
 }GolemReference;
 
 
 gboolean
-golem_reference_run(GolemContext * context,GError ** error)
+golem_reference_use(GError ** error)
 {
   gboolean done = TRUE;
   for(GList * iter = g_list_first(_resolved_references);iter;iter = g_list_next(iter))
     {
       GolemReference * reference = (GolemReference*) iter->data;
-      GolemContext * reference_context = golem_context_new(context);
-      done = golem_compiled_run(reference->compiled,reference_context,error);
-      g_object_unref(reference_context);
+      golem_module_use(reference->module,error);
       if(!done)
 	break;
     }
@@ -60,19 +58,19 @@ golem_reference_check(const gchar * name)
 }
 
 void
-golem_reference_add(const gchar * reference,GolemCompiled * compiled)
+golem_reference_add(const gchar * reference,GolemModule * module)
 {
   GolemReference * resolved = g_new0(GolemReference,1);
   resolved->name = g_strdup(reference);
-  resolved->compiled = GOLEM_COMPILED(g_object_ref(compiled));
+  resolved->module = GOLEM_MODULE(g_object_ref(module));
   _resolved_references = g_list_prepend(_resolved_references,resolved);
 }
 
 gboolean
-golem_reference_resolve(GolemCompiled * compiled,GError ** error)
+golem_reference_resolve(GolemModule * module,GError ** error)
 {
   gsize reference_count = 0;
-  gchar ** reference_names = golem_compiled_get_references(compiled,&reference_count);
+  gchar ** reference_names = golem_module_get_references(module,&reference_count);
   gboolean done = TRUE;
   for(gint index = 0;index < reference_count;index ++)
     {
@@ -90,13 +88,13 @@ golem_reference_resolve(GolemCompiled * compiled,GError ** error)
 	      gchar * script = NULL;
 	      if((done = g_file_get_contents(reference_path,&script,NULL,error)))
 		{
-		  GolemCompiled * compiled = golem_compiled_new();
-		  if((done = golem_compiled_add_string(compiled,reference_path,script,-1,error)))
+		  GolemModule * module = golem_module_new();
+		  if((done = golem_module_compile(module,reference_path,script,-1,error)))
 		    {
-		      golem_reference_add(reference_name,compiled);
-		      done = golem_reference_resolve(compiled,error);
+		      golem_reference_add(reference_name,module);
+		      done = golem_reference_resolve(module,error);
 		    }
-		  g_object_unref(compiled);
+		  g_object_unref(module);
 		  g_free(script);
 		}
 	    }
@@ -154,8 +152,6 @@ golem_print_func(GolemClosure * self,GolemClosureInvoke * invoke,gpointer data)
   return TRUE;
 }
 
-
-
 gint
 main(gint argc,gchar ** argv)
 {
@@ -165,27 +161,26 @@ main(gint argc,gchar ** argv)
       return 0;
     }
 
-  GolemContext * context = golem_context_new(NULL);
   gchar * script_file_content = NULL;
   GValue  main_func = G_VALUE_INIT;
-
   GolemClosure * print_closure = golem_closure_new(golem_print_func,NULL,NULL);
-
-  golem_context_add_function(context,"print",print_closure);
-
-  g_closure_unref(G_CLOSURE(print_closure));
 
   GError * compile_error = NULL;
 
   g_file_get_contents(argv[1],&script_file_content,NULL,NULL);
-  GolemCompiled * compilation = golem_compiled_new();
-  golem_compiled_add_string(compilation,argv[1],script_file_content,-1,&compile_error);
+  GolemModule * module = golem_module_new();
+  GolemContext * context = golem_module_get_context(module);
+  golem_context_add_function(context,"print",print_closure);
+  g_closure_unref(G_CLOSURE(print_closure));
+
+  golem_module_compile(module,argv[1],script_file_content,-1,&compile_error);
   g_free(script_file_content);
-  if(golem_reference_resolve(compilation,&compile_error))
+
+  if(golem_reference_resolve(module,&compile_error))
     {
-      if(golem_reference_run(context,NULL))
+      if(golem_reference_use(NULL))
 	{
-	  golem_compiled_run(compilation,context,NULL);
+	  golem_module_use(module,&compile_error);
 
 	  if(golem_context_get(context,"main",&main_func,NULL))
 	    {
@@ -223,9 +218,7 @@ main(gint argc,gchar ** argv)
 	  g_error_free(compile_error);
 	}
     }
-  g_object_unref(context);
-  g_object_unref(compilation);
-
+  //g_type_module_unuse(G_TYPE_MODULE(module));
   return 0;
 }
 

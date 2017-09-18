@@ -19,17 +19,17 @@
 #define GOLEMBUILDERCLASS_H_
 
 #define GOLEM_TYPE_BUILDER_CLASS	(golem_builder_class_get_type())
-G_DECLARE_FINAL_TYPE(GolemBuilderClass,golem_builder_class,GOLEM,BUILDER_CLASS,GolemStatement)
+G_DECLARE_FINAL_TYPE(GolemBuilderClass,golem_builder_class,GOLEM,BUILDER_CLASS,GolemRegister)
 
 struct _GolemBuilderClassClass
 {
-  GolemStatementClass parent_class;
+  GolemRegisterClass parent_class;
 };
 
-GType	golem_builder_class_get_type(void);
+GType			golem_builder_class_get_type(void);
 
-gboolean golem_builder_class_check(GolemParser * parser);
+gboolean 		golem_builder_class_check(GolemParser * parser);
 
-GolemBuilderClass * golem_builder_class_parse(GolemParser * parser,GError ** error);
+GolemBuilderClass * 	golem_builder_class_parse(GolemParser * parser,GError ** error);
 
 #endif /* GOLEMBUILDERCLASS_H_ */

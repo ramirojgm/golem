@@ -27,26 +27,6 @@
   #include <sys/mman.h>
 #endif
 
-/*void _golem_struct_builder_expand(GolemStructBuilder * struct_builder,gsize size)
-{
-
-  if((struct_builder->allowed - struct_builder->size) < size)
-    {
-      struct_builder->offset = struct_builder->allowed;
-      struct_builder->size = struct_builder->allowed + size;
-      struct_builder->allowed += (size * 2);
-      struct_builder->mem = g_realloc(struct_builder->mem,struct_builder->allowed);
-      memset(struct_builder->mem,0,struct_builder->allowed - struct_builder->offset);
-    }
-  else
-    {
-      struct_builder->offset = struct_builder->size;
-      struct_builder->size += size;
-    }
-
-  //g_print("{ mem: %p, offset: %d, size: %d,allowed: %d, new_size: %d }\n",struct_builder->mem,struct_builder->offset,struct_builder->size,struct_builder->allowed,size);
-}*/
-
 volatile gsize 		_golem_invoke_vfunc_size = 0;
 volatile gsize 		_golem_invoke_vfunc_page_size = 0;
 volatile goffset 	_golem_invoke_vfunc_vfunc_offset = 0;
@@ -86,7 +66,7 @@ _golem_invoke_vfunc_init()
   GetSystemInfo(&system_info);
   _golem_invoke_vfunc_page_size = system_info.dwPageSize;
 #else
-  _golem_invoke_vfunc_vfd = open(GOLEM_VFUNC_TEMPLATE,O_RDWR);
+  _golem_invoke_vfunc_vfd = open("/dev/zero",O_RDWR);
 #endif
 
   while(TRUE)
