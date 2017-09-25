@@ -41,12 +41,12 @@ union _gresult
 };
 
 #include "golemmap.h"
-#include "golemdebugobject.h"
 #include "golemparser.h"
 #include "golemcontext.h"
 #include "golemmodule.h"
 #include "golemtypeinfo.h"
 #include "golemstructinfo.h"
+#include "golembuiltininfo.h"
 #include "golemruntime.h"
 #include "golemregister.h"
 #include "golemstatement.h"

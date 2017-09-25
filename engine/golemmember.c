@@ -38,10 +38,29 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
   if((done = golem_expression_evaluate(priv->instance,context,&instance,error)))
     {
       GolemTypeInfo * info = NULL;
+      gboolean null_pointer = TRUE;
+
       if(G_VALUE_HOLDS_OBJECT(&instance))
-	info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(g_value_get_object(&instance)));
+	{
+	  gpointer object_instance = g_value_get_object(&instance);
+	  if(object_instance) {
+	      info = golem_type_info_from_gtype(G_TYPE_FROM_INSTANCE(g_value_get_object(&instance)));
+	      null_pointer = FALSE;
+	  }
+	}
+      else if(G_VALUE_HOLDS_BOXED(&instance))
+	{
+	  gpointer boxed = g_value_get_boxed(&instance);
+	  if(boxed) {
+	      info = golem_type_info_from_gtype(G_VALUE_TYPE(&instance));
+	      null_pointer = FALSE;
+	  }
+	}
       else
-	info = golem_type_info_from_gtype(G_VALUE_TYPE(&instance));
+	{
+	  info = golem_type_info_from_gtype(G_VALUE_TYPE(&instance));
+	  null_pointer = FALSE;
+	}
 
       if(info)
 	{
@@ -66,7 +85,10 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
       else
 	{
 	  done = FALSE;
-	  golem_runtime_error(error,GOLEM_NOT_IMPLEMENTED_ERROR,"no member implementation for the type");
+	  if(null_pointer)
+	    golem_runtime_error(error,GOLEM_NULL_POINTER_ERROR,"can't access member of null");
+	  else
+	    golem_runtime_error(error,GOLEM_NOT_IMPLEMENTED_ERROR,"no member implementation for the type");
 	}
       g_value_unset(&instance);
     }

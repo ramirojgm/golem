@@ -297,7 +297,11 @@ golem_function_invoke (GolemClosure *closure,
   gboolean done = TRUE;
   GolemFunctionData * func_data = (GolemFunctionData*)data;
   GolemClosureInfo * info = func_data->info;
+
   GError * error = NULL;
+  if(!golem_closure_info_resolve(info,func_data->context,NULL))
+    return FALSE;
+
   GList * cur_param = golem_closure_info_get_parameters(info);
   GolemClosureParameter * param_info = NULL;
 

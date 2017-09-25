@@ -1,80 +1,90 @@
-class Rectangle
+
+class vector_node 
 {
-	property int x {
-		getter {
-			return this.property_data_x;
-		}
-		setter {
-			this.property_data_x = value;
-		}
-	}
 
-	property int y {
-		getter {
-			return this.property_data_y;
-		}
-		setter {
-			this.property_data_y = value;
-		}
-	}
-
-	property int width {
-		getter {
-			return this.property_data_width;
-		}
-		setter {
-			this.property_data_width = value;
-		}
-	}
-
-	property int height {
-		getter {
-			return this.property_data_height;
-		}
-		setter {
-			this.property_data_height = value;
-		}
-	}
-
-
-	init {
-		
-	}
-
-	constructed {
-
-	}
-	
-	void print()
-	{
-		print("Rectangle: \n\tx:", this.property_data_x,"\n\ty:",this.property_data_y,"\n\twidth:",this.property_data_width,"\n\theight:",this.property_data_height,"\n");
-	}	
 }
 
-class Cube: Rectangle
+class vector
 {
-	property int z {
-		getter { return this.property_data_z; }
-		setter { this.property_data_z = value; }
-	}
-
-	property int large {
-		getter { return this.property_data_large; }
-		setter { this.property_data_large = value; }
-	}
-
-	void print()
+	init 
 	{
-		print("Cube: \n\tx:", this.property_data_x,"\n\ty:",this.property_data_y,"\n\tz:",this.property_data_z,"\n\twidth:",this.property_data_width,"\n\theight:",this.property_data_height,"\n\tlarge:",this.property_data_large,"\n");
-	}	
+		this.first_node_data = null;
+		this.last_node_data = null;
+		this.length_data = 0;
+	}
+
+	int append(var new_value)
+	{
+		if(this.first_node_data == null) 
+		{
+			var new_node = new vector_node {
+				prev: null,
+				next: null,
+				value: new_value
+			};
+			this.first_node_data = new_node;
+			this.last_node_data = new_node;
+			this.length_data = 1;
+		}
+		else
+		{
+			var new_node = new vector_node {
+				prev: this.last_node_data,
+				next: null,
+				value: new_value
+			};
+			new_node.prev.next = new_node;
+			this.last_node_data = new_node;
+			this.length_data = this.length_data + 1;
+		}
+	}
+
+	int index_of(var value)
+	{
+		var iter = this.first_node_data;
+		int cindex = 0;
+		while(iter != null)
+		{
+			if(iter.value == value)
+				return cindex;
+			iter = iter.next;
+			cindex = cindex + 1;
+		}
+		return -1;
+	}
+
+	property int length 
+	{
+		getter {return this.length_data; }		
+	}
+
+	var at(int index) 
+	{
+		var iter = this.first_node_data;
+		int cindex = 0;
+		while(iter != null)
+		{
+			if(cindex == index)
+				return iter.value;
+			iter = iter.next;
+			cindex = cindex + 1;
+		}
+		return null;
+	}
+
 }
 
 int 
 main(int argc,array argv)
 {
-	Rectangle r = new Cube { x : 20, y: 45, width: 36, height: 25 };
-	r.print();
-	
-	print("Hola Mundo");
+	vector x = new vector {};
+	x.append(10);
+	x.append(30);
+	x.append(50);
+	x.append("String");
+	x.append("Eliot");
+	print("IndexOf:",x.index_of("String"));
 	return 0;
 }
+
+

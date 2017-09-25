@@ -91,6 +91,8 @@ static GType _golem_expression_complex_result_type(GValue * a,GValue * b)
      return G_TYPE_UINT;
    else if((G_VALUE_TYPE(a) == G_TYPE_UCHAR)||(G_VALUE_TYPE(b) == G_TYPE_UCHAR))
      return G_TYPE_UCHAR;
+   else if((G_VALUE_TYPE(a) == G_TYPE_STRING)||(G_VALUE_TYPE(b) == G_TYPE_STRING))
+     return G_TYPE_STRING;
    else
      return G_TYPE_POINTER;
 }
@@ -216,6 +218,25 @@ _golem_expression_complex_operator_aritmetical(GValue * a,GValue * b,GValue * re
      case G_TYPE_FLOAT:
        GOLEM_ARITMETICAL(float,op,optimal_a,optimal_b)
        break;
+     case G_TYPE_STRING:
+       {
+       	 const gchar * str1 = g_value_get_string(&optimal_a);
+       	 const gchar * str2 = g_value_get_string(&optimal_b);
+       	 g_value_unset(result);
+       	 g_value_init(result,G_TYPE_BOOLEAN);
+       	 switch(op)
+       	 {
+       	   case GOLEM_OPERATOR_EQU:
+       	     g_value_set_boolean(result,g_strcmp0(str1,str2) == 0);
+       	     break;
+       	   case GOLEM_OPERATOR_DIF:
+       	     g_value_set_boolean(result,g_strcmp0(str1,str2) != 0);
+       	     break;
+       	   default:
+       	     break;
+       	 }
+	}
+	break;
      case G_TYPE_POINTER:
        {
 	 gpointer pointer_a = g_value_get_pointer(&optimal_a);

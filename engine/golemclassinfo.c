@@ -492,7 +492,6 @@ golem_object_class_init (gpointer klass,GolemLLMInvoke * invoke,gpointer class_d
 	  }
       }
 
-
       g_object_class_install_property(klass,property_id,property_spec->param_spec);
       property_iter_spec = g_list_next(property_iter_spec);
       if(property_iter_spec)
@@ -557,7 +556,6 @@ _golem_type_info_get_member(GolemTypeInfo * type_info,GValue * instance,const gc
 
   gboolean done = FALSE;
 
-  g_mutex_lock(&self->mutex);
   gpointer object_instance = g_value_get_object(instance);
 
   for(GList * iter = g_list_first(self->priv->functions);iter;iter = g_list_next(iter))
@@ -611,19 +609,16 @@ _golem_type_info_get_member(GolemTypeInfo * type_info,GValue * instance,const gc
     }
 
 finish:
-  g_mutex_unlock(&self->mutex);
   return done;
 }
 
 static gboolean
 _golem_type_info_set_member(GolemTypeInfo * type_info,GValue * instance,const gchar * name,const GValue * src,GError ** error)
 {
-  GolemClassInfo * self = GOLEM_CLASS_INFO(type_info);
   GValue * data_value = NULL;
   GParamSpec * property = NULL;
   gboolean done = FALSE;
 
-  g_mutex_lock(&self->mutex);
   gpointer object_instance = g_value_get_object(instance);
 
   if((property = g_object_class_find_property(G_OBJECT_GET_CLASS(object_instance),name)))
@@ -643,7 +638,6 @@ _golem_type_info_set_member(GolemTypeInfo * type_info,GValue * instance,const gc
     }
 
 finish:
-  g_mutex_unlock(&self->mutex);
   return done;
 }
 
@@ -725,44 +719,6 @@ golem_class_info_add_property(GolemClassInfo * type_info,GolemPropertySpec * pro
   type_info->priv->properties = g_list_append(type_info->priv->properties,property);
 }
 
-/*GolemFunctionSpec *
-_golem_type_info_find_function(GType type,const gchar * name,GType * type_container)
-{
-  GType parent_type = g_type_parent(type);
-  GolemClassInfo * type_info = GOLEM_CLASS_INFO(golem_type_info_from_gtype(type));
-  for(GList * function_iter = g_list_first(type_info->priv->functions);function_iter;function_iter = g_list_next(function_iter))
-    {
-      GolemFunctionSpec * function_spec = (GolemFunctionSpec*)function_iter->data;
-      const gchar * function_name = function_spec->name;
-      if(!function_name)
-	function_name = golem_closure_info_get_name(function_spec->info);
-      if(g_strcmp0(function_name,name) == 0)
-	{
-	  if(type_container)
-	    *type_container = type;
-	  return function_spec;
-	}
-    }
-
-  guint n_interfaces = 0;
-  GType * interfaces = g_type_interfaces(type,&n_interfaces);
-  GolemFunctionSpec * interface_function_spec = NULL;
-  for(guint itype = 0;itype < n_interfaces; itype++)
-    {
-      if((interface_function_spec = _golem_type_info_find_function(interfaces[itype],name,type_container)))
-	break;
-    }
-  g_free(interfaces);
-
-  if(interface_function_spec)
-    return interface_function_spec;
-  else if(parent_type)
-    return _golem_type_info_find_function(parent_type,name,type_container);
-  else
-    return NULL;
-}
-*/
-
 void
 _golem_closure_object_finalize(GolemClosure * closure,gpointer data)
 {
@@ -774,282 +730,6 @@ _golem_closure_value_finalize(GolemClosure * closure,gpointer data)
 {
   g_value_free((GValue*)data);
 }
-
-/*gboolean
-golem_type_info_get(const GValue * instance,const gchar * name,GValue * dest,GError ** error)
-{
-  GType	gtype;
-  gpointer object_instance = NULL;
-  GObjectClass * object_class = NULL;
-  GEnumClass * enum_class = NULL;
-  GFlagsClass * flags_class = NULL;
-
-  if(G_VALUE_HOLDS_GTYPE(instance))
-    {
-      gtype = g_value_get_gtype(instance);
-      if(G_TYPE_IS_ENUM(gtype))
-	enum_class = (GEnumClass*)g_type_class_peek(gtype);
-      else if(G_TYPE_IS_FLAGS(gtype))
-	flags_class = (GFlagsClass*)g_type_class_peek(gtype);
-      else if(G_TYPE_IS_OBJECT(gtype))
-	object_class = (GObjectClass*)g_type_class_peek(gtype);
-    }
-  else
-    {
-      gtype = G_VALUE_TYPE(instance);
-      if(G_VALUE_HOLDS_OBJECT(instance))
-	{
-	  object_instance = g_value_get_object(instance);
-	  object_class = G_OBJECT_GET_CLASS(object_instance);
-	}
-    }
-
-  GolemClassInfo * type_info = golem_type_info_from_gtype(gtype);
-  GType gtype_function = G_TYPE_NONE;
-
-  GolemFunctionSpec * function = NULL;
-  GParamSpec *  property = NULL;
-  GolemClosure * closure = NULL;
-  gboolean done = FALSE;
-  gchar * dashed_name = g_strdup(name);
-
-
-
-  //make dashed named property
-  for(gchar * dn = dashed_name;*dn;dn++)
-    {
-      if(*dn == '_')
-	*dn = '-';
-    }
-
-  //find function
-  if((function = _golem_type_info_find_function(gtype,name,&gtype_function)))
-    {
-      if((function->info == NULL)||golem_closure_info_resolve(function->info,type_info->priv->define_context,error))
-	{
-	  done = TRUE;
-	  if(function->type == GOLEM_FUNCTION_SYMBOLIC)
-	    {
-	      gpointer symbol = NULL;
-	      GModule * global = g_module_open(NULL,G_MODULE_BIND_LOCAL);
-	      g_module_symbol(global,function->data.symbol_name,&symbol);
-	      g_module_close(global);
-	      closure = golem_symbol_new(function->info,symbol);
-	      if(!G_VALUE_HOLDS_GTYPE(instance))
-		golem_closure_set_this(closure,instance);
-	      g_value_init(dest,G_TYPE_CLOSURE);
-	      g_value_set_boxed(dest,closure);
-	      g_closure_unref(G_CLOSURE(closure));
-	    }
-	  else if(function->type == GOLEM_FUNCTION_VIRTUAL)
-	    {
-	      GTypeQuery gtype_query = {0,};
-	      GTypeQuery gtype_parent_query = {0,};
-	      GType gtype_parent = g_type_parent(gtype_function);
-	      gpointer * struct_function = NULL;
-
-	      g_type_query(gtype_function,&gtype_query);
-
-	      if(G_TYPE_IS_INTERFACE(gtype_function))
-		{
-		  struct_function = g_type_interface_peek(object_instance,gtype_function);
-		}
-	      else
-		{
-		  goffset gtype_offset = 0;
-		  if((gtype_parent != G_TYPE_OBJECT) && gtype_parent)
-		    {
-		      GTypeQuery parent_query = {0,};
-		      g_type_query(gtype_parent,&gtype_parent_query);
-		      gtype_offset = parent_query.class_size;
-		    }
-		  struct_function = (gpointer)object_class + gtype_offset;
-		}
-
-	      if(gtype_query.class_size > function->data.offset)
-		{
-		  closure = golem_symbol_new(function->info,(struct_function + function->data.offset));
-		  golem_closure_set_this(closure,instance);
-		  g_value_init(dest,G_TYPE_CLOSURE);
-		  g_value_set_boxed(dest,closure);
-		  g_closure_unref(G_CLOSURE(closure));
-		}
-	    }
-	  else if(function->type == GOLEM_FUNCTION_INTERNAL)
-	    {
-	      GolemContext * context = golem_context_new(type_info->priv->define_context);
-	      golem_context_set_this(context,instance);
-
-	      if(object_instance)
-		{
-		  GolemClassInfo * type_info_function = NULL;
-		  if(gtype_function != gtype)
-		    {
-		      type_info_function = golem_type_info_from_gtype(gtype_function);
-		    }
-		  else
-		    {
-		      type_info_function = type_info;
-		    }
-
-		  if(type_info_function->priv->private_offset)
-		    {
-		      GValue priv_value = G_VALUE_INIT;
-		      g_value_init(&priv_value,GOLEM_TYPE_TYPE_PRIVATE);
-		      g_value_set_object(&priv_value,_golem_object_get_instance_private(type_info_function,object_instance));
-		      golem_context_set_auto(context,"priv",&priv_value,error);
-		      g_value_unset(&priv_value);
-		    }
-		}
-
-	      closure = golem_function_new(function->info,context,function->data.body);
-	      golem_closure_set_this(closure,instance);
-	      g_value_init(dest,G_TYPE_CLOSURE);
-	      g_value_take_boxed(dest,closure);
-	      g_object_unref(context);
-	    }
-	  else if(function->type == GOLEM_FUNCTION_CLOSURED)
-	    {
-	      if(object_instance)
-		{
-		  closure = golem_closure_new(function->data.func,_golem_closure_object_finalize,g_object_ref(object_instance));
-		}
-	      else
-		{
-		  GValue * instance_copy = g_new0(GValue,1);
-		  g_value_init(instance_copy,G_VALUE_TYPE(instance));
-		  g_value_copy(instance,instance_copy);
-		  closure = golem_closure_new(function->data.func,_golem_closure_value_finalize,instance_copy);
-		}
-	      g_value_init(dest,G_TYPE_CLOSURE);
-	      g_value_set_boxed(dest,closure);
-	      g_closure_unref(G_CLOSURE(closure));
-	    }
-	}
-    }
-  else if(G_TYPE_IS_ENUM(gtype))
-    {
-      //find enumeration member
-      GEnumValue * enum_value = g_enum_get_value_by_nick(enum_class,dashed_name);
-      g_value_init(dest,gtype);
-      if(enum_value)
-	  g_value_set_enum(dest,enum_value->value);
-      else
-	  g_value_set_enum(dest,0);
-      done = TRUE;
-    }
-  else if(G_TYPE_IS_FLAGS(gtype))
-    {
-      //find enumeration member
-      GFlagsValue * flags_value = g_flags_get_value_by_nick(flags_class,dashed_name);
-      g_value_init(dest,gtype);
-      if(flags_value)
-	{
-	  g_value_set_flags(dest,flags_value->value);
-	}
-      else
-	{
-	  g_value_set_flags(dest,0);
-	}
-      done = TRUE;
-    }
-  else if(object_instance)
-    {
-      //find property
-      if((property = g_object_class_find_property(object_class,name))||(property = g_object_class_find_property(object_class,dashed_name)))
-	{
-	  g_value_init(dest,property->value_type);
-	  g_object_get_property(object_instance,property->name,dest);
-	  done = TRUE;
-	}
-      else
-	{
-	  GValue * data_value = (GValue*)(g_object_get_data(object_instance,name));
-	  if(!data_value)
-	    {
-	      data_value =  (GValue*)(g_object_get_data(object_instance,dashed_name));
-	    }
-
-	  if(data_value)
-	    {
-	      done = TRUE;
-	      g_value_init(dest,G_VALUE_TYPE(data_value));
-	      g_value_copy(data_value,dest);
-	    }
-	}
-    }
-  else
-    {
-      done = TRUE;
-      g_value_init(dest,G_TYPE_POINTER);
-      g_value_set_pointer(dest,NULL);
-    }
-
-  g_free(dashed_name);
-  return done;
-}
-
-gboolean
-golem_type_info_set(const GValue * instance,const gchar * name,const GValue * src,GError ** error)
-{
-  gboolean done = FALSE;
-  gpointer object_instance = NULL;
-  GObjectClass * klass = NULL;
-  GParamSpec * property = NULL;
-  gchar * dashed_name = g_strdup(name);
-
-  //make dashed named property
-  for(gchar * dn = dashed_name;*dn;dn++)
-    {
-      if(*dn == '_')
-	*dn = '-';
-    }
-
-  if(G_VALUE_HOLDS_OBJECT(instance))
-    {
-      object_instance = g_value_get_object(instance);
-      klass = G_OBJECT_GET_CLASS(object_instance);
-
-      //find property
-      if((property = g_object_class_find_property(klass,name))||(property = g_object_class_find_property(klass,dashed_name)))
-      	{
-	  g_object_set_property(object_instance,property->name,src);
-	  done = TRUE;
-      	}
-      else
-      	{
-	  GValue * data_value = g_new0(GValue,1);
-	  g_value_init(data_value,G_VALUE_TYPE(src));
-	  g_value_copy(src,data_value);
-	  g_object_set_data_full(object_instance,name,data_value,(GDestroyNotify)g_value_free);
-	  done = TRUE;
-      	}
-     }
-  g_free(dashed_name);
-  return done;
-}*/
-
-/*GolemFunctionSpec *
-golem_function_symbol_new(GolemClosureInfo * info,const gchar * symbol_name)
-{
-  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
-  function->name = NULL;
-  function->info = info;
-  function->type = GOLEM_FUNCTION_SYMBOLIC;
-  function->data.symbol_name = g_strdup(symbol_name);
-  return function;
-}
-
-GolemFunctionSpec *
-golem_function_virtual_new(GolemClosureInfo * info,goffset offset)
-{
-  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
-  function->name = NULL;
-  function->info = info;
-  function->type = GOLEM_FUNCTION_VIRTUAL;
-  function->data.offset = offset;
-  return function;
-}*/
 
 GolemFunctionSpec *
 golem_function_spec_new(GolemClosureInfo * info,GolemStatement * body)

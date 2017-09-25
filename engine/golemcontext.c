@@ -236,7 +236,7 @@ golem_context_get(GolemContext * context,const gchar * name, GValue * value,GErr
       if(g_strcmp0(name,variable->name) == 0)
 	{
 	  g_value_unset(value);
-	  g_value_init(value,variable->type);
+	  g_value_init(value,G_VALUE_TYPE(&variable->value));
 	  g_value_copy(&(variable->value),value);
 	  g_mutex_unlock(&(context->mutex));
 	  return TRUE;
