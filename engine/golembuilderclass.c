@@ -169,6 +169,7 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 		    }
 		  else if(golem_parser_check_is_named(parser))
 		    {
+		      gboolean is_static = golem_parser_next_word_check(parser,"static");
 		      GolemClosureInfo * func_info = golem_closure_info_parse(parser,error);
 		      if(func_info)
 			{
@@ -181,7 +182,10 @@ golem_builder_class_parse(GolemParser * parser,GError ** error)
 				}
 			      else
 				{
-				  golem_class_info_add_function(self->priv->type_info,golem_function_spec_new(func_info,body));
+				  if(is_static)
+				    golem_class_info_add_function(self->priv->type_info,golem_function_spec_new_static(func_info,body));
+				  else
+				    golem_class_info_add_function(self->priv->type_info,golem_function_spec_new(func_info,body));
 				}
 			    }
 			  else

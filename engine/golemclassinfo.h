@@ -69,6 +69,8 @@ void		golem_class_info_set_constructed(GolemClassInfo * info,GolemStatement * st
 
 GolemFunctionSpec * golem_function_spec_new(GolemClosureInfo * info,GolemStatement * body);
 
+GolemFunctionSpec * golem_function_spec_new_static(GolemClosureInfo * info,GolemStatement * body);
+
 GolemPropertySpec * golem_property_spec_new(const gchar * type_name,const gchar * property_name,GolemStatement * get,GolemStatement * set);
 
 

@@ -15,21 +15,21 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_REGISTER_H_
-#define GOLEM_REGISTER_H_
+#ifndef GOLEM_BUILDER_STRUCT_H_
+#define GOLEM_BUILDER_STRUCT_H_
 
-#define GOLEM_TYPE_REGISTER  (golem_register_get_type())
+#define GOLEM_TYPE_BUILDER_STRUCT	(golem_builder_struct_get_type())
+G_DECLARE_FINAL_TYPE(GolemBuilderStruct,golem_builder_struct,GOLEM,BUILDER_STRUCT,GolemRegister)
 
-G_DECLARE_DERIVABLE_TYPE(GolemRegister,golem_register,GOLEM,REGISTER,GObject)
-
-struct _GolemRegisterClass
+struct _GolemBuilderStructClass
 {
-  GObjectClass parent_class;
-  gboolean (*register_type)(GolemRegister *,GolemModule *,GError ** );
+  GolemRegisterClass parent_class;
 };
 
-GType		golem_register_get_type();
+GType			golem_builder_struct_get_type(void);
 
-gboolean 	golem_register_register_type(GolemRegister * reg,GolemModule * module,GError **  error);
+gboolean 		golem_builder_struct_check(GolemParser * parser);
 
-#endif /* GOLEM_REGISTER_H_ */
+GolemBuilderStruct * 	golem_builder_struct_parse(GolemParser * parser,GError ** error);
+
+#endif /* GOLEM_BUILDER_STRUCT_H_ */

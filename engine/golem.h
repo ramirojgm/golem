@@ -66,6 +66,7 @@ union _gresult
 #include "golemwhile.h"
 #include "golemclosure.h"
 #include "golembuilderclass.h"
+#include "golembuilderstruct.h"
 #include "golembuilderextern.h"
 #include "golembuilderfunction.h"
 #include "golembuilderclosure.h"
@@ -75,7 +76,7 @@ union _gresult
 #include "golemcompiled.h"
 #include "golemerror.h"
 #include "golemllm.h"
-#include "golemutils.h"
+#include "golembuiltin.h"
 
 
 #define GOLEM_TYPE_IMPORT

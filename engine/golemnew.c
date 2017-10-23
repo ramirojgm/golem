@@ -133,8 +133,25 @@ _golem_new_evaluate(GolemExpression * expression,GolemContext * context,GValue *
 	}
       else if(G_TYPE_IS_BOXED(type))
 	{
+	  GolemStructInfo * struct_info = GOLEM_STRUCT_INFO(golem_type_info_from_gtype(type));
+	  GValue param_value = G_VALUE_INIT;
 	  g_value_init(result,type);
-	  g_value_take_boxed(result,g_malloc0(1024));
+	  gpointer instance = golem_struct_info_new_instance(struct_info);
+
+    	  for(GList * param_iter = g_list_first(self->priv->params);param_iter;param_iter = g_list_next(param_iter))
+    	  {
+    	    GolemParameter * param_exp = (GolemParameter*)(param_iter->data);
+	    if(!(done = golem_expression_evaluate(param_exp->value,context,&param_value,error)))
+	      {
+		break;
+	      }
+	    else
+	      {
+		golem_struct_info_set(struct_info,instance,param_exp->name,&param_value,error);
+		g_value_unset(&param_value);
+	      }
+    	  }
+	  g_value_take_boxed(result,instance);
 	  done = TRUE;
 	}
       else

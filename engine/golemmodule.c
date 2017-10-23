@@ -114,6 +114,36 @@ golem_module_register_type(GolemModule *module,
   return new_type;
 }
 
+GType
+golem_module_register_boxed_type(GolemModule *module,
+			   GolemTypeInfo * info,
+			   const gchar *type_name,
+			   GBoxedCopyFunc copy,
+			   GBoxedFreeFunc free)
+{
+  GType new_type = g_boxed_type_register_static(type_name,copy, free);
+  if(new_type)
+    {
+      GolemModuleInfo * module_info = g_new0(GolemModuleInfo,1);
+      module_info->gtype = new_type;
+      module_info->info = info;
+      module->priv->type_info = g_list_append(module->priv->type_info,module_info);
+    }
+  return new_type;
+}
+
+void
+golem_module_import_type(GolemModule * module, GolemTypeInfo * info, GType type)
+{
+  if(type)
+    {
+      GolemModuleInfo * module_info = g_new0(GolemModuleInfo,1);
+      module_info->gtype = type;
+      module_info->info = info;
+      module->priv->type_info = g_list_append(module->priv->type_info,module_info);
+    }
+}
+
 static void
 golem_module_init(GolemModule * self)
 {
@@ -210,7 +240,7 @@ gboolean
 golem_module_compile(GolemModule * module,const gchar * source_name,const gchar * code,gssize code_length,GError ** error)
 {
   g_return_val_if_fail(module->priv->initialized == FALSE,FALSE);
-  GolemStatement * sentence;
+  gpointer sentence;
   gboolean done = TRUE;
   GolemParser * parser = golem_parser_new(source_name);
   golem_parser_parse(parser,code,code_length);
@@ -230,6 +260,8 @@ golem_module_compile(GolemModule * module,const gchar * source_name,const gchar 
       {
 	if(golem_builder_class_check(parser))
 	  sentence = GOLEM_REGISTER(golem_builder_class_parse(parser,error));
+	if(golem_builder_struct_check(parser))
+	  sentence = GOLEM_REGISTER(golem_builder_struct_parse(parser,error));
 	else if(golem_shared_object_check(parser))
 	  sentence = GOLEM_STATEMENT(golem_shared_object_parse(parser,error));
 	else if(golem_builder_extern_check(parser))

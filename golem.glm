@@ -1,89 +1,20 @@
-
-class vector_node 
+boxed Oid
 {
-
+	int scheme_id;
+	int sequence;
 }
 
-class vector
+Oid oid_add(Oid oid,int count)
 {
-	init 
-	{
-		this.first_node_data = null;
-		this.last_node_data = null;
-		this.length_data = 0;
-	}
-
-	int append(var new_value)
-	{
-		if(this.first_node_data == null) 
-		{
-			var new_node = new vector_node {
-				prev: null,
-				next: null,
-				value: new_value
-			};
-			this.first_node_data = new_node;
-			this.last_node_data = new_node;
-			this.length_data = 1;
-		}
-		else
-		{
-			var new_node = new vector_node {
-				prev: this.last_node_data,
-				next: null,
-				value: new_value
-			};
-			new_node.prev.next = new_node;
-			this.last_node_data = new_node;
-			this.length_data = this.length_data + 1;
-		}
-	}
-
-	int index_of(var value)
-	{
-		var iter = this.first_node_data;
-		int cindex = 0;
-		while(iter != null)
-		{
-			if(iter.value == value)
-				return cindex;
-			iter = iter.next;
-			cindex = cindex + 1;
-		}
-		return -1;
-	}
-
-	property int length 
-	{
-		getter {return this.length_data; }		
-	}
-
-	var at(int index) 
-	{
-		var iter = this.first_node_data;
-		int cindex = 0;
-		while(iter != null)
-		{
-			if(cindex == index)
-				return iter.value;
-			iter = iter.next;
-			cindex = cindex + 1;
-		}
-		return null;
-	}
-
+	return new Oid { scheme_id: oid.scheme_id, sequence: oid.sequence + count };
 }
 
 int 
 main(int argc,array argv)
 {
-	vector x = new vector {};
-	x.append(10);
-	x.append(30);
-	x.append(50);
-	x.append("String");
-	x.append("Eliot");
-	print("IndexOf:",x.index_of("String"));
+	Oid x = new Oid { scheme_id: 2, sequence: 0 };
+	x = oid_add(x,1);
+	print(x.sequence);
 	return 0;
 }
 

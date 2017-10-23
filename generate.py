@@ -44,7 +44,7 @@ objects = ''
 for src in sources:
     objectname = src[0:len(src) - 2] + '.o'
     objects = objects + ' ' + objectname
-    script.write('gcc -c %s -o %s %s\n' % (src,objectname,compile_flags))
+    script.write('gcc -c %s -o %s %s -std=c99\n' % (src,objectname,compile_flags))
 script.write('gcc %s -o %s %s\n' % (objects,programname,compile_libs))
 if os.name == 'nt':
     script.write('del %s\n' % (objects,))

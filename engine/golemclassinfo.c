@@ -31,6 +31,9 @@ struct _GolemClassInfoPrivate {
   GolemModule
     * module;
 
+  GolemMap
+    * static_priv;
+
   GolemStatement
     * init,
     * constructed,
@@ -47,6 +50,7 @@ struct _GolemClassInfoPrivate {
 
 struct _GolemFunctionSpec
 {
+  gboolean is_static;
   GolemClosureInfo * info;
   GolemStatement * body;
 };
@@ -74,6 +78,7 @@ golem_class_info_init(GolemClassInfo * info)
   priv->name = NULL;
   priv->functions = NULL;
   priv->properties = NULL;
+  priv->static_priv = golem_map_new();
   g_mutex_init(&(info->mutex));
 }
 
@@ -545,6 +550,40 @@ _golem_type_info_register_type(GolemTypeInfo * type_info,GolemModule * module,GE
   return self->priv->gtype;
 }
 
+static gboolean
+_golem_type_info_get_static(GolemTypeInfo * type_info,const gchar * name,GValue * dest,GError ** error)
+{
+  GolemClassInfo * self = GOLEM_CLASS_INFO(type_info);
+
+  gboolean done = FALSE;
+
+  for(GList * iter = g_list_first(self->priv->functions);iter;iter = g_list_next(iter))
+    {
+      GolemFunctionSpec* func_spec = (GolemFunctionSpec*)iter->data;
+      if(func_spec->is_static && g_strcmp0(golem_closure_info_get_name(func_spec->info),name) == 0)
+	{
+	  GolemContext * context = golem_context_new(golem_module_get_context(self->priv->module));
+	  if(self->priv->private_offset)
+	    {
+	      GValue priv_value = G_VALUE_INIT;
+	      g_value_init(&priv_value,GOLEM_TYPE_MAP);
+	      g_value_set_boxed(&priv_value,self->priv->static_priv);
+	      golem_context_set_auto(context,"priv",&priv_value,error);
+	      g_value_unset(&priv_value);
+	    }
+
+	  GolemClosure * closure = golem_function_new(func_spec->info,context,func_spec->body);
+	  g_value_init(dest,G_TYPE_CLOSURE);
+	  g_value_take_boxed(dest,closure);
+	  g_object_unref(context);
+	  done = TRUE;
+	  goto finish;
+	}
+    }
+
+finish:
+  return done;
+}
 
 static gboolean
 _golem_type_info_get_member(GolemTypeInfo * type_info,GValue * instance,const gchar * name,GValue * dest,GError ** error)
@@ -561,7 +600,7 @@ _golem_type_info_get_member(GolemTypeInfo * type_info,GValue * instance,const gc
   for(GList * iter = g_list_first(self->priv->functions);iter;iter = g_list_next(iter))
     {
       GolemFunctionSpec* func_spec = (GolemFunctionSpec*)iter->data;
-      if(g_strcmp0(golem_closure_info_get_name(func_spec->info),name) == 0)
+      if(!func_spec->is_static && g_strcmp0(golem_closure_info_get_name(func_spec->info),name) == 0)
 	{
 	  GolemContext * context = golem_context_new(golem_module_get_context(self->priv->module));
 	  golem_context_set_this(context,instance);
@@ -647,6 +686,7 @@ golem_class_info_class_init(GolemClassInfoClass * info)
 {
   GOLEM_TYPE_INFO_CLASS(info)->get_name = _golem_type_info_get_name;
   GOLEM_TYPE_INFO_CLASS(info)->register_type = _golem_type_info_register_type;
+  GOLEM_TYPE_INFO_CLASS(info)->get_static = _golem_type_info_get_static;
   GOLEM_TYPE_INFO_CLASS(info)->get_member = _golem_type_info_get_member;
   GOLEM_TYPE_INFO_CLASS(info)->set_member = _golem_type_info_set_member;
 }
@@ -735,6 +775,17 @@ GolemFunctionSpec *
 golem_function_spec_new(GolemClosureInfo * info,GolemStatement * body)
 {
   GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
+  function->is_static = FALSE;
+  function->info = info;
+  function->body = body;
+  return function;
+}
+
+GolemFunctionSpec *
+golem_function_spec_new_static(GolemClosureInfo * info,GolemStatement * body)
+{
+  GolemFunctionSpec * function = g_new0(GolemFunctionSpec,1);
+  function->is_static = TRUE;
   function->info = info;
   function->body = body;
   return function;

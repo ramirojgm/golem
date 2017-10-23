@@ -54,6 +54,12 @@ GType		golem_module_register_type(GolemModule *module,
 					   const GTypeInfo *type_info,
 					   GTypeFlags flags);
 
+GType		golem_module_register_boxed_type(GolemModule *module,
+						 GolemTypeInfo * info,
+						 const gchar *type_name,
+						 GBoxedCopyFunc copy,
+						 GBoxedFreeFunc free);
+
 GType *		golem_module_get_types(GolemModule * module,gsize * n_types);
 
 gchar **	golem_module_get_references(GolemModule * module,gsize * n_references);

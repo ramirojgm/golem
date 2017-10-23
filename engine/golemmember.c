@@ -38,9 +38,16 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
   if((done = golem_expression_evaluate(priv->instance,context,&instance,error)))
     {
       GolemTypeInfo * info = NULL;
+      gboolean is_static = FALSE;
       gboolean null_pointer = TRUE;
 
-      if(G_VALUE_HOLDS_OBJECT(&instance))
+      if(G_VALUE_HOLDS_GTYPE(&instance))
+	{
+	  info = golem_type_info_from_gtype(g_value_get_gtype(&instance));
+	  null_pointer = FALSE;
+	  is_static = TRUE;
+	}
+      else if(G_VALUE_HOLDS_OBJECT(&instance))
 	{
 	  gpointer object_instance = g_value_get_object(&instance);
 	  if(object_instance) {
@@ -64,6 +71,7 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 
       if(info)
 	{
+
 	  if(priv->new_value)
 	    {
 	      if((done = golem_expression_evaluate(priv->new_value,context,&new_value,error)))
@@ -79,7 +87,10 @@ _golem_member_evalue(GolemExpression * expression,GolemContext * context,GValue 
 	    }
 	  else
 	    {
-	      done = golem_type_info_get_member(info,&instance,priv->index,result,error);
+	      if(is_static)
+		done = golem_type_info_get_static(info,priv->index,result,error);
+	      else
+		done = golem_type_info_get_member(info,&instance,priv->index,result,error);
 	    }
 	}
       else

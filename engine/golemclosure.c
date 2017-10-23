@@ -306,6 +306,8 @@ golem_function_invoke (GolemClosure *closure,
   GolemClosureParameter * param_info = NULL;
 
   GolemRuntime * runtime = golem_runtime_new(func_data->context);
+  golem_runtime_enter(runtime,GOLEM_RUNTIME_LOCAL);
+
   guint param_index = 0;
   gint n_param_values = golem_closure_invoke_get_length(invoke);
 

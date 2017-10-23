@@ -18,9 +18,7 @@
 #ifndef GOLEMUTILS_H_
 #define GOLEMUTILS_H_
 
-GType			golem_resolve_type_name(GolemContext * context,const gchar * name);
-
-const gchar *		golem_type_get_prefix(const gchar * name);
+const gchar *		golem_type_name_get_prefix(const gchar * name);
 
 void			g_value_free(GValue * value);
 

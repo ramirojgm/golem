@@ -21,24 +21,30 @@
 #define GOLEM_OFFSET_WITH_PADDING(offset,size) 	((offset) + ((size) > 1 && (offset > 0) ? ((size) - ((offset) % (size))) : 0))
 
 #define GOLEM_TYPE_STRUCT_INFO (golem_struct_info_get_type())
-G_DECLARE_FINAL_TYPE(GolemStructInfo,golem_struct_info,GOLEM,STRUCT_INFO,GObject)
+G_DECLARE_FINAL_TYPE(GolemStructInfo,golem_struct_info,GOLEM,STRUCT_INFO,GolemTypeInfo)
+
+typedef struct _GolemStructInfoPrivate GolemStructInfoPrivate;
 
 struct _GolemStructInfoClass
 {
-  GObjectClass parent_class;
+  GolemTypeInfoClass parent_class;
 };
 
 struct _GolemStructInfo
 {
-  GObject parent_instance;
-  GMutex mutex;
-  GList * fields;
-  gsize size;
+  GolemTypeInfo parent_instance;
+  GolemStructInfoPrivate * priv;
 };
 
 GType			golem_struct_info_get_type(void);
 
 GolemStructInfo *	golem_struct_info_new(void);
+
+void			golem_struct_info_set_name(GolemStructInfo * struct_info,const gchar * name);
+
+gboolean		golem_struct_info_get_copy_full(GolemStructInfo * struct_info);
+
+void			golem_struct_info_set_copy_full(GolemStructInfo * struct_info,gboolean copy_full);
 
 void			golem_struct_info_add_field(GolemStructInfo * struct_info,GType type,const gchar * name);
 
@@ -50,6 +56,8 @@ gboolean		golem_struct_info_get(GolemStructInfo * struct_info,gpointer instance,
 
 gboolean		golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gchar * name,const GValue * src,GError ** error);
 
-void			golem_struct_info_free_instance(GolemStructInfo * struct_info,gpointer instance);
+gpointer		golem_struct_info_ref(GolemStructInfo * struct_info,gconstpointer instance);
+
+void			golem_struct_info_unref(GolemStructInfo * struct_info,gpointer instance);
 
 #endif /* ENGINE_GOLEMSTRUCTINFO_H_ */

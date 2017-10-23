@@ -27,20 +27,129 @@ struct _GolemStructField
   gsize size;
 };
 
-G_DEFINE_TYPE_WITH_CODE(GolemStructInfo,golem_struct_info,G_TYPE_OBJECT,{})
+struct _GolemStructInfoPrivate
+{
+  gboolean use_ref;
+  goffset ref_offset;
+  GType type;
+  gchar * name;
+  GList * fields;
+  goffset offset;
+  gsize size;
+  GBoxedCopyFunc copy_func;
+  GBoxedFreeFunc free_func;
+};
+
+
+
+G_DEFINE_TYPE_WITH_PRIVATE(GolemStructInfo,golem_struct_info,GOLEM_TYPE_TYPE_INFO)
+
+static void
+_golem_struct_copy(gpointer instance,GolemLLMInvoke * invoke,gpointer data)
+{
+  if(instance)
+    {
+      gresult result;
+      result.pointer = golem_struct_info_ref(GOLEM_STRUCT_INFO(data),instance);
+      golem_llm_invoke_set_result(invoke,&result);
+    }
+  else
+    {
+      gresult result;
+      result.pointer = NULL;
+      golem_llm_invoke_set_result(invoke,&result);
+    }
+}
+
+static void
+_golem_struct_free(gpointer instance,GolemLLMInvoke * invoke,gpointer data)
+{
+  if(instance)
+    {
+      golem_struct_info_unref(GOLEM_STRUCT_INFO(data),instance);
+    }
+}
+
+static void
+_g_value_pointer_to_boxed(const GValue * src_value,GValue * dest_value)
+{
+  g_value_set_boxed(dest_value,g_value_get_pointer(src_value));
+}
+
+static void
+_g_value_boxed_to_pointer(const GValue * src_value,GValue * dest_value)
+{
+  g_value_set_pointer(dest_value,g_value_get_boxed(src_value));
+}
+
+static GType
+_golem_struct_info_register_type(GolemTypeInfo * info,GolemModule * module,GError ** error)
+{
+  GolemStructInfo * self = GOLEM_STRUCT_INFO(info);
+  if(!(self->priv->copy_func && self->priv->free_func))
+    {
+      self->priv->copy_func = golem_llm_new_vfunction(_golem_struct_copy,self);
+      self->priv->free_func = golem_llm_new_vfunction(_golem_struct_free,self);
+      self->priv->ref_offset = self->priv->size;
+    }
+  if(self->priv->type == 0)
+    {
+      self->priv->type = golem_module_register_boxed_type(module,info,self->priv->name,
+							  self->priv->copy_func,
+							  self->priv->free_func);
+      g_value_register_transform_func(self->priv->type,G_TYPE_POINTER,_g_value_boxed_to_pointer);
+      g_value_register_transform_func(G_TYPE_POINTER,self->priv->type,_g_value_pointer_to_boxed);
+    }
+  return self->priv->type;
+}
+
+static gboolean
+_golem_struct_info_get_static(GolemTypeInfo * info,const gchar * name,GValue * dest,GError ** error)
+{
+  GolemStructInfo * self = GOLEM_STRUCT_INFO(info);
+  goffset offset = golem_struct_info_get_field_offset(self,name);
+  g_value_init(dest,G_TYPE_INT);
+  g_value_set_int(dest,offset);
+  return TRUE;
+}
+
+static gboolean
+_golem_struct_info_get_member(GolemTypeInfo * info,GValue * instance,const gchar * name,GValue * dest,GError ** error)
+{
+  GolemStructInfo * self = GOLEM_STRUCT_INFO(info);
+  return golem_struct_info_get(self,g_value_get_boxed(instance),name,dest,error);
+}
+
+static gboolean
+_golem_struct_info_set_member(GolemTypeInfo * info,GValue * instance,const gchar * name,const GValue * src,GError ** error)
+{
+  GolemStructInfo * self = GOLEM_STRUCT_INFO(info);
+  return golem_struct_info_set(self,g_value_get_boxed(instance),name,src,error);
+}
+
+static const gchar *
+_golem_struct_info_get_name(GolemTypeInfo * info)
+{
+  GolemStructInfo * self = GOLEM_STRUCT_INFO(info);
+  return self->priv->name;
+}
 
 static void
 golem_struct_info_init(GolemStructInfo * self)
 {
-  g_mutex_init(&self->mutex);
-  self->fields = NULL;
-  self->size = 0;
+  self->priv = golem_struct_info_get_instance_private(self);
+  self->priv->fields = NULL;
+  self->priv->size = 0;
 }
 
 static void
 golem_struct_info_class_init(GolemStructInfoClass * klass)
 {
-
+  GOLEM_TYPE_INFO_CLASS(klass)->register_type = _golem_struct_info_register_type;
+  GOLEM_TYPE_INFO_CLASS(klass)->get_static = _golem_struct_info_get_static;
+  GOLEM_TYPE_INFO_CLASS(klass)->get_name = _golem_struct_info_get_name;
+  GOLEM_TYPE_INFO_CLASS(klass)->get_member = _golem_struct_info_get_member;
+  GOLEM_TYPE_INFO_CLASS(klass)->set_member = _golem_struct_info_set_member;
 }
 
 GolemStructInfo *
@@ -52,7 +161,6 @@ golem_struct_info_new(void)
 void
 golem_struct_info_add_field(GolemStructInfo * struct_info,GType type,const gchar * name)
 {
-  g_mutex_lock(&struct_info->mutex);
   GType fundamental = G_TYPE_FUNDAMENTAL(type);
 
   GolemStructField * field = g_new0(GolemStructField,1);
@@ -88,18 +196,16 @@ golem_struct_info_add_field(GolemStructInfo * struct_info,GType type,const gchar
       break;
   }
 
-  field->offset = GOLEM_OFFSET_WITH_PADDING(struct_info->size,field->size);
-  struct_info->size = field->offset + field->size;
-  struct_info->fields = g_list_append(struct_info->fields,field);
-  g_mutex_unlock(&struct_info->mutex);
+  field->offset = GOLEM_OFFSET_WITH_PADDING(struct_info->priv->size,field->size);
+  struct_info->priv->size = field->offset + field->size;
+  struct_info->priv->fields = g_list_append(struct_info->priv->fields,field);
 }
 
 static GolemStructField *
 _golem_struct_info_get_field(GolemStructInfo * struct_info,const gchar * name)
 {
   GolemStructField * result = NULL;
-  g_mutex_lock(&struct_info->mutex);
-  for(GList * iter = g_list_first(struct_info->fields);iter; iter = g_list_next(iter))
+  for(GList * iter = g_list_first(struct_info->priv->fields);iter; iter = g_list_next(iter))
     {
       GolemStructField * field = (GolemStructField*)iter->data;
       if(g_strcmp0(field->name,name) == 0)
@@ -108,8 +214,7 @@ _golem_struct_info_get_field(GolemStructInfo * struct_info,const gchar * name)
 	  break;
 	}
     }
-  g_mutex_unlock(&struct_info->mutex);
-  return result;
+   return result;
 }
 
 goffset
@@ -119,9 +224,7 @@ golem_struct_info_get_field_offset(GolemStructInfo * struct_info,const gchar * n
   GolemStructField * field = _golem_struct_info_get_field(struct_info,name);
   if(field)
     {
-      g_mutex_lock(&struct_info->mutex);
-      offset = field->offset;
-      g_mutex_unlock(&struct_info->mutex);
+       offset = field->offset;
     }
   return offset;
 }
@@ -133,9 +236,7 @@ golem_struct_info_get_field_size(GolemStructInfo * struct_info,const gchar * nam
   GolemStructField * field = _golem_struct_info_get_field(struct_info,name);
   if(field)
     {
-      g_mutex_lock(&struct_info->mutex);
       size = field->size;
-      g_mutex_unlock(&struct_info->mutex);
     }
   return size;
 }
@@ -144,12 +245,15 @@ gpointer
 golem_struct_info_new_instance(GolemStructInfo * struct_info)
 {
   gsize instance_size = 0;
-  g_mutex_lock(&struct_info->mutex);
-  instance_size = struct_info->size;
-  g_mutex_unlock(&struct_info->mutex);
-  g_return_val_if_fail(instance_size > 0,NULL);
+  if(struct_info->priv->use_ref)
+    instance_size = struct_info->priv->size + sizeof(guint16);
+  else
+    instance_size = struct_info->priv->size;
 
-  return g_malloc0(instance_size);
+  g_return_val_if_fail(struct_info->priv->size > 0,NULL);
+  gpointer new_instance = g_malloc0(instance_size);
+  *((guint16*)(new_instance + struct_info->priv->ref_offset)) = 1;
+  return new_instance;
 }
 
 gboolean
@@ -159,7 +263,6 @@ golem_struct_info_get(GolemStructInfo * struct_info,gpointer instance,const gcha
   if(field)
     {
       GType fundamental = G_TYPE_FUNDAMENTAL(field->type);
-      g_mutex_lock(&struct_info->mutex);
       g_value_unset(dest);
       if(field->type != G_TYPE_VALUE)
 	g_value_init(dest,field->type);
@@ -231,7 +334,6 @@ golem_struct_info_get(GolemStructInfo * struct_info,gpointer instance,const gcha
       	    }
       	  break;
       }
-      g_mutex_unlock(&struct_info->mutex);
       return TRUE;
     }
   else
@@ -247,7 +349,6 @@ golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gcha
   GolemStructField * field = _golem_struct_info_get_field(struct_info,name);
   if(field)
     {
-      g_mutex_lock(&struct_info->mutex);
       GType fundamental = G_TYPE_FUNDAMENTAL(field->type);
       gpointer address = (instance + field->offset);
       switch(fundamental)
@@ -316,7 +417,6 @@ golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gcha
 	    }
 	  break;
       }
-      g_mutex_unlock(&struct_info->mutex);
       return TRUE;
     }
   else
@@ -326,23 +426,80 @@ golem_struct_info_set(GolemStructInfo * struct_info,gpointer instance,const gcha
     }
 }
 
-void
-golem_struct_info_free_instance(GolemStructInfo * struct_info,gpointer instance)
+gpointer
+golem_struct_info_ref(GolemStructInfo * struct_info,gconstpointer instance)
 {
-  g_mutex_lock(&struct_info->mutex);
-  for(GList * iter = g_list_first(struct_info->fields);iter; iter = g_list_next(iter))
-     {
-       GolemStructField * field = (GolemStructField*)iter->data;
-       gpointer address = *((gpointer*)(instance + field->offset));
-       if(field->type == G_TYPE_STRING)
-	 g_free(address);
-       else if(field->type == G_TYPE_VALUE)
-	 g_value_free((GValue*)address);
-       else if(G_TYPE_IS_BOXED(field->type))
-	 g_boxed_free(field->type,address);
-       else if(G_TYPE_IS_OBJECT(field->type))
-	 g_object_unref(address);
-     }
-   g_mutex_unlock(&struct_info->mutex);
-  g_free(instance);
+  if(struct_info->priv->use_ref)
+    {
+      guint16 * ref_count = (guint16*)( instance + struct_info->priv->ref_offset);
+      *ref_count += 1;
+      return (gpointer)instance;
+    }
+  else
+    {
+      gpointer new_instance = g_memdup(instance,struct_info->priv->size);
+      for(GList * iter = g_list_first(struct_info->priv->fields);iter; iter = g_list_next(iter))
+      	 {
+      	   GolemStructField * field = (GolemStructField*)iter->data;
+      	   gpointer address = ((gpointer)(instance + field->offset));
+      	   gpointer new_address = ((gpointer)(new_instance + field->offset));
+      	   if(field->type == G_TYPE_STRING)
+      	       *((gchar**)new_address) = g_strdup(*((gchar**)address));
+      	   else if(G_TYPE_IS_BOXED(field->type))
+      	       *((gpointer*)new_address) = g_boxed_copy(field->type,(*((gpointer*)address)));
+      	   else if(G_TYPE_IS_OBJECT(field->type))
+      	       *((gpointer*)new_address) = g_object_ref((*((gpointer*)address)));
+      	 }
+      return new_instance;
+    }
+}
+
+void
+golem_struct_info_unref(GolemStructInfo * struct_info,gpointer instance)
+{
+  gboolean most_free = TRUE;
+  if(struct_info->priv->use_ref)
+    {
+      guint16 * ref_count = (guint16*)( instance + struct_info->priv->ref_offset);
+      *ref_count -= 1;
+      if(*ref_count > 0)
+	most_free = FALSE;
+    }
+
+  if(most_free)
+    {
+      for(GList * iter = g_list_first(struct_info->priv->fields);iter; iter = g_list_next(iter))
+	 {
+	   GolemStructField * field = (GolemStructField*)iter->data;
+	   gpointer address = *((gpointer*)(instance + field->offset));
+	   if(field->type == G_TYPE_STRING)
+	     g_free(address);
+	   else if(field->type == G_TYPE_VALUE)
+	     g_value_free((GValue*)address);
+	   else if(G_TYPE_IS_BOXED(field->type))
+	     g_boxed_free(field->type,address);
+	   else if(G_TYPE_IS_OBJECT(field->type))
+	     g_object_unref(address);
+	 }
+      g_free(instance);
+    }
+}
+
+void
+golem_struct_info_set_name(GolemStructInfo * struct_info,const gchar * name)
+{
+  g_clear_pointer(&struct_info->priv->name,g_free);
+  struct_info->priv->name = g_strdup(name);
+}
+
+void
+golem_struct_info_set_copy_full(GolemStructInfo * struct_info,gboolean copy_full)
+{
+  struct_info->priv->use_ref = !copy_full;
+}
+
+gboolean
+golem_struct_info_get_copy_full(GolemStructInfo * struct_info)
+{
+  return !struct_info->priv->use_ref;
 }

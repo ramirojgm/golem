@@ -21,6 +21,7 @@
 #include <string.h>
 
 
+
 const gchar *
 golem_type_get_prefix(const gchar * name)
 {
@@ -104,6 +105,7 @@ _g_value_object_to_pointer(const GValue * src_value,GValue * dest_value)
 {
   g_value_set_pointer(dest_value,g_value_get_object(src_value));
 }
+
 
 static gboolean
 golem_garray_append(GolemClosure * closure,
@@ -272,6 +274,7 @@ __attribute__((constructor)) _golem_type_init()
   //convert
   g_value_register_transform_func(G_TYPE_POINTER,G_TYPE_OBJECT,_g_value_pointer_to_object);
   g_value_register_transform_func(G_TYPE_OBJECT,G_TYPE_POINTER,_g_value_object_to_pointer);
+
 
   /*//object
   GolemClassInfo * type_info = golem_type_info_from_gtype(G_TYPE_OBJECT);

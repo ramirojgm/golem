@@ -15,5 +15,29 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "golem.h"
+
+struct _GolemBuiltinInfoPrivate
+{
+  GType   builtin_type;
+  GList * func_spec;
+};
+
+G_DEFINE_TYPE_WITH_PRIVATE(GolemBuiltinInfo,golem_builtin_info,GOLEM_TYPE_TYPE_INFO)
+
+
+static void
+golem_builtin_info_init(GolemBuiltinInfo * self)
+{
+  self->priv = golem_builtin_info_get_instance_private(self);
+}
+
+static void
+golem_builtin_info_class_init(GolemBuiltinInfoClass * klass)
+{
+  /*GOLEM_TYPE_INFO_CLASS(klass)->get_name = _golem_type_info_get_name;
+  GOLEM_TYPE_INFO_CLASS(klass)->register_type = _golem_type_info_register_type;
+  GOLEM_TYPE_INFO_CLASS(klass)->get_member = _golem_type_info_get_member;
+  GOLEM_TYPE_INFO_CLASS(klass)->set_member = _golem_type_info_set_member;*/
+}
+

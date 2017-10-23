@@ -27,26 +27,60 @@ struct _GolemTypeInfoClass
 
   const gchar * (*get_name)(GolemTypeInfo * type_info);
 
-  GType (*register_type)(GolemTypeInfo * type_info,GolemModule * module,GError ** error);
+  GType (*register_type)(GolemTypeInfo * type_info,
+			 GolemModule * module,
+			 GError ** error);
 
-  gboolean (*get_member)(GolemTypeInfo * type_info,GValue * instance,const gchar * name,GValue * dest,GError ** error);
-  gboolean (*set_member)(GolemTypeInfo * type_info,GValue * instance,const gchar * name,const GValue * src,GError ** error);
+  gboolean (*get_static)(GolemTypeInfo * type_info,
+			 const gchar * name,
+			 GValue * dest,
+			 GError ** error);
+
+  gboolean (*get_member)(GolemTypeInfo * type_info,
+			 GValue * instance,
+			 const gchar * name,
+			 GValue * dest
+			 ,GError ** error);
+
+  gboolean (*set_member)(GolemTypeInfo * type_info,
+			 GValue * instance,
+			 const gchar * name,
+			 const GValue * src,
+			 GError ** error);
 };
 
 GType		golem_type_info_get_type(void);
+
+
+const gchar *	golem_type_info_get_name(GolemTypeInfo * type_info);
+
+GType		golem_type_info_register_type(GolemTypeInfo * type_info,
+					      GolemModule * module,
+					      GError ** error);
+
+gboolean 	golem_type_info_get_static(GolemTypeInfo * type_info,
+					   const gchar * name,
+					   GValue * dest,
+					   GError ** error);
+
+
+gboolean 	golem_type_info_get_member(GolemTypeInfo * type_info,
+					   GValue * instance,
+					   const gchar * name,
+					   GValue * dest,
+					   GError ** error);
+
+gboolean 	golem_type_info_set_member(GolemTypeInfo * type_info,
+					   GValue * instance,
+					   const gchar * name,
+					   const GValue * src,
+					   GError ** error);
+
 
 GolemTypeInfo * golem_type_info_from_gtype(GType type);
 
 GType		golem_type_from_name(const gchar * type_name);
 
 const gchar *	golem_type_get_name(GType type);
-
-const gchar *	golem_type_info_get_name(GolemTypeInfo * type_info);
-
-GType		golem_type_info_register_type(GolemTypeInfo * type_info,GolemModule * module,GError ** error);
-
-gboolean 	golem_type_info_get_member(GolemTypeInfo * type_info,GValue * instance,const gchar * name,GValue * dest,GError ** error);
-
-gboolean 	golem_type_info_set_member(GolemTypeInfo * type_info,GValue * instance,const gchar * name,const GValue * src,GError ** error);
 
 #endif /* ENGINE_GOLEMTYPEINFO_H_ */

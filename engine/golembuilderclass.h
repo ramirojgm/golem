@@ -15,8 +15,8 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMBUILDERCLASS_H_
-#define GOLEMBUILDERCLASS_H_
+#ifndef GOLEM_BUILDER_CLASS_H_
+#define GOLEM_BUILDER_CLASS_H_
 
 #define GOLEM_TYPE_BUILDER_CLASS	(golem_builder_class_get_type())
 G_DECLARE_FINAL_TYPE(GolemBuilderClass,golem_builder_class,GOLEM,BUILDER_CLASS,GolemRegister)
@@ -32,4 +32,4 @@ gboolean 		golem_builder_class_check(GolemParser * parser);
 
 GolemBuilderClass * 	golem_builder_class_parse(GolemParser * parser,GError ** error);
 
-#endif /* GOLEMBUILDERCLASS_H_ */
+#endif /* GOLEM_BUILDER_CLASS_H_ */

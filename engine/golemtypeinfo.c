@@ -35,6 +35,7 @@ golem_type_info_class_init(GolemTypeInfoClass * klass)
   klass->set_member = NULL;
 }
 
+
 const gchar *
 golem_type_info_get_name(GolemTypeInfo * type_info)
 {
@@ -52,6 +53,15 @@ golem_type_info_register_type(GolemTypeInfo * type_info,GolemModule * module,GEr
 }
 
 gboolean
+golem_type_info_get_static(GolemTypeInfo * type_info,const gchar * name,GValue * dest,GError ** error)
+{
+  GolemTypeInfoClass * klass = GOLEM_TYPE_INFO_GET_CLASS(type_info);
+  g_return_val_if_fail(klass->get_static != NULL,FALSE);
+  return klass->get_static(type_info,name,dest,error);
+}
+
+
+gboolean
 golem_type_info_get_member(GolemTypeInfo * type_info,GValue * instance,const gchar * name,GValue * dest,GError ** error)
 {
   GolemTypeInfoClass * klass = GOLEM_TYPE_INFO_GET_CLASS(type_info);
@@ -63,6 +73,6 @@ gboolean
 golem_type_info_set_member(GolemTypeInfo * type_info,GValue * instance,const gchar * name,const GValue * src,GError ** error)
 {
   GolemTypeInfoClass * klass = GOLEM_TYPE_INFO_GET_CLASS(type_info);
-  g_return_val_if_fail(klass->set_member != NULL,NULL);
+  g_return_val_if_fail(klass->set_member != NULL,FALSE);
   return klass->set_member(type_info,instance,name,src,error);
 }

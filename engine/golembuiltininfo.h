@@ -18,6 +18,35 @@
 #ifndef GOLEMBUILTININFO_H_
 #define GOLEMBUILTININFO_H_
 
+#define GOLEM_TYPE_BUILTIN_INFO	(golem_builtin_info_get_type())
+G_DECLARE_FINAL_TYPE(GolemBuiltinInfo,golem_builtin_info,GOLEM,BUILTIN_INFO,GolemTypeInfo)
+
+typedef struct _GolemBuiltinInfoPrivate GolemBuiltinInfoPrivate;
+typedef struct _GolemBuiltinSpec GolemBuiltinSpec;
 
 
-#endif /* GOLEMBUILTININFO_H_ */
+struct _GolemBuiltinInfoClass
+{
+  GolemTypeInfoClass parent_class;
+};
+
+struct _GolemBuiltinInfo
+{
+  GolemTypeInfo parent_instance;
+  GolemBuiltinInfoPrivate * priv;
+};
+
+struct _GolemBuiltinSpec
+{
+
+};
+
+
+
+GType			golem_builtin_info_get_type(void);
+
+GolemBuiltinInfo* 	golem_builtin_info_new(GType type,
+					       const GolemBuiltinSpec * spec);
+
+
+#endif
