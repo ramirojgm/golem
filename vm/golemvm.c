@@ -16,11 +16,3 @@
  */
 
 
-#include "vm/golemvm.h"
-
-gint
-main(gint argc,gchar ** argv)
-{
-
-  return 0;
-}
