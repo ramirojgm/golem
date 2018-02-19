@@ -21,33 +21,41 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define GOLEM_VM_SYMBOL_SIZE 512
-
 typedef enum
 {
   /* OP */
-  GOLEM_OP_PSH, //PUSH VARIABLE
+  GOLEM_OP_PSH = 1, //PUSH VARIABLE
   GOLEM_OP_POP, //POP VARIABLE
-  GOLEM_OP_DAT, //POP DATA
+  GOLEM_OP_DUP, //DUPLICATE
+  GOLEM_OP_DAT, //DATA
   GOLEM_OP_RET, //RETURN
-  GOLEM_OP_BCX, //BEGIN CONTEXT
-  GOLEM_OP_ECX, //END CONTEXT
+  GOLEM_OP_SE, //SCOPE ENTER
+  GOLEM_OP_GC, //GARBAGE COLLECTOR
+  GOLEM_OP_SX, //SCOPE EXIT
   GOLEM_OP_JMP, //JUMP
-  GOLEM_OP_CAL, //CALL FUNCTION
-  /* TRY CATCH */
-  GOLEM_OP_BCE, //BEGIN CAPTURE EXCEPTION
-  GOLEM_OP_ECE, //END CAPTURE EXCEPTION
+  GOLEM_OP_CND, //CONDITION
+  /* HANDLE EXCEPTION */
+  GOLEM_OP_AHE, //ADD HANDLE EXCEPTION
+  GOLEM_OP_THW, //THROW EXCEPTION
+  GOLEM_OP_RHE, //REMOVE HANDLE EXCEPTION
   /* MEMORY */
-  GOLEM_OP_ALC, //ALLOC MEMORY
+  GOLEM_OP_ALM, //ALLOC MEMORY
+  GOLEM_OP_ALZ, //ALLOC MEMORY WITH ZERO
   GOLEM_OP_FRE, //FREE MEMORY
-  /* OBJECT OP */
-  GOLEM_OP_NEW, //NEW OBJECT
-  GOLEM_OP_IST, //INDEX SET
-  GOLEM_OP_IGT, //INDEX GET
-  GOLEM_OP_PST, //PROPERTY SET
-  GOLEM_OP_PGT, //PROPERTY GET
-  GOLEM_OP_IRF, //INCREASE REFERENCE
-  GOLEM_OP_DRF, //DECREASE REFERENCE
+  GOLEM_OP_PTO, //POINTER OF
+  GOLEM_OP_PTW, //WRITE POINTER
+  GOLEM_OP_PTR, //READ POINTER
+  /* OBJECT */
+  GOLEM_OP_NEW, //NEW
+  GOLEM_OP_CP, //CONSTRUCT PARAM
+  GOLEM_OP_FF, //FUNCTION FIND
+  GOLEM_OP_PW, //PROPERTY WRITE
+  GOLEM_OP_PR, //PROPERTY READ
+  GOLEM_OP_IR, //INCREASE REFERENCE
+  GOLEM_OP_DR, //DECREASE REFERENCE
+  /* FUNCTION */
+  GOLEM_OP_ARG, //ARGUMENT
+  GOLEM_OP_CAL, //CALL FUNCTION
   /* ARITMETICAL OP */
   GOLEM_OP_ADD, //ADD
   GOLEM_OP_SUB, //SUBSTRACT
@@ -71,25 +79,26 @@ typedef enum
   GOLEM_OP_BTR, //BITS TO RIGHT
   GOLEM_OP_BNA, //BINARY AND
   GOLEM_OP_BNO, //BINARY OR
+
 } GolemVMOpCode;
 
 typedef enum
 {
-  GOLEM_REG_TYPE_UNDEFINED,
-  GOLEM_REG_TYPE_INT8,
-  GOLEM_REG_TYPE_INT16,
-  GOLEM_REG_TYPE_INT32,
-  GOLEM_REG_TYPE_INT64,
-  GOLEM_REG_TYPE_UINT8,
-  GOLEM_REG_TYPE_UINT16,
-  GOLEM_REG_TYPE_UINT32,
-  GOLEM_REG_TYPE_UINT64,
-  GOLEM_REG_TYPE_FLOAT,
-  GOLEM_REG_TYPE_DOUBLE,
-  GOLEM_REG_TYPE_STRING,
-  GOLEM_REG_TYPE_OBJECT,
-  GOLEM_REG_TYPE_POINTER
-} GolemVMRegType;
+  GOLEM_DATA_TYPE_UNDEFINED,
+  GOLEM_DATA_TYPE_INT8,
+  GOLEM_DATA_TYPE_INT16,
+  GOLEM_DATA_TYPE_INT32,
+  GOLEM_DATA_TYPE_INT64,
+  GOLEM_DATA_TYPE_UINT8,
+  GOLEM_DATA_TYPE_UINT16,
+  GOLEM_DATA_TYPE_UINT32,
+  GOLEM_DATA_TYPE_UINT64,
+  GOLEM_DATA_TYPE_FLOAT,
+  GOLEM_DATA_TYPE_DOUBLE,
+  GOLEM_DATA_TYPE_STRING,
+  GOLEM_DATA_TYPE_OBJECT,
+  GOLEM_DATA_TYPE_POINTER
+} GolemVMDataType;
 
 typedef union
 {
@@ -104,84 +113,118 @@ typedef union
   gfloat float_v;
   gdouble double_v;
   gpointer pointer_v;
-}GolemVMReg;
+}GolemVMData;
 
 typedef struct
 {
-  GolemVMOpCode code: 8;
+  GolemVMOpCode code;
+  union {
+    GolemVMDataType type;
+    struct {
+      guint16 index;
+      guint16 offset;
+      guint8 size;
+    } scope;
+    guint32 arg0;
+  } data;
 }GolemVMOp;
 
-typedef struct
-{
-  GolemVMOpCode code: 8;
-  GolemVMRegType arg0: 8;
-}GolemVMOpType;
 
 typedef struct
 {
-  GolemVMOpCode code: 8;
-  guint32 arg0;
-}GolemVMOp1;
-
-
-typedef struct
-{
-  volatile guint32 refcount;
-  guint16	n_reg;
-  GolemVMReg *  reg;
-}GolemVMContextData;
+  volatile guint32 n_ref;
+  guint16	   n_size;
+  GolemVMData *    m_data;
+  GList * 	   m_garbage;
+}GolemVMScopeData;
 
 typedef struct
 {
-  GolemVMContextData ** m_data;
+  GolemVMScopeData ** m_data;
+  guint16 	      n_data;
+}GolemVMScope;
+
+typedef struct
+{
+  GolemVMData * m_data;
+  GolemVMDataType * m_data_type;
+  guint16 * m_data_size;
   guint16 n_data;
-}GolemVMContext;
-
-typedef struct
-{
-  GolemVMReg * m_data;
-  GolemVMRegType * t_data;
-  guint16 n_data;
-  GolemVMOp ** m_op;
+  GolemVMOp * m_op;
   guint32 n_op;
-}GolemVMBody;
+} GolemVMBody;
 
 
-typedef struct
-{
-  guint8 m_symbol[GOLEM_VM_SYMBOL_SIZE];
-  GolemVMRegType m_arg[G_MAXUINT8];
-  guint16 n_arg;
-  GolemVMContext * m_context;
-  GolemVMBody * m_body;
-}GolemVMSymbol;
+GolemVMScope* 	golem_vm_scope_new(void);
+
+void		golem_vm_scope_enter(GolemVMScope * scope,guint16 size);
+
+void		golem_vm_scope_gc(GolemVMScope * scope,gpointer data);
+
+void		golem_vm_scope_get(GolemVMScope * scope,
+				     guint16 index,
+				     guint16 offset,
+				     guint8  size,
+				     GolemVMData * dest);
+
+void		golem_vm_scope_set(GolemVMScope * scope,
+				     guint16 index,
+				     guint16 offset,
+				     guint8  size,
+				     const GolemVMData * src);
+
+void		golem_vm_scope_ptr(GolemVMScope * scope,
+				     guint16 index,
+				     guint16 offset,
+				     GolemVMData * dest);
+
+void		golem_vm_scope_exit(GolemVMScope * scope,
+				    guint16 index);
+
+GolemVMScope* 	golem_vm_scope_copy(GolemVMScope * scope);
+
+void		golem_vm_scope_free(GolemVMScope * scope);
+
+
+GolemVMBody *	golem_vm_body_new(void);
+
+guint32		golem_vm_body_get_offset(GolemVMBody * body);
+
+gsize		golem_vm_body_get_length(GolemVMBody * body);
+
+guint32		golem_vm_body_write_data(GolemVMBody * body,
+					 GolemVMData * reg,
+					 GolemVMDataType reg_type,
+					 guint16 reg_size);
+
+void		golem_vm_body_write_op(GolemVMBody * body,
+				       GolemVMOpCode code);
+
+void		golem_vm_body_write_opn(GolemVMBody * body,
+					 GolemVMOpCode code,
+					 guint32 arg0);
+
+void		golem_vm_body_update_opn(GolemVMBody * body,
+					 guint32 opindex,
+					 guint32 arg0);
+
+void		golem_vm_body_write_opt(GolemVMBody * body,
+					GolemVMOpCode code,
+					GolemVMDataType type);
+
+void		golem_vm_body_write_ops(GolemVMBody * body,
+					GolemVMOpCode code,
+					guint16 index,
+					guint16 offset,
+					guint8 size);
 
 gboolean	golem_vm_body_run(GolemVMBody * body,
-				  GolemVMContext * context,
+				  GolemVMScope * scope,
+				  GolemVMData * ret,
 				  GError ** error);
 
 GolemVMBody *	golem_vm_body_copy(GolemVMBody * body);
 
 void		golem_vm_body_free(GolemVMBody * body);
-
-
-
-GolemVMSymbol * golem_vm_symbol_new(GolemVMBody * body,
-				    GolemVMContext * context,
-				    ...);
-
-GolemVMSymbol * golem_vm_symbol_newv(GolemVMBody * body,
-				     GolemVMContext * context,
-				     GolemVMRegType * varguments,
-				     guint16 narguments);
-
-GolemVMReg	golem_vm_symbol_invoke(GolemVMSymbol * symbol,...);
-
-gboolean	golem_vm_symbol_invokev(GolemVMSymbol * symbol,
-					const GolemVMReg * reg,
-					GolemVMReg * result,
-					GError ** error);
-
-void		golem_vm_symbol_free(GolemVMSymbol * symbol);
 
 #endif /* GVM_H_ */
