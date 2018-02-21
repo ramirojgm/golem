@@ -37,10 +37,11 @@ typedef enum
   /* HANDLE EXCEPTION */
   GOLEM_OP_AHE, //ADD HANDLE EXCEPTION
   GOLEM_OP_THW, //THROW EXCEPTION
+  GOLEM_OP_EHE, //EXTERNAL HANDLE EXCEPTION
   GOLEM_OP_RHE, //REMOVE HANDLE EXCEPTION
   /* MEMORY */
-  GOLEM_OP_ALM, //ALLOC MEMORY
-  GOLEM_OP_ALZ, //ALLOC MEMORY WITH ZERO
+  GOLEM_OP_MAC, //ALLOC MEMORY
+  GOLEM_OP_MAZ, //ALLOC MEMORY WITH ZERO
   GOLEM_OP_FRE, //FREE MEMORY
   GOLEM_OP_PTO, //POINTER OF
   GOLEM_OP_PTW, //WRITE POINTER
@@ -117,6 +118,13 @@ typedef union
 
 typedef struct
 {
+  GParameter *	m_parameter;
+  guint 	n_parameter;
+} GolemVMContruct;
+
+
+typedef struct
+{
   GolemVMOpCode code;
   union {
     GolemVMDataType type;
@@ -153,6 +161,15 @@ typedef struct
   GolemVMOp * m_op;
   guint32 n_op;
 } GolemVMBody;
+
+typedef struct
+{
+  gboolean (*invoke)(gpointer invoke,
+		     guint8 argc,
+		     GolemVMData * argv,
+		     GolemVMData * ret,
+		     GolemVMData * error);
+} GolemVMInvocable;
 
 
 GolemVMScope* 	golem_vm_scope_new(void);

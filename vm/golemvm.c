@@ -17,23 +17,31 @@
 
 #include "golemvm.h"
 #include <string.h>
+#include <math.h>
 
 #define GOLEM_VM_REG_COUNT 32
+#define GOLEM_VM_ARG_COUNT 32
 
 typedef struct
 {
-  GObjectConstructParam * m_param;
-  guint16 		  n_param;
-}GolemVMConstruct;
+  guint16 n_jump;
+  guint16 n_scope;
+} GolemVM_EH;
 
-#define GOLEM_VM_OP_NUMERIC_ART(op,vtype) m_reg[n_reg - 2].vtype = m_reg[n_reg - 2].vtype op m_reg[n_reg - 1].vtype;\
-					  n_reg -= 1;
+typedef struct
+{
+  GParameter * m_parameter;
+  guint32      n_parameter;
+} GolemVM_NO;
 
-#define GOLEM_VM_OP_NUMERIC_CMP(op,vtype) m_reg[n_reg - 2].int32_v = m_reg[n_reg - 2].vtype op m_reg[n_reg - 1].vtype;\
-					  n_reg -= 1;
+#define GOLEM_VM_OPA(op,vtype) m_reg[n_reg - 2].vtype = m_reg[n_reg - 2].vtype op m_reg[n_reg - 1].vtype;\
+			       n_reg -= 1;
+
+#define GOLEM_VM_OPC(op,vtype) m_reg[n_reg - 2].int32_v = m_reg[n_reg - 2].vtype op m_reg[n_reg - 1].vtype;\
+			       n_reg -= 1;
 
 
-#define GOLEM_VM_OP_NUMERIC(vop,reg_use)  {\
+#define GOLEM_VM_OPN(vop,reg_use)  {\
   switch(op->data.type)\
   {\
   case GOLEM_DATA_TYPE_DOUBLE:\
@@ -76,7 +84,7 @@ typedef struct
   }\
 }
 
-#define GOLEM_VM_OP_INT(vop,reg_use)  {\
+#define GOLEM_VM_OPI(vop,reg_use)  {\
   switch(op->data.type)\
   {\
   case GOLEM_DATA_TYPE_UINT8:\
@@ -203,6 +211,14 @@ golem_vm_body_write_ops(GolemVMBody * body,
   body->n_op += 1;
 }
 
+void
+golem_vm_body_update_opn(GolemVMBody * body,
+			 guint32 opindex,
+			 guint32 arg0)
+{
+  body->m_op[opindex].data.arg0 = arg0;
+}
+
 
 gboolean
 golem_vm_body_run(GolemVMBody * body,
@@ -212,8 +228,16 @@ golem_vm_body_run(GolemVMBody * body,
 {
   GolemVMData m_reg[GOLEM_VM_REG_COUNT] = {0,};
   gint8       n_reg = 0;
+  GolemVMData m_arg[GOLEM_VM_ARG_COUNT] = {0,};
+  gint8       n_arg = 0;
   GolemVMOp*  m_op = body->m_op;
   guint32     n_op = 0;
+
+  GList *     m_eh_queue = NULL;
+  GolemVMData m_eh_value;
+
+  GList *     m_no_queue = NULL;
+
   gboolean    m_done = TRUE;
 
 
@@ -280,21 +304,28 @@ golem_vm_body_run(GolemVMBody * body,
 
 	/* TRY CATCH */
 	case GOLEM_OP_AHE: //ADD HANDLE EXCEPTION
-	  //TODO: implement
+	  {
+	    GolemVM_EH * eh = g_new(GolemVM_EH,1);
+	    eh->n_jump = op->data.arg0;
+	    eh->n_scope = scope->n_data - 1;
+	    m_eh_queue = g_list_append(m_eh_queue,eh);
+	  }
 	  break;
 	case GOLEM_OP_THW: //THROW EXCEPTION
-	  //TODO: implement
+	  m_done = FALSE;
+	  m_eh_value = m_reg[n_reg - 1];
+	  n_reg --;
 	  break;
 	case GOLEM_OP_RHE: //REMOVE HANDLE EXCEPTION
-	  //TODO: implement
+	  m_eh_queue = g_list_remove_link(g_list_first(m_eh_queue),g_list_last(m_eh_queue));
 	  break;
 
 	/* MEMORY */
-	case GOLEM_OP_ALM: //ALLOC MEMORY
+	case GOLEM_OP_MAC: //ALLOC MEMORY
 	  m_reg[n_reg].pointer_v = g_malloc(op->data.arg0);
 	  n_reg ++;
 	  break;
-	case GOLEM_OP_ALZ: //ALLOC MEMORY WITH ZERO
+	case GOLEM_OP_MAZ: //ALLOC MEMORY WITH ZERO
 	  m_reg[n_reg].pointer_v = g_malloc0(op->data.arg0);
 	  n_reg ++;
 	  break;
@@ -322,55 +353,97 @@ golem_vm_body_run(GolemVMBody * body,
 	case GOLEM_OP_PR: //PROPERTY READ
 	case GOLEM_OP_IR: //INCREASE REFERENCE
 	case GOLEM_OP_DR: //DECREASE REFERENCE
+	  break;
 
         /* FUNCTION */
 	case GOLEM_OP_ARG: //ARGUMENT
+	  m_arg[n_arg] = m_reg[n_reg -1];
+	  n_reg --;
+	  n_arg ++;
+	  break;
 	case GOLEM_OP_CAL: //CALL FUNCTION
+	  {
+	    guint8 argc = op->data.arg0;
+	    GolemVMData * argv = g_memdup(&(m_arg[n_arg - argc]),sizeof(GolemVMData) * argc);
+	    GolemVMInvocable * inv = (GolemVMInvocable *)m_reg[n_reg - 1].pointer_v;
+	    GolemVMData ret = {0,}, error = {0,};
+	    if(inv->invoke(inv,argc,argv,&ret,&error)) {
+	      m_reg[n_reg - 1] = ret;
+	    }
+	    else {
+	      m_eh_value = error;
+	      m_done = FALSE;
+	    }
+	    n_arg -= argc;
+	    g_free(argv);
+	  }
+	  break;
 
-	case GOLEM_OP_ADD:
-	 GOLEM_VM_OP_NUMERIC(+,GOLEM_VM_OP_NUMERIC_ART)
+	/* ARITMETICAL OP */
+	case GOLEM_OP_ADD: //ADD
+	 GOLEM_VM_OPN(+,GOLEM_VM_OPA)
 	 break;
-	case GOLEM_OP_MUL:
-	  GOLEM_VM_OP_NUMERIC(*,GOLEM_VM_OP_NUMERIC_ART)
+	case GOLEM_OP_MUL: //MULTIPLICATE
+	  GOLEM_VM_OPN(*,GOLEM_VM_OPA)
 	  break;
-	case GOLEM_OP_DIV:
-	  GOLEM_VM_OP_NUMERIC(/,GOLEM_VM_OP_NUMERIC_ART)
+	case GOLEM_OP_DIV: //DIVIDE
+	  GOLEM_VM_OPN(/,GOLEM_VM_OPA)
 	  break;
-	case GOLEM_OP_SUB:
-	  GOLEM_VM_OP_NUMERIC(-,GOLEM_VM_OP_NUMERIC_ART)
+	case GOLEM_OP_SUB: //SUBSTRACT
+	  GOLEM_VM_OPN(-,GOLEM_VM_OPA)
 	  break;
+	case GOLEM_OP_MOD: //MODULE
+	  GOLEM_VM_OPI(%,GOLEM_VM_OPA)
+	  break;
+	case GOLEM_OP_EXP: //EXPONENT
+	  break;
+	case GOLEM_OP_IDV: //INTEGER DIVIDE
+	  break;
+
+	/* COMPARATION OP */
 	case GOLEM_OP_LT:
-	  GOLEM_VM_OP_NUMERIC(<,GOLEM_VM_OP_NUMERIC_CMP);
+	  GOLEM_VM_OPN(<,GOLEM_VM_OPC);
 	  break;
 	case GOLEM_OP_GT:
-	  GOLEM_VM_OP_NUMERIC(>,GOLEM_VM_OP_NUMERIC_CMP)
+	  GOLEM_VM_OPN(>,GOLEM_VM_OPC)
 	  break;
 	case GOLEM_OP_IQT:
-	  GOLEM_VM_OP_NUMERIC(==,GOLEM_VM_OP_NUMERIC_CMP)
+	  GOLEM_VM_OPN(==,GOLEM_VM_OPC)
 	  break;
 	case GOLEM_OP_DST:
-	  GOLEM_VM_OP_NUMERIC(!=,GOLEM_VM_OP_NUMERIC_CMP)
+	  GOLEM_VM_OPN(!=,GOLEM_VM_OPC)
 	  break;
-	case GOLEM_OP_MOD:
-	  GOLEM_VM_OP_INT(%,GOLEM_VM_OP_NUMERIC_ART)
-	  break;
+
+	/* LOGICAL OP */
 	case GOLEM_OP_AND:
-	  GOLEM_VM_OP_INT(&,GOLEM_VM_OP_NUMERIC_ART)
+	  GOLEM_VM_OPI(&,GOLEM_VM_OPA)
 	  break;
 	case GOLEM_OP_OR:
-	  GOLEM_VM_OP_INT(|,GOLEM_VM_OP_NUMERIC_ART)
+	  GOLEM_VM_OPI(|,GOLEM_VM_OPA)
 	  break;
-
-
-
-
-
-
-
-
 	default:
 	  n_op = body->n_op;
       }
+
+      if(!m_done)
+	{
+	  if(m_eh_queue)
+	    {
+	      GolemVM_EH * eh = ((GolemVM_EH *)g_list_last(m_eh_queue)->data);
+	      n_op = eh->n_jump;
+	      golem_vm_scope_exit(scope,eh->n_scope);
+	      m_reg[n_reg] = m_eh_value;
+	      n_reg ++;
+	      m_eh_value.int64_v = 0;
+	      m_eh_queue = g_list_remove(m_eh_queue,eh);
+	      g_free(eh);
+	      m_done = TRUE;
+	    }
+	  else
+	    {
+	      break;
+	    }
+	}
 
       if(n_op >= body->n_op)
 	break;
