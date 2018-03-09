@@ -47,8 +47,10 @@ typedef enum
   GOLEM_OP_PTW, //WRITE POINTER
   GOLEM_OP_PTR, //READ POINTER
   /* OBJECT */
-  GOLEM_OP_NEW, //NEW
-  GOLEM_OP_CP, //CONSTRUCT PARAM
+  GOLEM_OP_SOD, //OBJECT DEFINITION
+  GOLEM_OP_POD, //CONSTRUCT PARAM
+  GOLEM_OP_NEW, //NEW OBJECT
+  GOLEM_OP_DCT, //NEW DICTIONATY
   GOLEM_OP_FF, //FUNCTION FIND
   GOLEM_OP_PW, //PROPERTY WRITE
   GOLEM_OP_PR, //PROPERTY READ
@@ -85,21 +87,22 @@ typedef enum
 
 typedef enum
 {
-  GOLEM_DATA_TYPE_UNDEFINED,
-  GOLEM_DATA_TYPE_INT8,
-  GOLEM_DATA_TYPE_INT16,
-  GOLEM_DATA_TYPE_INT32,
-  GOLEM_DATA_TYPE_INT64,
-  GOLEM_DATA_TYPE_UINT8,
-  GOLEM_DATA_TYPE_UINT16,
-  GOLEM_DATA_TYPE_UINT32,
-  GOLEM_DATA_TYPE_UINT64,
-  GOLEM_DATA_TYPE_FLOAT,
-  GOLEM_DATA_TYPE_DOUBLE,
-  GOLEM_DATA_TYPE_STRING,
-  GOLEM_DATA_TYPE_OBJECT,
-  GOLEM_DATA_TYPE_POINTER
-} GolemVMDataType;
+  GOLEM_TYPE_CODE_UNDEFINED,
+  GOLEM_TYPE_CODE_INT8,
+  GOLEM_TYPE_CODE_INT16,
+  GOLEM_TYPE_CODE_INT32,
+  GOLEM_TYPE_CODE_INT64,
+  GOLEM_TYPE_CODE_UINT8,
+  GOLEM_TYPE_CODE_UINT16,
+  GOLEM_TYPE_CODE_UINT32,
+  GOLEM_TYPE_CODE_UINT64,
+  GOLEM_TYPE_CODE_FLOAT,
+  GOLEM_TYPE_CODE_DOUBLE,
+  GOLEM_TYPE_CODE_STRING,
+  GOLEM_TYPE_CODE_STRUCT,
+  GOLEM_TYPE_CODE_OBJECT,
+  GOLEM_TYPE_CODE_POINTER
+} GolemTypeCode;
 
 typedef union
 {
@@ -118,22 +121,16 @@ typedef union
 
 typedef struct
 {
-  GParameter *	m_parameter;
-  guint 	n_parameter;
-} GolemVMContruct;
-
-
-typedef struct
-{
   GolemVMOpCode code;
   union {
-    GolemVMDataType type;
+    GolemTypeCode type;
     struct {
       guint16 index;
       guint16 offset;
       guint8 size;
-    } scope;
-    guint32 arg0;
+    } scope_v;
+    guint16 int16_v;
+    guint32 int32_v;
   } data;
 }GolemVMOp;
 
@@ -143,7 +140,8 @@ typedef struct
   volatile guint32 n_ref;
   guint16	   n_size;
   GolemVMData *    m_data;
-  GList * 	   m_garbage;
+  GList * 	   m_gcobj;
+  GList * 	   m_gcmem;
 }GolemVMScopeData;
 
 typedef struct
@@ -155,7 +153,7 @@ typedef struct
 typedef struct
 {
   GolemVMData * m_data;
-  GolemVMDataType * m_data_type;
+  GolemTypeCode * m_data_type;
   guint16 * m_data_size;
   guint16 n_data;
   GolemVMOp * m_op;
@@ -168,9 +166,10 @@ typedef struct
 		     guint8 argc,
 		     GolemVMData * argv,
 		     GolemVMData * ret,
-		     GolemVMData * error);
+		     GError ** error);
 } GolemVMInvocable;
 
+G_BEGIN_DECLS
 
 GolemVMScope* 	golem_vm_scope_new(void);
 
@@ -203,45 +202,67 @@ GolemVMScope* 	golem_vm_scope_copy(GolemVMScope * scope);
 void		golem_vm_scope_free(GolemVMScope * scope);
 
 
+GLIB_AVAILABLE_IN_ALL
 GolemVMBody *	golem_vm_body_new(void);
 
+GLIB_AVAILABLE_IN_ALL
 guint32		golem_vm_body_get_offset(GolemVMBody * body);
 
+GLIB_AVAILABLE_IN_ALL
 gsize		golem_vm_body_get_length(GolemVMBody * body);
 
+GLIB_AVAILABLE_IN_ALL
 guint32		golem_vm_body_write_data(GolemVMBody * body,
 					 GolemVMData * reg,
-					 GolemVMDataType reg_type,
+					 GolemTypeCode reg_type,
 					 guint16 reg_size);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_body_write_op(GolemVMBody * body,
 				       GolemVMOpCode code);
 
-void		golem_vm_body_write_opn(GolemVMBody * body,
+GLIB_AVAILABLE_IN_ALL
+void		golem_vm_body_write_op16(GolemVMBody * body,
+					 GolemVMOpCode code,
+					 guint16 arg0);
+GLIB_AVAILABLE_IN_ALL
+void		golem_vm_body_write_op32(GolemVMBody * body,
 					 GolemVMOpCode code,
 					 guint32 arg0);
+GLIB_AVAILABLE_IN_ALL
+void		golem_vm_body_update_op16(GolemVMBody * body,
+					 guint32 opindex,
+					 guint16 arg0);
 
-void		golem_vm_body_update_opn(GolemVMBody * body,
+GLIB_AVAILABLE_IN_ALL
+void		golem_vm_body_update_op32(GolemVMBody * body,
 					 guint32 opindex,
 					 guint32 arg0);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_body_write_opt(GolemVMBody * body,
 					GolemVMOpCode code,
-					GolemVMDataType type);
+					GolemTypeCode type);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_body_write_ops(GolemVMBody * body,
 					GolemVMOpCode code,
 					guint16 index,
 					guint16 offset,
 					guint8 size);
 
+GLIB_AVAILABLE_IN_ALL
 gboolean	golem_vm_body_run(GolemVMBody * body,
 				  GolemVMScope * scope,
 				  GolemVMData * ret,
 				  GError ** error);
 
+GLIB_AVAILABLE_IN_ALL
 GolemVMBody *	golem_vm_body_copy(GolemVMBody * body);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_body_free(GolemVMBody * body);
 
-#endif /* GVM_H_ */
+G_END_DECLS
+
+#endif /* GOLEM_VM_H_ */

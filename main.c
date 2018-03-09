@@ -16,7 +16,7 @@
  */
 
 
-#include "vm/golemvm.h"
+#include "golem.h"
 
 
 gint
@@ -44,26 +44,26 @@ main(gint argc,gchar ** argv)
   golem_vm_body_write_data(body,&one,0,0);
 
 
-  golem_vm_body_write_opn(body,GOLEM_OP_SE,sizeof(gdouble) + sizeof(gint32));//0
-  golem_vm_body_write_opn(body,GOLEM_OP_DAT,DATA_ZERO); //1
+  golem_vm_body_write_op32(body,GOLEM_OP_SE,sizeof(gdouble) + sizeof(gint32));//0
+  golem_vm_body_write_op16(body,GOLEM_OP_DAT,DATA_ZERO); //1
   golem_vm_body_write_ops(body,GOLEM_OP_PSH,VAR_SUM); //2
-  golem_vm_body_write_opn(body,GOLEM_OP_DAT,DATA_ONE); //3
+  golem_vm_body_write_op16(body,GOLEM_OP_DAT,DATA_ONE); //3
   golem_vm_body_write_ops(body,GOLEM_OP_PSH,VAR_COUNT); //4
 
   golem_vm_body_write_ops(body,GOLEM_OP_POP,VAR_SUM); //5 BEGIN LOOP
-  golem_vm_body_write_opn(body,GOLEM_OP_DAT,DATA_INC); //6
-  golem_vm_body_write_opn(body,GOLEM_OP_ADD,GOLEM_DATA_TYPE_DOUBLE);//7
+  golem_vm_body_write_op32(body,GOLEM_OP_DAT,DATA_INC); //6
+  golem_vm_body_write_opt(body,GOLEM_OP_ADD,GOLEM_TYPE_CODE_DOUBLE);//7
   golem_vm_body_write_ops(body,GOLEM_OP_PSH,VAR_SUM); //8
   golem_vm_body_write_ops(body,GOLEM_OP_POP,VAR_COUNT); // 9
-  golem_vm_body_write_opn(body,GOLEM_OP_DAT,DATA_ONE); //10
-  golem_vm_body_write_opn(body,GOLEM_OP_ADD,GOLEM_DATA_TYPE_INT32);//11
+  golem_vm_body_write_opt(body,GOLEM_OP_DAT,DATA_ONE); //10
+  golem_vm_body_write_opt(body,GOLEM_OP_ADD,GOLEM_TYPE_CODE_INT32);//11
   golem_vm_body_write_ops(body,GOLEM_OP_PSH,VAR_COUNT); //12
   golem_vm_body_write_ops(body,GOLEM_OP_POP,VAR_SUM); //13 BEGIN LOOP
-  golem_vm_body_write_opn(body,GOLEM_OP_DAT,DATA_STOP); //14
-  golem_vm_body_write_opn(body,GOLEM_OP_LT,GOLEM_DATA_TYPE_DOUBLE);//15
-  golem_vm_body_write_opn(body,GOLEM_OP_CND,5);//16 END LOOP
+  golem_vm_body_write_op32(body,GOLEM_OP_DAT,DATA_STOP); //14
+  golem_vm_body_write_opt(body,GOLEM_OP_LT,GOLEM_TYPE_CODE_DOUBLE);//15
+  golem_vm_body_write_op32(body,GOLEM_OP_CND,5);//16 END LOOP
   golem_vm_body_write_ops(body,GOLEM_OP_POP,VAR_COUNT); //17
-  golem_vm_body_write_opn(body,GOLEM_OP_SX,0);//18
+  golem_vm_body_write_op32(body,GOLEM_OP_SX,0);//18
   golem_vm_body_write_op(body,GOLEM_OP_RET);//19
 
   golem_vm_body_run(body,NULL,&result,NULL);
