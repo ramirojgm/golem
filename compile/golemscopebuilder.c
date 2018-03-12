@@ -27,6 +27,7 @@ typedef struct
   GolemVMBody * m_body;
   GList * 	m_def;
   guint32	n_index;
+  guint32	n_offset;
   guint32	n_size;
 } GolemScopeInfo;
 
@@ -123,7 +124,7 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
       scope_info->n_size += def->n_size;
       scope_info->m_def = g_list_append(scope_info->m_def,def);
       golem_vm_body_update_op32(scope_info->m_body,
-				scope_info->n_index,
+				scope_info->n_offset,
 				scope_info->n_size);
     }
   else
@@ -167,12 +168,15 @@ golem_scope_builder_enter(GolemScopeBuilder * scope,
   info->m_body = body;
   info->m_def = NULL;
   info->n_size = 0;
+  info->n_index = g_list_length(scope->priv->scopes);
+  info->n_offset = golem_vm_body_get_offset(body);
+  golem_vm_body_write_op32(body,GOLEM_OP_SX,0);
+  scope->priv->scopes = g_list_append(scope->priv->scopes,info);
   return TRUE;
 }
 
 gboolean
 golem_scope_builder_get(GolemScopeBuilder * scope,
-			GolemVMBody * body,
 			const gchar * name,
 			GError ** error)
 {
@@ -188,7 +192,12 @@ golem_scope_builder_get(GolemScopeBuilder * scope,
  	  GolemScopeDefineInfo * def_info = (GolemScopeDefineInfo*)def_iter->data;
  	  if(g_strcmp0(def_info->m_name,name) == 0)
  	    {
-
+ 	      golem_vm_body_write_ops(scope_info->m_body,
+				      GOLEM_OP_POP,
+				      scope_info->n_index,
+				      def_info->n_offset,
+				      def_info->n_size);
+ 	      return TRUE;
  	    }
  	}
      }
@@ -197,17 +206,38 @@ golem_scope_builder_get(GolemScopeBuilder * scope,
 
 gboolean
 golem_scope_builder_set(GolemScopeBuilder * scope,
-			GolemVMBody * body,
 			const gchar * name,
 			GError ** error)
 {
-
+  for(GList * scope_iter = g_list_first(scope->priv->scopes);
+       scope_iter;
+       scope_iter = g_list_next(scope_iter))
+     {
+       GolemScopeInfo * scope_info = (GolemScopeInfo*) scope_iter->data;
+       for(GList * def_iter = g_list_first(scope_info->m_def);
+ 	  def_iter;
+ 	  def_iter = g_list_next(def_iter))
+ 	{
+ 	  GolemScopeDefineInfo * def_info = (GolemScopeDefineInfo*)def_iter->data;
+ 	  if(g_strcmp0(def_info->m_name,name) == 0)
+ 	    {
+ 	      golem_vm_body_write_ops(scope_info->m_body,
+				      GOLEM_OP_PSH,
+				      scope_info->n_index,
+				      def_info->n_offset,
+				      def_info->n_size);
+ 	      return TRUE;
+ 	    }
+ 	}
+     }
+  return FALSE;
 }
 
 gboolean
 golem_scope_builder_exit(GolemScopeBuilder * scope,
-			 GolemVMBody * body,
 			 GError ** error)
 {
-
+  GolemScopeInfo * scope_info = (GolemScopeInfo*) g_list_last(scope->priv->scopes)->data;
+  golem_vm_body_write_op32(scope_info->m_body,GOLEM_OP_SX,scope_info->n_index);
+  return TRUE;
 }

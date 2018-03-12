@@ -15,17 +15,7 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
 
-#include "vm/golemvm.h"
+#include "golem.h"
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemblock.h"
-#include "compile/golemvar.h"
-
-#include "golemerror.h"
-
-#endif /* GOLEM_H_ */
+G_DEFINE_QUARK(GOLEM_ERROR,golem_error)

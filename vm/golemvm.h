@@ -171,34 +171,43 @@ typedef struct
 
 G_BEGIN_DECLS
 
+GLIB_AVAILABLE_IN_ALL
 GolemVMScope* 	golem_vm_scope_new(void);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_enter(GolemVMScope * scope,guint16 size);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_gc(GolemVMScope * scope,gpointer data);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_get(GolemVMScope * scope,
 				     guint16 index,
 				     guint16 offset,
 				     guint8  size,
 				     GolemVMData * dest);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_set(GolemVMScope * scope,
 				     guint16 index,
 				     guint16 offset,
 				     guint8  size,
 				     const GolemVMData * src);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_ptr(GolemVMScope * scope,
 				     guint16 index,
 				     guint16 offset,
 				     GolemVMData * dest);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_exit(GolemVMScope * scope,
 				    guint16 index);
 
+GLIB_AVAILABLE_IN_ALL
 GolemVMScope* 	golem_vm_scope_copy(GolemVMScope * scope);
 
+GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_free(GolemVMScope * scope);
 
 

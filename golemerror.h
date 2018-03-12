@@ -15,17 +15,24 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
+#ifndef GOLEMERROR_H_
+#define GOLEMERROR_H_
 
-#include "vm/golemvm.h"
+enum {
+  GOLEM_RUNTIME_ERROR_NULL_POINTER,
+} GolemRuntimeErrorEnum;
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemblock.h"
-#include "compile/golemvar.h"
+enum {
+  GOLEM_COMPILE_ERROR_SYNTAXES,
+} GolemCompileErrorEnum;
 
-#include "golemerror.h"
+enum {
+  GOLEM_VM_ERROR_NULL_POINTER,
+} GolemVMErrorEnum;
 
-#endif /* GOLEM_H_ */
+#define GOLEM_ERROR (golem_error_quark())
+
+GLIB_AVAILABLE_IN_ALL
+GQuark	golem_error_quark(void);
+
+#endif /* GOLEMERROR_H_ */

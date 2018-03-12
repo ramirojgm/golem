@@ -67,12 +67,11 @@ gboolean	golem_parser_is_next_word(GolemParser * parser,
 
 GLIB_AVAILABLE_IN_ALL
 const gchar *	golem_parser_next_word(GolemParser * parser,
-				       gsize * length,
 				       gboolean move);
 
 GLIB_AVAILABLE_IN_ALL
-gboolean	golem_parser_next_word_check(GolemParser * parser,
-					     const gchar * str);
+gboolean	golem_parser_check(GolemParser * parser,
+				   const gchar * str);
 
 GLIB_AVAILABLE_IN_ALL
 void		golem_parser_save_point(GolemParser * parser);

@@ -22,8 +22,37 @@
 gint
 main(gint argc,gchar ** argv)
 {
-  GolemVMBody * body = golem_vm_body_new();
-  GolemVMData zero,result,inc,stop,one;
+  GolemParser * p = golem_parser_new("main.glm");
+  GError * error = NULL;
+  golem_parser_parse(p,"{ int x; int x; }",-1);
+  GolemStatement * block = golem_statement_parse(p,&error);
+  if(block)
+    {
+      GolemVMData ret = {0};
+      GolemScopeBuilder * scope_builder = golem_scope_builder_new();
+      GolemVMBody * body = golem_vm_body_new();
+      if(golem_statement_compile(block,
+				  body,
+				  scope_builder,
+				  &error))
+	{
+	  golem_vm_body_run(body,NULL,&ret,&error);
+	  g_print("%d",ret.int32_v);
+	}
+      else
+	{
+	  g_printerr("%s",error->message);
+	  g_error_free(error);
+	}
+    }
+  else
+    {
+      g_printerr("%s",error->message);
+      g_error_free(error);
+    }
+
+
+ /* GolemVMData zero,result,inc,stop,one;
   zero.double_v = 0;
   one.int32_v = 1;
   stop.double_v = 7000000;
@@ -69,7 +98,7 @@ main(gint argc,gchar ** argv)
   golem_vm_body_run(body,NULL,&result,NULL);
   g_print("Result: %d\n",result.int32_v);
 
-  /*gdouble sum = 0;
+  gdouble sum = 0;
   gint32 count;
   for(count = 1;sum < 7000000.0; count ++)
     {

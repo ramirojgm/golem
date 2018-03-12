@@ -60,19 +60,16 @@ gboolean		golem_scope_builder_enter(GolemScopeBuilder * scope,
 
 GLIB_AVAILABLE_IN_ALL
 gboolean		golem_scope_builder_get(GolemScopeBuilder * scope,
-						GolemVMBody * body,
 						const gchar * name,
 						GError ** error);
 
 GLIB_AVAILABLE_IN_ALL
 gboolean		golem_scope_builder_set(GolemScopeBuilder * scope,
-						GolemVMBody * body,
 						const gchar * name,
 						GError ** error);
 
 GLIB_AVAILABLE_IN_ALL
 gboolean		golem_scope_builder_exit(GolemScopeBuilder * scope,
-						 GolemVMBody * body,
 						 GError ** error);
 
 G_END_DECLS

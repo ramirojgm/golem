@@ -319,7 +319,7 @@ golem_parser_is_next_word(GolemParser * parser,const gchar * str)
 }
 
 gboolean
-golem_parser_next_word_has_prefix(GolemParser * parser,const gchar * prefix)
+golem_parser_check_has_prefix(GolemParser * parser,const gchar * prefix)
 {
   GolemParserPrivate * priv;
    GolemParserWord * word;
@@ -374,7 +374,7 @@ golem_parser_skip(GolemParser * parser)
 }
 
 const gchar *
-golem_parser_next_word(GolemParser * parser,gsize * length,gboolean move)
+golem_parser_next_word(GolemParser * parser,gboolean move)
 {
   GolemParserPrivate * priv;
   GolemParserWord * word;
@@ -386,20 +386,16 @@ golem_parser_next_word(GolemParser * parser,gsize * length,gboolean move)
       word = (GolemParserWord *)(priv->cur_word->data);
       if(move)
 	priv->cur_word = g_list_next(priv->cur_word);
-      if(length)
-	*length = word->length;
-      return word->content;
+        return word->content;
     }
   else
     {
-      if(length)
-	*length = 0;
-      return NULL;
+        return NULL;
     }
 }
 
 gboolean
-golem_parser_next_word_check(GolemParser * parser,const gchar * str)
+golem_parser_check(GolemParser * parser,const gchar * str)
 {
   GolemParserPrivate * priv;
   GolemParserWord * word;
@@ -472,8 +468,8 @@ golem_parser_check_is_number(GolemParser * parser)
 {
   gboolean done = FALSE;
   golem_parser_save_point(parser);
-  golem_parser_next_word_check(parser,"-");
-  const gchar * word = golem_parser_next_word(parser,NULL,FALSE);
+  golem_parser_check(parser,"-");
+  const gchar * word = golem_parser_next_word(parser,FALSE);
   if(word)
     {
       if((*word == 'l') || (*word == 'f'))
@@ -503,7 +499,7 @@ golem_parser_check_is_number(GolemParser * parser)
 gboolean
 golem_parser_check_is_hex(GolemParser * parser)
 {
-  return golem_parser_next_word_has_prefix(parser,"0x");
+  return golem_parser_check_has_prefix(parser,"0x");
 }
 
 gboolean
@@ -517,16 +513,16 @@ golem_parser_check_is_const(GolemParser * parser)
 gboolean
 golem_parser_check_is_string(GolemParser * parser)
 {
-  return (golem_parser_next_word_has_prefix(parser,"\"")
+  return (golem_parser_check_has_prefix(parser,"\"")
 	  && golem_parser_next_word_has_suffix(parser,"\""))
-	  ||(golem_parser_next_word_has_prefix(parser,"\'")
+	  ||(golem_parser_check_has_prefix(parser,"\'")
 	  && golem_parser_next_word_has_suffix(parser,"\'"));
 }
 
 gboolean
 golem_parser_check_is_named(GolemParser * parser)
 {
-  const gchar * word = golem_parser_next_word(parser,NULL,FALSE);
+  const gchar * word = golem_parser_next_word(parser,FALSE);
     if(word)
       {
 	if(!isalpha(*word))

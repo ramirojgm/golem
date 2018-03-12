@@ -15,17 +15,19 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
+#ifndef GOLEMBLOCK_H_
+#define GOLEMBLOCK_H_
 
-#include "vm/golemvm.h"
+#define GOLEM_BLOCK_CLASS	(golem_block_get_class())
+#define GOLEM_BLOCK(p)		((GolemBlock*)p)
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemblock.h"
-#include "compile/golemvar.h"
+typedef struct _GolemBlock GolemBlock;
 
-#include "golemerror.h"
+struct _GolemBlock {
+  GolemStatement parent;
+  GList * statements;
+};
 
-#endif /* GOLEM_H_ */
+GolemStatementClass * golem_block_get_class(void);
+
+#endif /* GOLEMBLOCK_H_ */

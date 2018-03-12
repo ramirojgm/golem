@@ -117,7 +117,6 @@ typedef struct
   }\
 }
 
-
 GolemVMBody *
 golem_vm_body_new(void)
 {
@@ -465,8 +464,9 @@ golem_vm_body_run(GolemVMBody * body,
 	break;
       n_op ++;
     }
-
   golem_vm_scope_free(scope);
+  /*if(m_eh_value)
+      g_propagate_error(error,m_eh_value);*/
   return m_done;
 }
 
