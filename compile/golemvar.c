@@ -72,6 +72,15 @@ golem_var_get_type_code(const gchar * type_name)
     return GOLEM_TYPE_CODE_UNDEFINED;
 }
 
+static GolemTypeCode
+golem_var_value_type(GolemVar * var,
+		     GolemScopeBuilder *scope_builder,
+		     GError ** error)
+{
+  return GOLEM_TYPE_CODE_UNDEFINED;
+}
+
+
 static gboolean
 golem_var_compile(GolemVar * var,
 		  GolemVMBody * body,
@@ -93,6 +102,7 @@ golem_var_compile(GolemVar * var,
 static gboolean
 golem_var_parse(GolemVar * var,
 		GolemParser * parser,
+		GolemExpressionLimit limit,
 		GError ** error)
 {
   gboolean done = TRUE;
@@ -123,6 +133,8 @@ static void
 golem_var_info_free(GolemVarInfo * var_info)
 {
   g_free(var_info->name);
+  if(var_info->value)
+    golem_statement_free(var_info->value);
   g_free(var_info);
 }
 

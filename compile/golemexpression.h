@@ -15,27 +15,24 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMVAR_H_
-#define GOLEMVAR_H_
+#ifndef GOLEMEXPRESSION_H_
+#define GOLEMEXPRESSION_H_
 
-#define GOLEM_VAR_CLASS	(golem_var_get_class())
-#define GOLEM_VAR(p)	((GolemVar*)p)
+typedef enum _GolemExpressionLimit GolemExpressionLimit;
 
-typedef struct _GolemVar	GolemVar;
-typedef struct _GolemVarInfo	GolemVarInfo;
-
-struct _GolemVarInfo
-{
-  gchar * name;
-  GolemStatement * value;
+enum _GolemExpressionLimit {
+  GOLEM_EXPRESSION_LIMIT_SEMICOLON,
+  GOLEM_EXPRESSION_LIMIT_SEMICOLON_COMA,
+  GOLEM_EXPRESSION_LIMIT_PARENTHESIS,
+  GOLEM_EXPRESSION_LIMIT_PARENTHESIS_COMA,
+  GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET,
+  GOLEM_EXPRESSION_LIMIT_SQUARE_BRACKET_COMA,
+  GOLEM_EXPRESSION_LIMIT_BRACKET,
+  GOLEM_EXPRESSION_LIMIT_BRACKET_COMA
 };
 
-struct _GolemVar {
-  GolemStatement parent;
-  gchar * type_name;
-  GList * vars;
-};
+GolemStatement * golem_expression_parse(GolemParser * parser,
+					GolemExpressionLimit limit,
+					GError ** error);
 
-GolemStatementClass * golem_var_get_class(void);
-
-#endif /* GOLEMVAR_H_ */
+#endif /* GOLEMEXPRESSION_H_ */

@@ -135,13 +135,32 @@ golem_vm_body_get_length(GolemVMBody * body)
   return body->n_op;
 }
 
-guint32
+guint16
 golem_vm_body_write_data(GolemVMBody * body,
 			 GolemVMData * reg,
 			 GolemTypeCode reg_type,
 			 guint16 reg_size)
 {
-  guint32 offset = body->n_data;
+  for(guint16 data_index = 0; data_index < body->n_data; data_index ++)
+    {
+      GolemVMData * m_data = &(body->m_data[data_index]);
+      GolemTypeCode m_data_type = body->m_data_type[data_index];
+      guint16 m_data_size = body->m_data_size[data_index];
+      if(m_data_type == reg_type && m_data_size == reg_size)
+	{
+	  if(m_data_type == GOLEM_TYPE_CODE_STRING
+	      && strncmp((gchar*)m_data->pointer_v,(gchar*)reg->pointer_v,reg_size) == 0)
+	    {
+	      return data_index;
+	    }
+	  else if(m_data->int64_v == reg->int64_v)
+	    {
+	      return data_index;
+	    }
+	}
+    }
+
+  guint16 offset = body->n_data;
   body->m_data = g_realloc(body->m_data,sizeof(GolemVMData) * (body->n_data + 1));
   body->m_data_type = g_realloc(body->m_data_type,sizeof(GolemTypeCode) * (body->n_data + 1));
   body->m_data_size = g_realloc(body->m_data_size,sizeof(guint16) * (body->n_data + 1));

@@ -18,15 +18,16 @@
 #ifndef GOLEMSTATEMENT_H_
 #define GOLEMSTATEMENT_H_
 
-
-
-
 #define	GOLEM_DEFINE_STATEMENT(N,n)  static void n##_init(N * statement);\
 				     static gboolean n##_parse  (N * statement,\
 								  GolemParser * parser,\
+								  GolemExpressionLimit limit,\
 								  GError ** error);\
 				     static gboolean n##_compile (N* statement,\
 								  GolemVMBody * body,\
+								  GolemScopeBuilder * scope_builder,\
+								  GError ** error);\
+				     static GolemTypeCode n##_value_type (N* statement,\
 								  GolemScopeBuilder * scope_builder,\
 								  GError ** error);\
 				     static void n##_dispose     (N * statement);\
@@ -35,6 +36,7 @@
 								     (GolemStatementInit)n##_init,\
 								     (GolemStatementParse)n##_parse,\
 								     (GolemStatementCompile)n##_compile,\
+								     (GolemStatementValueType)n##_value_type,\
 								     (GolemStatementDispose)n##_dispose,\
 								     (GolemStatementCheck)n##_check,\
 								     sizeof(N)\
@@ -44,17 +46,23 @@
 
 typedef struct _GolemStatementClass GolemStatementClass;
 typedef struct _GolemStatement GolemStatement;
+typedef enum _GolemExpressionLimit GolemExpressionLimit;
 
 typedef void 	 (*GolemStatementInit)(GolemStatement * statement);
 
 typedef gboolean (*GolemStatementParse)(GolemStatement * statement,
 					GolemParser * parser,
+					GolemExpressionLimit limit,
 					GError ** error);
 
 typedef gboolean (*GolemStatementCompile)(GolemStatement * statement,
 					  GolemVMBody * body,
 					  GolemScopeBuilder * scope_builder,
 					  GError ** error);
+
+typedef GolemTypeCode (*GolemStatementValueType)(GolemStatement * statement,
+						GolemScopeBuilder * scope_builder,
+						GError ** error);
 
 typedef void 	 (*GolemStatementDispose)(GolemStatement * statement);
 
@@ -65,6 +73,7 @@ struct _GolemStatementClass {
   GolemStatementInit init;
   GolemStatementParse parse;
   GolemStatementCompile compile;
+  GolemStatementValueType value_type;
   GolemStatementDispose dispose;
 
   /* static */
@@ -79,6 +88,7 @@ struct _GolemStatement {
   guint line;
 };
 
+
 GolemStatement * golem_statement_parse(GolemParser * parser,GError ** error);
 
 gboolean	 golem_statement_check(GolemStatementClass * klass,
@@ -88,6 +98,10 @@ gboolean	 golem_statement_compile(GolemStatement * statement,
 					GolemVMBody * body,
 					GolemScopeBuilder * scope_builder,
 					GError ** error);
+
+GolemTypeCode	 golem_statement_value_type(GolemStatement * statement,
+					    GolemScopeBuilder * scope_builder,
+					    GError ** error);
 
 void		 golem_statement_free(GolemStatement * statement);
 

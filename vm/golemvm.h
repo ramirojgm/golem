@@ -221,7 +221,7 @@ GLIB_AVAILABLE_IN_ALL
 gsize		golem_vm_body_get_length(GolemVMBody * body);
 
 GLIB_AVAILABLE_IN_ALL
-guint32		golem_vm_body_write_data(GolemVMBody * body,
+guint16		golem_vm_body_write_data(GolemVMBody * body,
 					 GolemVMData * reg,
 					 GolemTypeCode reg_type,
 					 guint16 reg_size);

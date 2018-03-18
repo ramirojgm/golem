@@ -23,7 +23,10 @@
 #include "compile/golemparser.h"
 #include "compile/golemscopebuilder.h"
 #include "compile/golemstatement.h"
+#include "compile/golemexpression.h"
 #include "compile/golemblock.h"
+#include "compile/golemreturn.h"
+#include "compile/golemconst.h"
 #include "compile/golemvar.h"
 
 #include "golemerror.h"

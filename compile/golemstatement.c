@@ -27,6 +27,8 @@ golem_statement_parse(GolemParser * parser,
   /* search class */
   if(golem_statement_check(GOLEM_BLOCK_CLASS,parser))
     klass = GOLEM_BLOCK_CLASS;
+  else if(golem_statement_check(GOLEM_RETURN_CLASS,parser))
+    klass = GOLEM_RETURN_CLASS;
   else if(golem_statement_check(GOLEM_VAR_CLASS,parser))
     klass = GOLEM_VAR_CLASS;
 
@@ -35,8 +37,10 @@ golem_statement_parse(GolemParser * parser,
     {
       statement = g_malloc0(klass->size);
       statement->klass = klass;
+      statement->source = g_strdup(golem_parser_get_source_name(parser));
+      statement->line = golem_parser_get_line(parser);
       klass->init(statement);
-      if(!klass->parse(statement,parser,error))
+      if(!klass->parse(statement,parser,GOLEM_EXPRESSION_LIMIT_SEMICOLON,error))
 	{
 	  golem_statement_free(statement);
 	  statement = NULL;
@@ -82,5 +86,6 @@ golem_statement_free(GolemStatement * statement)
 {
   g_return_if_fail(statement != NULL);
   statement->klass->dispose(statement);
+  g_free(statement->source);
   g_free(statement);
 }

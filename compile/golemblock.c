@@ -25,13 +25,22 @@ golem_block_init(GolemBlock * block)
   block->statements = NULL;
 }
 
+static GolemTypeCode
+golem_block_value_type(GolemBlock * var,
+		     GolemScopeBuilder *scope_builder,
+		     GError ** error)
+{
+  return GOLEM_TYPE_CODE_UNDEFINED;
+}
+
+
 static gboolean
 golem_block_compile(GolemBlock * block,
 		    GolemVMBody * body,
 		    GolemScopeBuilder * scope_builder,
 		    GError ** error)
 {
-  gboolean done;
+  gboolean done = TRUE;
   if((done = golem_scope_builder_enter(scope_builder,body,error)))
     {
       for(GList * stmt_iter = g_list_first(block->statements);
@@ -57,6 +66,7 @@ golem_block_compile(GolemBlock * block,
 static gboolean
 golem_block_parse(GolemBlock * block,
 		  GolemParser * parser,
+		  GolemExpressionLimit limit,
 		  GError ** error)
 {
   if(golem_parser_check(parser,"{"))

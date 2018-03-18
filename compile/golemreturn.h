@@ -15,27 +15,19 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMVAR_H_
-#define GOLEMVAR_H_
+#ifndef GOLEMRETURN_H_
+#define GOLEMRETURN_H_
 
-#define GOLEM_VAR_CLASS	(golem_var_get_class())
-#define GOLEM_VAR(p)	((GolemVar*)p)
+#define GOLEM_RETURN_CLASS	(golem_return_get_class())
+#define GOLEM_RETURN(p)		((GolemReturn*)p)
 
-typedef struct _GolemVar	GolemVar;
-typedef struct _GolemVarInfo	GolemVarInfo;
+typedef struct _GolemReturn	GolemReturn;
 
-struct _GolemVarInfo
-{
-  gchar * name;
-  GolemStatement * value;
-};
-
-struct _GolemVar {
+struct _GolemReturn {
   GolemStatement parent;
-  gchar * type_name;
-  GList * vars;
+  GolemStatement * m_expression;
 };
 
-GolemStatementClass * golem_var_get_class(void);
+GolemStatementClass * golem_return_get_class(void);
 
-#endif /* GOLEMVAR_H_ */
+#endif /* GOLEMRETURN_H_ */

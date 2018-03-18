@@ -71,7 +71,7 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
 
   if(scope->priv->scopes)
     {
-      GolemScopeInfo * scope_info = (GolemScopeInfo*)scope->priv->scopes->data;
+      GolemScopeInfo * scope_info = (GolemScopeInfo*)g_list_last(scope->priv->scopes)->data;
 
       //Check not exists
       for(GList * def_iter = g_list_first(scope_info->m_def); def_iter; def_iter = def_iter->next)
@@ -170,7 +170,7 @@ golem_scope_builder_enter(GolemScopeBuilder * scope,
   info->n_size = 0;
   info->n_index = g_list_length(scope->priv->scopes);
   info->n_offset = golem_vm_body_get_offset(body);
-  golem_vm_body_write_op32(body,GOLEM_OP_SX,0);
+  golem_vm_body_write_op32(body,GOLEM_OP_SE,0);
   scope->priv->scopes = g_list_append(scope->priv->scopes,info);
   return TRUE;
 }
@@ -238,6 +238,8 @@ golem_scope_builder_exit(GolemScopeBuilder * scope,
 			 GError ** error)
 {
   GolemScopeInfo * scope_info = (GolemScopeInfo*) g_list_last(scope->priv->scopes)->data;
+  scope->priv->scopes = g_list_remove(scope->priv->scopes,scope_info);
   golem_vm_body_write_op32(scope_info->m_body,GOLEM_OP_SX,scope_info->n_index);
+  //TODO: free scope
   return TRUE;
 }
