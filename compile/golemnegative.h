@@ -15,23 +15,20 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
+#ifndef GOLEMNEGATIVE_H_
+#define GOLEMNEGATIVE_H_
 
-#include "vm/golemvm.h"
+#define GOLEM_NEGATIVE_CLASS	(golem_negative_get_class())
+#define GOLEM_NEGATIVE(p)	((GolemNegative*)p)
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemexpression.h"
-#include "compile/golemnot.h"
-#include "compile/golemnegative.h"
-#include "compile/golemgsvar.h"
-#include "compile/golemblock.h"
-#include "compile/golemreturn.h"
-#include "compile/golemconst.h"
-#include "compile/golemvar.h"
+typedef struct _GolemNegative	GolemNegative;
 
-#include "golemerror.h"
+struct _GolemNegative {
+  GolemStatement parent;
+  GolemStatement * value;
+};
 
-#endif /* GOLEM_H_ */
+GolemStatementClass * golem_negative_get_class(void);
+
+
+#endif /* GOLEMNEGATIVE_H_ */

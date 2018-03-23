@@ -386,7 +386,7 @@ golem_parser_next_word(GolemParser * parser,gboolean move)
       word = (GolemParserWord *)(priv->cur_word->data);
       if(move)
 	priv->cur_word = g_list_next(priv->cur_word);
-        return word->content;
+      return word->content;
     }
   else
     {

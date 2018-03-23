@@ -15,23 +15,20 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
+#ifndef GOLEMGSVAR_H_
+#define GOLEMGSVAR_H_
 
-#include "vm/golemvm.h"
+#define GOLEM_GSVAR_CLASS	(golem_gsvar_get_class())
+#define GOLEM_GSVAR(p)		((GolemGSVar*)p)
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemexpression.h"
-#include "compile/golemnot.h"
-#include "compile/golemnegative.h"
-#include "compile/golemgsvar.h"
-#include "compile/golemblock.h"
-#include "compile/golemreturn.h"
-#include "compile/golemconst.h"
-#include "compile/golemvar.h"
+typedef struct _GolemGSVar	GolemGSVar;
 
-#include "golemerror.h"
+struct _GolemGSVar {
+  GolemStatement parent;
+  gchar * variable_name;
+  GolemStatement * value;
+};
 
-#endif /* GOLEM_H_ */
+GolemStatementClass * golem_gsvar_get_class(void);
+
+#endif /* GOLEMGSVAR_H_ */
