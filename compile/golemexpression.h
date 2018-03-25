@@ -18,7 +18,11 @@
 #ifndef GOLEMEXPRESSION_H_
 #define GOLEMEXPRESSION_H_
 
-typedef enum _GolemExpressionLimit GolemExpressionLimit;
+typedef enum 	_GolemExpressionLimit GolemExpressionLimit;
+typedef struct 	_GolemExpression GolemExpression;
+
+#define GOLEM_EXPRESSION_CLASS	(golem_expression_get_class())
+#define GOLEM_EXPRESSION(p)	((GolemExpression*)p)
 
 enum _GolemExpressionLimit {
   GOLEM_EXPRESSION_LIMIT_SEMICOLON,
@@ -30,6 +34,15 @@ enum _GolemExpressionLimit {
   GOLEM_EXPRESSION_LIMIT_BRACKET,
   GOLEM_EXPRESSION_LIMIT_BRACKET_COMA
 };
+
+
+struct _GolemExpression
+{
+  GolemStatement parent;
+  GList * operations;
+};
+
+GolemStatementClass * golem_expression_get_class(void);
 
 GolemStatement * golem_expression_parse(GolemParser * parser,
 					GolemExpressionLimit limit,

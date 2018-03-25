@@ -24,7 +24,7 @@ main(gint argc,gchar ** argv)
 {
   GolemParser * p = golem_parser_new("main.glm");
   GError * error = NULL;
-  golem_parser_parse(p,"{ return 25.30001f; }",-1);
+  golem_parser_parse(p,"{ int age;  return age; }",-1);
   GolemStatement * block = golem_statement_parse(p,&error);
   if(block)
     {
@@ -37,7 +37,7 @@ main(gint argc,gchar ** argv)
 				  &error))
 	{
 	  golem_vm_body_run(body,NULL,&ret,&error);
-	  g_print("%0.20g",ret.float_v);
+	  g_print("%d",ret.int32_v);
 	}
       else
 	{

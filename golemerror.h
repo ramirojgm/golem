@@ -20,15 +20,10 @@
 
 enum {
   GOLEM_RUNTIME_ERROR_NULL_POINTER,
-} GolemRuntimeErrorEnum;
-
-enum {
+  GOLEM_COMPILE_ERROR_NOT_DEFINED,
   GOLEM_COMPILE_ERROR_SYNTAXES,
-} GolemCompileErrorEnum;
+} GolemErrorEnum;
 
-enum {
-  GOLEM_VM_ERROR_NULL_POINTER,
-} GolemVMErrorEnum;
 
 #define GOLEM_ERROR (golem_error_quark())
 

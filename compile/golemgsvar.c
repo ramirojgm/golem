@@ -21,19 +21,27 @@
 GOLEM_DEFINE_STATEMENT(GolemGSVar,golem_gsvar)
 
 static void
-golem_const_init(GolemGSVar * gsvar)
+golem_gsvar_init(GolemGSVar * gsvar)
 {
   gsvar->variable_name = NULL;
   gsvar->value = NULL;
 }
 
 static GolemTypeCode
-golem_const_value_type(GolemConst * cnst,
+golem_gsvar_value_type(GolemGSVar * gsvar,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-
-  return cnst->type;
+  GolemTypeCode type = golem_scope_builder_type(scope_builder,gsvar->variable_name);
+  if(type == GOLEM_TYPE_CODE_UNDEFINED)
+    {
+      g_propagate_error(error,
+			g_error_new(GOLEM_ERROR,
+				    GOLEM_COMPILE_ERROR_NOT_DEFINED,
+				    "the variable \"%s\" not exists",
+				    gsvar->variable_name));
+    }
+  return type;
 }
 
 
@@ -44,6 +52,27 @@ golem_gsvar_compile(GolemGSVar * gsvar,
 		  GError ** error)
 {
   gboolean done = TRUE;
+  if(gsvar->value)
+    {
+      done = golem_statement_compile(gsvar->value,
+				    body,
+				    scope_builder,
+				    error);
+      if(done)
+	{
+	  golem_vm_body_write_op(body,GOLEM_OP_DUP);
+	  done = golem_scope_builder_set(
+		  scope_builder,
+		  gsvar->variable_name,
+		  error);
+	}
+    }
+  else
+    {
+      done = golem_scope_builder_get(scope_builder,
+				     gsvar->variable_name,
+				     error);
+    }
   return done;
 }
 
@@ -55,7 +84,12 @@ golem_gsvar_parse(GolemGSVar * gsvar,
 		GError ** error)
 {
   gboolean done = TRUE;
-
+  gsvar->variable_name = g_strdup(golem_parser_next_word(parser,TRUE));
+  if(golem_parser_check(parser,"="))
+    {
+      gsvar->value = golem_expression_parse(parser,limit,error);
+      done = gsvar->value != NULL;
+    }
   return done;
 }
 

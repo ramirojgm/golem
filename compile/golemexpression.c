@@ -17,10 +17,55 @@
 
 #include "../golem.h"
 
-GolemStatement *
-golem_expression_parse(GolemParser * parser,
-		       GolemExpressionLimit limit,
-		       GError ** error)
+typedef enum
+{
+  GOLEM_OPERATOR_NON = 0,
+  GOLEM_OPERATOR_ADD,
+  GOLEM_OPERATOR_SUB,
+  GOLEM_OPERATOR_MUL,
+  GOLEM_OPERATOR_DIV,
+  GOLEM_OPERATOR_IDIV,
+  GOLEM_OPERATOR_EXP,
+  GOLEM_OPERATOR_MOD,
+  GOLEM_OPERATOR_IQL,
+  GOLEM_OPERATOR_DST,
+  GOLEM_OPERATOR_LES,
+  GOLEM_OPERATOR_GRE,
+  GOLEM_OPERATOR_ILES,
+  GOLEM_OPERATOR_IGRE,
+  GOLEM_OPERATOR_LAND,
+  GOLEM_OPERATOR_LOR,
+  GOLEM_OPERATOR_BAND,
+  GOLEM_OPERATOR_BOR
+} GolemOperator;
+
+typedef struct
+{
+  GolemOperator operator;
+  GolemStatement * exp1;
+  GolemStatement * exp2;
+} GolemExpressionOperation;
+
+typedef struct
+{
+  GolemOperator operator;
+  GolemStatement * exp;
+} GolemExpressionSingle;
+
+static GolemStatement *
+golem_expression_extends_parse(GolemParser * parser,
+			 GolemStatement * base,
+			 GolemExpressionLimit limit,
+			 GError ** error)
+{
+
+  return base;
+}
+
+static GolemStatement *
+golem_expression_single_parse(GolemParser * parser,
+		      GolemExpressionLimit limit,
+		      GError ** error)
 {
   GolemStatementClass * klass = NULL;
   GolemStatement * statement = NULL;
@@ -28,6 +73,8 @@ golem_expression_parse(GolemParser * parser,
   /* search class */
   if(golem_statement_check(GOLEM_CONST_CLASS,parser))
     klass = GOLEM_CONST_CLASS;
+  if(golem_statement_check(GOLEM_GSVAR_CLASS,parser))
+    klass = GOLEM_GSVAR_CLASS;
 
   /* initialize and parse */
   if(klass)
@@ -55,4 +102,12 @@ golem_expression_parse(GolemParser * parser,
       );
     }
   return statement;
+}
+
+GolemStatement *
+golem_expression_parse(GolemParser * parser,
+		       GolemExpressionLimit limit,
+		       GError ** error)
+{
+  return golem_expression_single_parse(parser,limit,error);
 }
