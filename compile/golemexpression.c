@@ -234,7 +234,8 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 				   GolemScopeBuilder * scope_builder,
 				   GError ** error)
 {
-
+  golem_vm_body_write_op(body,GOLEM_OP_TRUE);
+  return TRUE;
 }
 
 static gboolean
@@ -313,7 +314,10 @@ golem_expression_compile(GolemExpression * exp,
 			  GolemScopeBuilder * scope_builder,
 			  GError ** error)
 {
-  gboolean done = TRUE;
+  gboolean done = golem_expression_operation_compile(exp->op,
+						     body,
+						     scope_builder,
+						     error);
   return done;
 }
 

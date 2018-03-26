@@ -545,6 +545,16 @@ golem_vm_body_run(GolemVMBody * body,
 	case GOLEM_OP_NOT:
 	  m_reg[n_reg - 1].int32_v = !m_reg[n_reg - 1].int32_v;
 	  break;
+
+	  /* DATA OP */
+	case GOLEM_OP_TRUE: //TRUE
+	  m_reg[n_reg].int32_v = TRUE;
+	  n_reg ++;
+	  break;
+	case GOLEM_OP_NULL: //NULL
+	  m_reg[n_reg].pointer_v = NULL;
+	  n_reg ++;
+	  break;
 	default:
 	  n_op = body->n_op;
       }
