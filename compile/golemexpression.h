@@ -19,7 +19,10 @@
 #define GOLEMEXPRESSION_H_
 
 typedef enum 	_GolemExpressionLimit GolemExpressionLimit;
+
 typedef struct 	_GolemExpression GolemExpression;
+typedef struct  _GolemExpressionOperation GolemExpressionOperation;
+typedef struct 	_GolemExtendExpression GolemExtendExpression;
 
 #define GOLEM_EXPRESSION_CLASS	(golem_expression_get_class())
 #define GOLEM_EXPRESSION(p)	((GolemExpression*)p)
@@ -35,17 +38,58 @@ enum _GolemExpressionLimit {
   GOLEM_EXPRESSION_LIMIT_BRACKET_COMA
 };
 
+typedef enum
+{
+  GOLEM_OPERATOR_NON,
+  GOLEM_OPERATOR_ADD,
+  GOLEM_OPERATOR_SUB,
+  GOLEM_OPERATOR_MUL,
+  GOLEM_OPERATOR_DIV,
+  GOLEM_OPERATOR_IDIV,
+  GOLEM_OPERATOR_EXP,
+  GOLEM_OPERATOR_MOD,
+  GOLEM_OPERATOR_IQL,
+  GOLEM_OPERATOR_DST,
+  GOLEM_OPERATOR_LES,
+  GOLEM_OPERATOR_GRE,
+  GOLEM_OPERATOR_ILES,
+  GOLEM_OPERATOR_IGRE,
+  GOLEM_OPERATOR_LAND,
+  GOLEM_OPERATOR_LOR,
+  GOLEM_OPERATOR_BAND,
+  GOLEM_OPERATOR_BOR,
+  GOLEM_OPERATOR_N
+} GolemOperator;
+
+struct _GolemExpressionOperation
+{
+  GolemOperator operator;
+  GolemExpressionOperation * exp1;
+  GolemExpressionOperation * exp2;
+  GolemStatement * value;
+};
+
 
 struct _GolemExpression
 {
   GolemStatement parent;
-  GList * operations;
+  GolemExpressionOperation * op;
+};
+
+struct _GolemExtendExpression
+{
+  GolemStatement parent;
+  GolemStatement * base;
 };
 
 GolemStatementClass * golem_expression_get_class(void);
 
-GolemStatement * golem_expression_parse(GolemParser * parser,
+GolemStatement * golem_expression_parse_new(GolemParser * parser,
 					GolemExpressionLimit limit,
 					GError ** error);
+
+GolemStatement * golem_simple_expression_parse(GolemParser * parser,
+					       GolemExpressionLimit limit,
+					       GError ** error);
 
 #endif /* GOLEMEXPRESSION_H_ */

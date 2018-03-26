@@ -193,7 +193,7 @@ golem_scope_builder_get(GolemScopeBuilder * scope,
  	  if(g_strcmp0(def_info->m_name,name) == 0)
  	    {
  	      golem_vm_body_write_ops(scope_info->m_body,
-				      GOLEM_OP_POP,
+				      GOLEM_OP_PP,
 				      scope_info->n_index,
 				      def_info->n_offset,
 				      def_info->n_size);
@@ -222,7 +222,7 @@ golem_scope_builder_set(GolemScopeBuilder * scope,
  	  if(g_strcmp0(def_info->m_name,name) == 0)
  	    {
  	      golem_vm_body_write_ops(scope_info->m_body,
-				      GOLEM_OP_PSH,
+				      GOLEM_OP_PH,
 				      scope_info->n_index,
 				      def_info->n_offset,
 				      def_info->n_size);

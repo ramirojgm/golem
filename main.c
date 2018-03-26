@@ -24,7 +24,7 @@ main(gint argc,gchar ** argv)
 {
   GolemParser * p = golem_parser_new("main.glm");
   GError * error = NULL;
-  golem_parser_parse(p,"{ int age;  return age; }",-1);
+  golem_parser_parse(p,"{ int age;  return age + 20; }",-1);
   GolemStatement * block = golem_statement_parse(p,&error);
   if(block)
     {

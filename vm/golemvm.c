@@ -16,6 +16,7 @@
  */
 
 #include "golemvm.h"
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -213,7 +214,7 @@ golem_vm_body_write_op32(GolemVMBody * body,
   body->n_op += 1;
 }
 
-void
+/*void
 golem_vm_body_write_opt(GolemVMBody * body,
 			GolemVMOpCode code,
 			GolemTypeCode type)
@@ -223,7 +224,7 @@ golem_vm_body_write_opt(GolemVMBody * body,
   body->m_op[offset].code = code;
   body->m_op[offset].data.type = type;
   body->n_op += 1;
-}
+}*/
 
 void
 golem_vm_body_write_ops(GolemVMBody * body,
@@ -287,8 +288,8 @@ golem_vm_body_run(GolemVMBody * body,
       GolemVMOp * op = &(m_op[n_op]);
       switch(op->code)
       {
-	/* OP */
-	case GOLEM_OP_PSH: //PUSH VARIABLE
+	  /* OP */
+	case GOLEM_OP_PH: //PUSH VARIABLE
 	  golem_vm_scope_set(scope,
 			     op->data.scope_v.index,
 			     op->data.scope_v.offset,
@@ -296,7 +297,7 @@ golem_vm_body_run(GolemVMBody * body,
 			     &(m_reg[n_reg-1]));
 	  n_reg --;
 	  break;
-	case GOLEM_OP_POP: //POP VARIABLE
+	case GOLEM_OP_PP: //POP VARIABLE
 	  golem_vm_scope_get(scope,
 			     op->data.scope_v.index,
 			     op->data.scope_v.offset,
@@ -304,15 +305,15 @@ golem_vm_body_run(GolemVMBody * body,
 			     &(m_reg[n_reg]));
 	  n_reg ++;
 	  break;
-	case GOLEM_OP_DUP: //DUPLICATE
+	case GOLEM_OP_DP: //DUPLICATE
 	  m_reg[n_reg] = m_reg[n_reg - 1];
 	  n_reg ++;
 	  break;
-	case GOLEM_OP_DAT: //DATA
+	case GOLEM_OP_DT: //DATA
 	  m_reg[n_reg] = body->m_data[op->data.int16_v];
 	  n_reg ++;
 	  break;
-	case GOLEM_OP_RET: //RETURN
+	case GOLEM_OP_RT: //RETURN
 	  *ret = m_reg[n_reg - 1];
 	  n_reg --;
 	  n_op = body->n_op;
@@ -329,11 +330,145 @@ golem_vm_body_run(GolemVMBody * body,
 	  golem_vm_scope_exit(scope,
 			      op->data.int32_v);
 	  break;
-	case GOLEM_OP_JMP: //JUMP
+
+	  /* ARITMETICAL OP */
+	case GOLEM_OP_AI32: //ADD INTEGER 32BIT
+	  m_reg[n_reg - 1].int32_v = m_reg[n_reg - 2].int32_v + m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_AI64: //ADD INTEGER 64BIT
+	  m_reg[n_reg - 1].int64_v = m_reg[n_reg - 2].int64_v + m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_AF32: //ADD FLOAT 32BIT
+	  m_reg[n_reg - 1].float_v = m_reg[n_reg - 2].float_v + m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_AD64: //ADD DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = m_reg[n_reg - 2].double_v + m_reg[n_reg - 1].double_v;
+	  break;
+
+	case GOLEM_OP_SI32: //SUBSTRACT INTEGER 32BIT
+	  m_reg[n_reg - 1].int32_v = m_reg[n_reg - 2].int32_v - m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_SI64: //SUBSTRACT INTEGER 64BIT
+	  m_reg[n_reg - 1].int64_v = m_reg[n_reg - 2].int64_v - m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_SF32: //SUBSTRACT FLOAT 32BIT
+	  m_reg[n_reg - 1].float_v = m_reg[n_reg - 2].float_v - m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_SD64: //SUBSTRACT DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = m_reg[n_reg - 2].double_v - m_reg[n_reg - 1].double_v;
+	  break;
+
+	case GOLEM_OP_MI32: //MULTIPLICATE INTEGER 32BIT
+	  m_reg[n_reg - 1].int32_v = m_reg[n_reg - 2].int32_v * m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_MI64: //MULTIPLICATE INTEGER 64BIT
+	  m_reg[n_reg - 1].int64_v = m_reg[n_reg - 2].int64_v * m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_MF32: //MULTIPLICATE FLOAT 32BIT
+	  m_reg[n_reg - 1].float_v = m_reg[n_reg - 2].float_v * m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_MD64: //MULTIPLICATE DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = m_reg[n_reg - 2].double_v * m_reg[n_reg - 1].double_v;
+	  break;
+
+	case GOLEM_OP_DI32: //DIVIDE INTEGER 32BIT
+	  m_reg[n_reg - 1].int32_v = m_reg[n_reg - 2].int32_v / m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_DI64: //DIVIDE INTEGER 64BIT
+	  m_reg[n_reg - 1].int64_v = m_reg[n_reg - 2].int64_v / m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_DF32: //DIVIDE FLOAT 32BIT
+	  m_reg[n_reg - 1].float_v = m_reg[n_reg - 2].float_v / m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_DD64: //DIVIDE DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = m_reg[n_reg - 2].double_v / m_reg[n_reg - 1].double_v;
+	  break;
+
+	case GOLEM_OP_NI32: //NEGATIVE INTEGER 32BIT
+	  m_reg[n_reg - 1].int32_v = abs(m_reg[n_reg - 1].int32_v) * -1;
+	  break;
+	case GOLEM_OP_NI64: //NEGATIVE INTEGER 64BIT
+	  m_reg[n_reg - 1].int64_v = labs(m_reg[n_reg - 1].int64_v) * -1;
+	  break;
+	case GOLEM_OP_NF32: //NEGATIVE FLOAT 32BIT
+	  m_reg[n_reg - 1].float_v = fabsf(m_reg[n_reg - 1].float_v) * -1;
+	  break;
+	case GOLEM_OP_ND64: //NEGATIVE DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = fabs(m_reg[n_reg - 1].double_v) * -1;
+	  break;
+
+	case GOLEM_OP_RI32: //MODULE INTEGER 32BIT
+	  m_reg[n_reg - 1].int32_v = m_reg[n_reg - 2].int32_v % m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_RI64: //MODULE INTEGER 64BIT
+	  m_reg[n_reg - 1].int64_v = m_reg[n_reg - 2].int64_v % m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_RF32: //MODULE FLOAT 32BIT
+	  m_reg[n_reg - 1].float_v = fmodf(m_reg[n_reg - 2].float_v, m_reg[n_reg - 1].float_v);
+	  break;
+	case GOLEM_OP_RD64: //MODULE DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = fmod(m_reg[n_reg - 2].double_v, m_reg[n_reg - 1].double_v);
+	  break;
+
+	case GOLEM_OP_PD64: //POW DOUBLE 64BIT
+	  m_reg[n_reg - 1].double_v = pow(m_reg[n_reg - 2].double_v, m_reg[n_reg - 1].double_v);
+	  break;
+
+	  /* COMPARATION OP */
+	case GOLEM_OP_LI32:  //LESS INTEGER 32BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].int32_v < m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_LI64:  //LESS INTEGER 64BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].int64_v < m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_LF32:  //LESS FLOAT 32BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].float_v < m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_LD64:  //LESS DOUBLE 64BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].double_v < m_reg[n_reg - 1].double_v;
+	  break;
+	case GOLEM_OP_LP:  //LESS POINTER
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].pointer_v < m_reg[n_reg - 1].pointer_v;
+	  break;
+
+	case GOLEM_OP_GI32:  //GREATER INTEGER 32BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].int32_v > m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_GI64:  //GREATER INTEGER 64BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].int64_v > m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_GF32:  //GREATER FLOAT 32BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].float_v > m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_GD64:  //GREATER DOUBLE 64BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].double_v > m_reg[n_reg - 1].double_v;
+	  break;
+	case GOLEM_OP_GP:  //GREATER POINTER
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].pointer_v > m_reg[n_reg - 1].pointer_v;
+	  break;
+
+	case GOLEM_OP_II32: //IQUAL INTEGER 32BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].int32_v == m_reg[n_reg - 1].int32_v;
+	  break;
+	case GOLEM_OP_II64: //IQUAL INTEGER 64BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].int64_v == m_reg[n_reg - 1].int64_v;
+	  break;
+	case GOLEM_OP_IF32: //IQUAL FLOAT 32BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].float_v == m_reg[n_reg - 1].float_v;
+	  break;
+	case GOLEM_OP_ID64: //IQUAL DOUBLE 64BIT
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].double_v == m_reg[n_reg - 1].double_v;
+	  break;
+	case GOLEM_OP_IP: //IQUAL POINTER
+	  m_reg[n_reg - 1].int8_v = m_reg[n_reg - 2].pointer_v == m_reg[n_reg - 1].pointer_v;
+	  break;
+
+	  /* JUMP */
+	case GOLEM_OP_JP: //JUMP
 	  n_op = op->data.int32_v;
 	  break;
-	case GOLEM_OP_CND: //CONDITION
-	  if(m_reg[n_reg - 1].int32_v)
+	case GOLEM_OP_IF: //IF
+	  if(m_reg[n_reg - 1].int8_v)
 	    n_op = op->data.int32_v - 1;
 	  n_reg --;
 	  break;
@@ -357,49 +492,33 @@ golem_vm_body_run(GolemVMBody * body,
 	  break;
 
 	/* MEMORY */
-	case GOLEM_OP_MAC: //ALLOC MEMORY
+	case GOLEM_OP_MA: //ALLOC MEMORY
 	  m_reg[n_reg].pointer_v = g_malloc(op->data.int32_v);
 	  n_reg ++;
 	  break;
-	case GOLEM_OP_MAZ: //ALLOC MEMORY WITH ZERO
-	  m_reg[n_reg].pointer_v = g_malloc0(op->data.int32_v);
-	  n_reg ++;
-	  break;
-	case GOLEM_OP_FRE: //FREE MEMORY
+	case GOLEM_OP_MF: //FREE MEMORY
 	  g_free(m_reg[n_reg-1].pointer_v);
 	  n_reg --;
 	  break;
-	case GOLEM_OP_PTO: //POINTER OF
+	case GOLEM_OP_PO: //POINTER OF
 	  golem_vm_scope_ptr(scope,
 			     op->data.scope_v.index,
 			     op->data.scope_v.offset,
 			     &(m_reg[n_reg]));
 	  n_reg ++;
 	  break;
-	case GOLEM_OP_PTW: //WRITE POINTER
+	case GOLEM_OP_PW: //WRITE POINTER
 	  break;
-	case GOLEM_OP_PTR: //READ POINTER
-	  break;
-
-	/* OBJECT */
-	case GOLEM_OP_SOD: //OBJECT DEFINITION
-	//case GOLEM_OP_POD: //CONSTRUCT PARAM
-	case GOLEM_OP_NEW: //NEW OBJECT
-	case GOLEM_OP_DCT: //NEW DICTIONATY
-	case GOLEM_OP_FF: //FUNCTION FIND
-	case GOLEM_OP_PW: //PROPERTY WRITE
-	case GOLEM_OP_PR: //PROPERTY READ
-	case GOLEM_OP_IR: //INCREASE REFERENCE
-	case GOLEM_OP_DR: //DECREASE REFERENCE
+	case GOLEM_OP_PR: //READ POINTER
 	  break;
 
-        /* FUNCTION */
-	case GOLEM_OP_ARG: //ARGUMENT
+	 /* FUNCTION */
+	case GOLEM_OP_AG: //ARGUMENT
 	  m_arg[n_arg] = m_reg[n_reg -1];
 	  n_reg --;
 	  n_arg ++;
 	  break;
-	case GOLEM_OP_CAL: //CALL FUNCTION
+	case GOLEM_OP_CL: //CALL FUNCTION
 	  {
 	    guint8 argc = op->data.int16_v;
 	    GolemVMData * argv = g_memdup(&(m_arg[n_arg - argc]),sizeof(GolemVMData) * argc);
@@ -414,47 +533,17 @@ golem_vm_body_run(GolemVMBody * body,
 	  }
 	  break;
 
-	/* ARITMETICAL OP */
-	case GOLEM_OP_ADD: //ADD
-	 GOLEM_VM_OPN(+,GOLEM_VM_OPA)
-	 break;
-	case GOLEM_OP_MUL: //MULTIPLICATE
-	  GOLEM_VM_OPN(*,GOLEM_VM_OPA)
-	  break;
-	case GOLEM_OP_DIV: //DIVIDE
-	  GOLEM_VM_OPN(/,GOLEM_VM_OPA)
-	  break;
-	case GOLEM_OP_SUB: //SUBSTRACT
-	  GOLEM_VM_OPN(-,GOLEM_VM_OPA)
-	  break;
-	case GOLEM_OP_MOD: //MODULE
-	  GOLEM_VM_OPI(%,GOLEM_VM_OPA)
-	  break;
-	case GOLEM_OP_EXP: //EXPONENT
-	  break;
-	case GOLEM_OP_IDV: //INTEGER DIVIDE
-	  break;
 
-	/* COMPARATION OP */
-	case GOLEM_OP_LT:
-	  GOLEM_VM_OPN(<,GOLEM_VM_OPC);
-	  break;
-	case GOLEM_OP_GT:
-	  GOLEM_VM_OPN(>,GOLEM_VM_OPC)
-	  break;
-	case GOLEM_OP_IQT:
-	  GOLEM_VM_OPN(==,GOLEM_VM_OPC)
-	  break;
-	case GOLEM_OP_DST:
-	  GOLEM_VM_OPN(!=,GOLEM_VM_OPC)
-	  break;
 
 	/* LOGICAL OP */
 	case GOLEM_OP_AND:
-	  GOLEM_VM_OPI(&,GOLEM_VM_OPA)
+	  //GOLEM_VM_OPI(&,GOLEM_VM_OPA)
 	  break;
 	case GOLEM_OP_OR:
-	  GOLEM_VM_OPI(|,GOLEM_VM_OPA)
+	  //GOLEM_VM_OPI(|,GOLEM_VM_OPA)
+	  break;
+	case GOLEM_OP_NOT:
+	  m_reg[n_reg - 1].int32_v = !m_reg[n_reg - 1].int32_v;
 	  break;
 	default:
 	  n_op = body->n_op;

@@ -47,7 +47,7 @@ golem_return_compile(GolemReturn * ret,
 				 scope_builder,
 				 error);
   if(done)
-      golem_vm_body_write_op(body,GOLEM_OP_RET);
+      golem_vm_body_write_op(body,GOLEM_OP_RT);
   return done;
 }
 
@@ -60,7 +60,7 @@ golem_return_parse(GolemReturn * ret,
   gboolean done = golem_parser_check(parser,"return");
   if(done)
     {
-      GolemStatement * exp = golem_expression_parse(parser,
+      GolemStatement * exp = golem_expression_parse_new(parser,
       						GOLEM_EXPRESSION_LIMIT_SEMICOLON,
       						error);
 

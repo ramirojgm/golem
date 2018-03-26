@@ -81,6 +81,17 @@ golem_statement_compile(GolemStatement * statement,
 				   error);
 }
 
+GolemTypeCode
+golem_statement_value_type(GolemStatement * statement,
+			GolemScopeBuilder * scope_builder,
+			GError ** error)
+{
+  g_return_val_if_fail(statement != NULL,FALSE);
+  return statement->klass->value_type(statement,
+				   scope_builder,
+				   error);
+}
+
 void
 golem_statement_free(GolemStatement * statement)
 {

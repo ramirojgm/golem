@@ -50,7 +50,7 @@ golem_const_compile(GolemConst * cnst,
 					  &(cnst->data),
 					  cnst->type,
 					  cnst->size);
-  golem_vm_body_write_op32(body,GOLEM_OP_DAT,data_index);
+  golem_vm_body_write_op32(body,GOLEM_OP_DT,data_index);
   return done;
 }
 

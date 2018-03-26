@@ -60,7 +60,7 @@ golem_gsvar_compile(GolemGSVar * gsvar,
 				    error);
       if(done)
 	{
-	  golem_vm_body_write_op(body,GOLEM_OP_DUP);
+	  golem_vm_body_write_op(body,GOLEM_OP_DP);
 	  done = golem_scope_builder_set(
 		  scope_builder,
 		  gsvar->variable_name,
@@ -87,7 +87,7 @@ golem_gsvar_parse(GolemGSVar * gsvar,
   gsvar->variable_name = g_strdup(golem_parser_next_word(parser,TRUE));
   if(golem_parser_check(parser,"="))
     {
-      gsvar->value = golem_expression_parse(parser,limit,error);
+      gsvar->value = golem_expression_parse_new(parser,limit,error);
       done = gsvar->value != NULL;
     }
   return done;
