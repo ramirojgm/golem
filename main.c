@@ -1,4 +1,5 @@
 /*
+*
 	Copyright (C) 2017 Ramiro Jose Garcia Moraga
 
 	This file is free software: you can redistribute it and/or modify
@@ -24,11 +25,12 @@ main(gint argc,gchar ** argv)
 {
   GolemParser * p = golem_parser_new("main.glm");
   GError * error = NULL;
-  golem_parser_parse(p,"{ int age;  return age + 20; }",-1);
+  golem_parser_parse(p,"{ double age = 20.0 + 0.20; age = age * 10.0;  return age * 2.0; }",-1);
   GolemStatement * block = golem_statement_parse(p,&error);
   if(block)
     {
       GolemVMData ret = {0};
+
       GolemScopeBuilder * scope_builder = golem_scope_builder_new();
       GolemVMBody * body = golem_vm_body_new();
       if(golem_statement_compile(block,
@@ -37,7 +39,7 @@ main(gint argc,gchar ** argv)
 				  &error))
 	{
 	  golem_vm_body_run(body,NULL,&ret,&error);
-	  g_print("%d",ret.int32_v);
+	  g_print("%g",ret.double_v);
 	}
       else
 	{

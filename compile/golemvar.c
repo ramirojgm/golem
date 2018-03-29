@@ -93,11 +93,40 @@ golem_var_compile(GolemVar * var,
       var_iter;
       var_iter = g_list_next(var_iter))
     {
-      if(!(done = golem_scope_builder_define(scope_builder,type,(gchar*)var_iter->data,error)))
-	break;
+      GolemVarInfo * info = (GolemVarInfo*)var_iter->data;
+      if((done = golem_scope_builder_define(scope_builder,type,info->name,error)))
+	{
+	  if(info->value)
+	    {
+	      if((done = golem_statement_compile(info->value,body,scope_builder,error)))
+		{
+		  done = golem_scope_builder_set(scope_builder,info->name,error);
+		  if(!done)
+		    break;
+		}
+	      else
+		{
+		  break;
+		}
+	    }
+	}
+      else
+	{
+	  break;
+	}
     }
   return done;
 }
+
+static void
+golem_var_info_free(GolemVarInfo * var_info)
+{
+  g_free(var_info->name);
+  if(var_info->value)
+    golem_statement_free(var_info->value);
+  g_free(var_info);
+}
+
 
 static gboolean
 golem_var_parse(GolemVar * var,
@@ -111,11 +140,28 @@ golem_var_parse(GolemVar * var,
       var->type_name = g_strdup(golem_parser_next_word(parser,TRUE));
       do
 	{
-	  gchar * var_name = g_strdup(golem_parser_next_word(parser,TRUE));
-	  var->vars = g_list_append(var->vars,var_name);
+	  GolemVarInfo * info = g_new0(GolemVarInfo,1);
+	  info->name = g_strdup(golem_parser_next_word(parser,TRUE));
+	  if(golem_parser_check(parser,"="))
+	    {
+	      info->value = golem_expression_parse_new(parser,
+						       GOLEM_EXPRESSION_LIMIT_SEMICOLON_COMA,
+						       error);
+	      if(!info->value)
+		{
+		  done = FALSE;
+		  golem_var_info_free(info);
+		}
+
+	    }
+
+	  if(done)
+	    var->vars = g_list_append(var->vars,info);
+	  else
+	    break;
 	}
       while (golem_parser_check(parser,","));
-      if(!golem_parser_check(parser,";"))
+      if(done && !golem_parser_check(parser,";"))
 	{
 	  //TODO: throw exception
 	  done = FALSE;
@@ -129,14 +175,6 @@ golem_var_parse(GolemVar * var,
   return done;
 }
 
-static void
-golem_var_info_free(GolemVarInfo * var_info)
-{
-  g_free(var_info->name);
-  if(var_info->value)
-    golem_statement_free(var_info->value);
-  g_free(var_info);
-}
 
 static void
 golem_var_dispose(GolemVar * var)

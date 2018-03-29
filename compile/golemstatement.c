@@ -23,6 +23,7 @@ golem_statement_parse(GolemParser * parser,
 {
   GolemStatementClass * klass = NULL;
   GolemStatement * statement = NULL;
+  while(golem_parser_check(parser,";"));
 
   /* search class */
   if(golem_statement_check(GOLEM_BLOCK_CLASS,parser))
@@ -31,6 +32,8 @@ golem_statement_parse(GolemParser * parser,
     klass = GOLEM_RETURN_CLASS;
   else if(golem_statement_check(GOLEM_VAR_CLASS,parser))
     klass = GOLEM_VAR_CLASS;
+  else
+    klass = GOLEM_EXPRESSION_CLASS;
 
   /* initialize and parse */
   if(klass)
@@ -42,6 +45,20 @@ golem_statement_parse(GolemParser * parser,
       klass->init(statement);
       if(!klass->parse(statement,parser,GOLEM_EXPRESSION_LIMIT_SEMICOLON,error))
 	{
+	  golem_statement_free(statement);
+	  statement = NULL;
+	}
+      else if( klass == GOLEM_EXPRESSION_CLASS && !golem_parser_check(parser,";"))
+	{
+	  g_propagate_error(error,
+	  		g_error_new(GOLEM_ERROR,
+	  			  GOLEM_COMPILE_ERROR_SYNTAXES,
+	  			  "%s: %d: was expected \";\" instead \"%s\"",
+	  			  golem_parser_get_source_name(parser),
+	  			  golem_parser_get_line(parser),
+	  			  golem_parser_next_word(parser,FALSE))
+			    );
+
 	  golem_statement_free(statement);
 	  statement = NULL;
 	}

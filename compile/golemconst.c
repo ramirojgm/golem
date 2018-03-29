@@ -143,7 +143,7 @@ golem_const_parse(GolemConst * cnst,
 	  const gchar * decimal_str = golem_parser_next_word(parser,TRUE);
 	  guint64 decimals = 0;
 	  sscanf(decimal_str,"%lu",&decimals);
-	  gdouble double_value = uint64 +  (decimals / pow(10.0,(int) log10(decimals) + 1));
+	  gdouble double_value = decimals ? uint64 +  (decimals / pow(10.0,(int) log10(decimals) + 1)): uint64;
 	  if(g_str_has_suffix(decimal_str,"f"))
 	    {
 	      cnst->data.float_v = double_value;

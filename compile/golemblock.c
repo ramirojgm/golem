@@ -47,14 +47,19 @@ golem_block_compile(GolemBlock * block,
 	  stmt_iter;
 	  stmt_iter = g_list_next(stmt_iter))
 	{
+	  GolemStatement * stmt = (GolemStatement *)stmt_iter->data;
 	  if(!(done = golem_statement_compile(
-	      (GolemStatement *)stmt_iter->data,
+	       stmt,
 	       body,
 	       scope_builder
 	       ,error)))
-	      {
-		break;
-	      }
+	    {
+	      break;
+	    }
+	  else if(stmt->klass == GOLEM_EXPRESSION_CLASS)
+	    {
+	      golem_vm_body_write_op(body,GOLEM_OP_DC);
+	    }
 	}
 
       if(done)
