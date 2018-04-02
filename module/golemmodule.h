@@ -15,25 +15,9 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
+#ifndef GOLEM_MODULE_H_
+#define GOLEM_MODULE_H_
 
-#include "vm/golemvm.h"
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemexpression.h"
-#include "compile/golemnot.h"
-#include "compile/golemnegative.h"
-#include "compile/golemgsvar.h"
-#include "compile/golemblock.h"
-#include "compile/golemreturn.h"
-#include "compile/golemconst.h"
-#include "compile/golemvar.h"
 
-#include "module/golemmodule.h"
-
-#include "golemerror.h"
-
-#endif /* GOLEM_H_ */
+#endif /* GOLEM_MODULE_H_ */

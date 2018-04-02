@@ -25,7 +25,7 @@ main(gint argc,gchar ** argv)
 {
   GolemParser * p = golem_parser_new("main.glm");
   GError * error = NULL;
-  golem_parser_parse(p,"{ double age = 20.0 + 0.20; age = age * 10.0;  return age * 2.0; }",-1);
+  golem_parser_parse(p,"{ double age = 20.0 + 0.20; age = age +(a * b);  return b; }",-1);
   GolemStatement * block = golem_statement_parse(p,&error);
   if(block)
     {
@@ -33,12 +33,22 @@ main(gint argc,gchar ** argv)
 
       GolemScopeBuilder * scope_builder = golem_scope_builder_new();
       GolemVMBody * body = golem_vm_body_new();
+      golem_scope_builder_enter(scope_builder,body,&error);
+      golem_scope_builder_argument(scope_builder,GOLEM_TYPE_CODE_DOUBLE,"a",&error);
+      golem_scope_builder_argument(scope_builder,GOLEM_TYPE_CODE_DOUBLE,"b",&error);
+
+
       if(golem_statement_compile(block,
 				  body,
 				  scope_builder,
 				  &error))
 	{
-	  golem_vm_body_run(body,NULL,&ret,&error);
+	  GolemVMData arguments[2];
+	  arguments[0].double_v = 2;
+	  arguments[1].double_v = 5;
+	  GolemVMInvoke * invoke = golem_vm_invoke_new(2,arguments,NULL);
+	  golem_vm_body_run(body,NULL,invoke,&ret,&error);
+	  golem_vm_invoke_free(invoke);
 	  g_print("%g",ret.double_v);
 	}
       else
@@ -46,6 +56,8 @@ main(gint argc,gchar ** argv)
 	  g_printerr("%s",error->message);
 	  g_error_free(error);
 	}
+
+      golem_scope_builder_exit(scope_builder,&error);
     }
   else
     {

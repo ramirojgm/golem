@@ -104,10 +104,9 @@ typedef enum
   GOLEM_OP_PW, //WRITE POINTER
   GOLEM_OP_PR, //READ POINTER
   /* FUNCTION */
-  GOLEM_OP_AG, //ARGUMENT
+  GOLEM_OP_RA, //READ ARGUMENT
+  GOLEM_OP_WA, //WRITE ARGUMENT
   GOLEM_OP_CL, //CALL FUNCTION
-
-
 
   /* LOGICAL OP */
   GOLEM_OP_AND,	//AND
@@ -202,6 +201,14 @@ typedef struct
 
 typedef struct
 {
+  guint8 n_offset;
+  guint8 n_size;
+  GolemVMData * m_arg;
+  va_list * v_arg;
+} GolemVMInvoke;
+
+typedef struct
+{
   gboolean (*invoke)(gpointer invoke,
 		     guint8 argc,
 		     GolemVMData * argv,
@@ -252,6 +259,17 @@ void		golem_vm_scope_free(GolemVMScope * scope);
 
 
 GLIB_AVAILABLE_IN_ALL
+GolemVMInvoke *		golem_vm_invoke_new(guint8 n_args,
+					    const GolemVMData * args,
+					    va_list * va);
+GLIB_AVAILABLE_IN_ALL
+GolemVMData 		golem_vm_invoke_read(GolemVMInvoke * invoke,
+					     GolemTypeCode type);
+GLIB_AVAILABLE_IN_ALL
+void 		 	golem_vm_invoke_free(GolemVMInvoke * invoke);
+
+
+GLIB_AVAILABLE_IN_ALL
 GolemVMBody *	golem_vm_body_new(void);
 
 GLIB_AVAILABLE_IN_ALL
@@ -288,12 +306,6 @@ void		golem_vm_body_update_op32(GolemVMBody * body,
 					 guint32 opindex,
 					 guint32 arg0);
 
-/*GLIB_AVAILABLE_IN_ALL
-void		golem_vm_body_write_opt(GolemVMBody * body,
-					GolemVMOpCode code,
-					GolemTypeCode type);
-*/
-
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_body_write_ops(GolemVMBody * body,
 					GolemVMOpCode code,
@@ -304,6 +316,7 @@ void		golem_vm_body_write_ops(GolemVMBody * body,
 GLIB_AVAILABLE_IN_ALL
 gboolean	golem_vm_body_run(GolemVMBody * body,
 				  GolemVMScope * scope,
+				  GolemVMInvoke * invoke,
 				  GolemVMData * ret,
 				  GError ** error);
 

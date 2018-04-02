@@ -50,6 +50,12 @@ gboolean		golem_scope_builder_define(GolemScopeBuilder * scope,
 						   GError ** error);
 
 GLIB_AVAILABLE_IN_ALL
+gboolean		golem_scope_builder_argument(GolemScopeBuilder * scope,
+						     GolemTypeCode type,
+						     const gchar * name,
+						     GError ** error);
+
+GLIB_AVAILABLE_IN_ALL
 GolemTypeCode		golem_scope_builder_type(GolemScopeBuilder * scope,
 						 const gchar * name);
 

@@ -131,18 +131,6 @@ golem_vm_body_write_op32(GolemVMBody * body,
   body->n_op += 1;
 }
 
-/*void
-golem_vm_body_write_opt(GolemVMBody * body,
-			GolemVMOpCode code,
-			GolemTypeCode type)
-{
-  guint32 offset = body->n_op;
-  body->m_op = g_realloc(body->m_op,sizeof(GolemVMOp) * (body->n_op + 1));
-  body->m_op[offset].code = code;
-  body->m_op[offset].data.type = type;
-  body->n_op += 1;
-}*/
-
 void
 golem_vm_body_write_ops(GolemVMBody * body,
 			GolemVMOpCode code,
@@ -179,12 +167,13 @@ golem_vm_body_update_op32(GolemVMBody * body,
 gboolean
 golem_vm_body_run(GolemVMBody * body,
 		  GolemVMScope * scope,
+		  GolemVMInvoke * invoke,
 		  GolemVMData * ret,
 		  GError ** error)
 {
-  GolemVMData m_reg[GOLEM_VM_REG_COUNT] = {0,};
+  GolemVMData m_reg[GOLEM_VM_REG_COUNT];
   gint8       n_reg = 0;
-  GolemVMData m_arg[GOLEM_VM_ARG_COUNT] = {0,};
+  GolemVMData m_arg[GOLEM_VM_ARG_COUNT];
   gint8       n_arg = 0;
   GolemVMOp*  m_op = body->m_op;
   guint32     n_op = 0;
@@ -515,7 +504,11 @@ golem_vm_body_run(GolemVMBody * body,
 	  break;
 
 	 /* FUNCTION */
-	case GOLEM_OP_AG: //ARGUMENT
+	case GOLEM_OP_RA: //READ ARGUMENT
+	  m_reg[n_reg] = golem_vm_invoke_read(invoke,op->data.int16_v);
+	  n_reg ++;
+	  break;
+	case GOLEM_OP_WA: //WRITE ARGUMENT
 	  m_arg[n_arg] = m_reg[n_reg -1];
 	  n_reg --;
 	  n_arg ++;
@@ -744,3 +737,91 @@ golem_vm_scope_free(GolemVMScope * scope)
   g_free(scope->m_data);
   g_free(scope);
 }
+
+GolemVMInvoke *
+golem_vm_invoke_new(guint8 n_args,
+		    const GolemVMData * args,
+		    va_list * va)
+{
+  GolemVMInvoke * inv = g_new(GolemVMInvoke,1);
+  inv->n_offset = 0;
+  inv->v_arg = va;
+  if(args && n_args > 0)
+    {
+      inv->n_size = n_args;
+      inv->m_arg = g_memdup(args,sizeof(GolemVMData) * n_args);
+    }
+  else
+    {
+      inv->n_size = 0;
+      inv->m_arg = NULL;
+    }
+  return inv;
+}
+
+GolemVMData
+golem_vm_invoke_read(GolemVMInvoke * invoke,
+		     GolemTypeCode type)
+{
+  static GolemVMData null_data = {0};
+  if(invoke)
+    {
+      if(invoke->n_offset < invoke->n_size)
+	{
+	  invoke->n_offset ++;
+	  return invoke->m_arg[invoke->n_offset - 1];
+	}
+      /*else if(invoke->v_arg)
+	{
+	   GolemVMData ret = {0};
+	   switch(type)
+	   {
+	     case GOLEM_TYPE_CODE_INT8:
+	     case GOLEM_TYPE_CODE_UINT8:
+	       ret.int8_v = va_arg(*invoke->v_arg,gint32);
+	       break;
+	     case GOLEM_TYPE_CODE_INT16:
+	     case GOLEM_TYPE_CODE_UINT16:
+	       ret.int16_v = va_arg(*invoke->v_arg,gint32);
+	       break;
+	     case GOLEM_TYPE_CODE_INT32:
+	     case GOLEM_TYPE_CODE_UINT32:
+	       ret.int32_v = va_arg(*invoke->v_arg,gint32);
+	       break;
+	     case GOLEM_TYPE_CODE_INT64:
+	     case GOLEM_TYPE_CODE_UINT64:
+	       ret.int64_v = va_arg(*invoke->v_arg,gint64);
+	       break;
+	     case GOLEM_TYPE_CODE_FLOAT:
+	       ret.float_v = va_arg(*invoke->v_arg,gdouble);
+	       break;
+	     case GOLEM_TYPE_CODE_DOUBLE:
+	       ret.double_v = va_arg(*invoke->v_arg,gdouble);
+	       break;
+	     default:
+	       ret.pointer_v = va_arg(*invoke->v_arg,gpointer);
+	   }
+	   return ret;
+	}*/
+      else
+	{
+	  return null_data;
+	}
+    }
+  else
+    {
+      return null_data;
+    }
+}
+
+void
+golem_vm_invoke_free(GolemVMInvoke * inv)
+{
+  if(inv)
+    {
+      g_free(inv->m_arg);
+      g_free(inv);
+    }
+}
+
+

@@ -138,6 +138,27 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
   return TRUE;
 }
 
+gboolean
+golem_scope_builder_argument(GolemScopeBuilder * scope,
+			     GolemTypeCode type,
+			     const gchar * name,
+			     GError ** error)
+{
+  g_return_val_if_fail(type != GOLEM_TYPE_CODE_UNDEFINED,FALSE);
+  gboolean done = FALSE;
+  if(scope->priv->scopes)
+    {
+      GolemScopeInfo * scope_info = (GolemScopeInfo*)g_list_last(scope->priv->scopes)->data;
+      done = golem_scope_builder_define(scope,type,name,error);
+      if(done)
+	{
+	  golem_vm_body_write_op16(scope_info->m_body,GOLEM_OP_RA,type);
+	  golem_scope_builder_set(scope,name,error);
+	}
+    }
+  return done;
+}
+
 GolemTypeCode
 golem_scope_builder_type(GolemScopeBuilder * scope,
 			 const gchar * name)
