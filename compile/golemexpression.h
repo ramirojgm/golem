@@ -18,8 +18,6 @@
 #ifndef GOLEMEXPRESSION_H_
 #define GOLEMEXPRESSION_H_
 
-typedef enum 	_GolemExpressionLimit GolemExpressionLimit;
-
 typedef struct 	_GolemExpression GolemExpression;
 typedef struct  _GolemExpressionOperation GolemExpressionOperation;
 typedef struct 	_GolemExtendExpression GolemExtendExpression;

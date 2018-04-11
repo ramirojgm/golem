@@ -15,26 +15,21 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEM_H_
-#define GOLEM_H_
+#ifndef GOLEMCONDITIONAL_H_
+#define GOLEMCONDITIONAL_H_
 
-#include "vm/golemvm.h"
+#define GOLEM_CONDITIONAL_CLASS	(golem_conditional_get_class())
+#define GOLEM_CONDITIONAL(p)	((GolemConditional*)p)
 
-#include "compile/golemparser.h"
-#include "compile/golemscopebuilder.h"
-#include "compile/golemstatement.h"
-#include "compile/golemexpression.h"
-#include "compile/golemnot.h"
-#include "compile/golemnegative.h"
-#include "compile/golemgsvar.h"
-#include "compile/golemblock.h"
-#include "compile/golemreturn.h"
-#include "compile/golemconst.h"
-#include "compile/golemvar.h"
-#include "compile/golemconditional.h"
+typedef struct _GolemConditional	GolemConditional;
 
-#include "module/golemmodule.h"
+struct _GolemConditional {
+  GolemStatement parent;
+  GolemStatement * true_part;
+  GolemStatement * false_part;
+};
 
-#include "golemerror.h"
+GolemStatementClass * golem_conditional_get_class(void);
 
-#endif /* GOLEM_H_ */
+
+#endif /* GOLEMCONDITIONAL_H_ */

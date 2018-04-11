@@ -19,6 +19,7 @@
 #define GOLEM_VM_H_
 
 #include <glib.h>
+#include <gio/gio.h>
 #include <glib-object.h>
 
 typedef enum
@@ -144,8 +145,9 @@ typedef enum
   GOLEM_TYPE_CODE_VARIANT
 } GolemTypeCode;
 
-typedef union
+typedef struct
 {
+  union {
   gint8 int8_v;
   gint16 int16_v;
   gint32 int32_v;
@@ -157,6 +159,7 @@ typedef union
   gfloat float_v;
   gdouble double_v;
   gpointer pointer_v;
+  } data[2];
 }GolemVMData;
 
 typedef struct
@@ -201,20 +204,14 @@ typedef struct
 
 typedef struct
 {
-  guint8 n_offset;
-  guint8 n_size;
-  GolemVMData * m_arg;
-  va_list * v_arg;
-} GolemVMInvoke;
-
-typedef struct
-{
-  gboolean (*invoke)(gpointer invoke,
+  gboolean (*call)(gpointer invoke,
 		     guint8 argc,
 		     GolemVMData * argv,
 		     GolemVMData * ret,
 		     GError ** error);
-} GolemVMInvocable;
+
+  void	   (*finalize)(gpointer invoke);
+} GolemCallable;
 
 G_BEGIN_DECLS
 
@@ -256,17 +253,6 @@ GolemVMScope* 	golem_vm_scope_copy(GolemVMScope * scope);
 
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_free(GolemVMScope * scope);
-
-
-GLIB_AVAILABLE_IN_ALL
-GolemVMInvoke *		golem_vm_invoke_new(guint8 n_args,
-					    const GolemVMData * args,
-					    va_list * va);
-GLIB_AVAILABLE_IN_ALL
-GolemVMData 		golem_vm_invoke_read(GolemVMInvoke * invoke,
-					     GolemTypeCode type);
-GLIB_AVAILABLE_IN_ALL
-void 		 	golem_vm_invoke_free(GolemVMInvoke * invoke);
 
 
 GLIB_AVAILABLE_IN_ALL
@@ -316,7 +302,8 @@ void		golem_vm_body_write_ops(GolemVMBody * body,
 GLIB_AVAILABLE_IN_ALL
 gboolean	golem_vm_body_run(GolemVMBody * body,
 				  GolemVMScope * scope,
-				  GolemVMInvoke * invoke,
+				  guint16 	argc,
+				  GolemVMData * argv,
 				  GolemVMData * ret,
 				  GError ** error);
 
