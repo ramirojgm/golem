@@ -148,19 +148,29 @@ typedef enum
 typedef struct
 {
   union {
-  gint8 int8_v;
-  gint16 int16_v;
-  gint32 int32_v;
-  gint64 int64_v;
-  guint8 uint8_v;
-  guint16 uint16_v;
-  guint32 uint32_v;
-  guint64 uint64_v;
-  gfloat float_v;
-  gdouble double_v;
-  gpointer pointer_v;
+    gint8 int8_v;
+    gint16 int16_v;
+    gint32 int32_v;
+    gint64 int64_v;
+    guint8 uint8_v;
+    guint16 uint16_v;
+    guint32 uint32_v;
+    guint64 uint64_v;
+    gfloat float_v;
+    gdouble double_v;
+    gpointer pointer_v;
   } data[2];
 }GolemVMData;
+
+
+typedef	gboolean (*GolemCallableCall)(gpointer invoke,
+				       guint8 argc,
+				       GolemVMData * argv,
+				       GolemVMData * ret,
+				       GError ** error);
+
+typedef void	 (*GolemCallableFinalize)(gpointer invoke);
+
 
 typedef struct
 {
@@ -204,13 +214,8 @@ typedef struct
 
 typedef struct
 {
-  gboolean (*call)(gpointer invoke,
-		     guint8 argc,
-		     GolemVMData * argv,
-		     GolemVMData * ret,
-		     GError ** error);
-
-  void	   (*finalize)(gpointer invoke);
+  GolemCallableCall call;
+  GolemCallableFinalize finalize;
 } GolemCallable;
 
 G_BEGIN_DECLS

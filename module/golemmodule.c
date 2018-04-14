@@ -45,8 +45,6 @@ struct _GolemTypeInfoClass
   			 const gchar * name,
   			 GolemVMData * src,
   			 GError ** error);
-
-
 };
 
 struct _GolemTypeInfo
@@ -55,62 +53,9 @@ struct _GolemTypeInfo
   gchar * name;
 };
 
-struct _GolemStructInfo
-{
-  GolemTypeInfo parent;
-};
-
-struct _GolemObjectInfo
-{
-  GolemTypeInfo parent;
-  GType	gtype;
-  guint32 n_properties;
-  GolemPropertyInfo ** properties;
-  guint32 n_symbols;
-  GolemSymbolInfo ** symbols;
-};
-
-struct _GolemSymbolArgumentInfo
-{
-  gchar * 	name;
-  gchar * 	type_name;
-  GolemTypeCode type_code;
-};
-
-struct _GolemSymbolInfo
-{
-  /* data */
-  gboolean is_external;
-  gboolean is_static;
-  gchar * name;
-  /* return */
-  GolemTypeCode return_type_code;
-  gboolean return_constant;
-  gchar * return_type_name;
-  /* arguments */
-  guint32 n_arguments;
-  GolemSymbolArgumentInfo ** arguments;
-  /* function */
-  gpointer callable_func;
-  gpointer symbol_func;
-};
-
-struct _GolemFunctionInfo
-{
-  GolemSymbolInfo parent;
-  GolemStatement * stmt_body;
-  GolemVMBody * body;
-};
-
-struct _GolemPropertyInfo
-{
-  GParamSpec * spec;
-  GolemVMBody * get_body;
-  GolemVMBody * set_body;
-};
-
-
-
+#include "golemsymbolinfo.h"
+#include "golemstructinfo.h"
+#include "golemobjectinfo.h"
 
 GolemTypeModule *
 golem_type_module_new(void)
@@ -124,7 +69,7 @@ golem_type_module_load_from_file(GolemTypeModule * type_module,
 				 const gchar * filename,
 				 GError ** error)
 {
-
+  return FALSE;
 }
 
 
@@ -134,7 +79,7 @@ golem_type_module_load_from_data(GolemTypeModule * type_module,
 				  gsize data_size,
 				  GError ** error)
 {
-
+  return FALSE;
 }
 
 gboolean
@@ -143,6 +88,7 @@ golem_type_module_load(GolemTypeModule * type_module,
 			GError ** error)
 {
 
+  return FALSE;
 }
 
 gboolean
@@ -153,7 +99,7 @@ golem_type_module_parse(GolemTypeModule * type_module,
 			 GError ** error)
 {
 
-
+  return FALSE;
 }
 
 gboolean
@@ -161,6 +107,7 @@ golem_type_module_compile(GolemTypeModule * type_module,
 			   GError ** error)
 {
 
+  return FALSE;
 }
 
 gchar **
@@ -168,13 +115,14 @@ golem_type_module_get_type_names(GolemTypeModule * type_module,
 				  gsize * length)
 {
 
+  return NULL;
 }
 
 gchar **
 golem_type_module_get_symbol_names(GolemTypeModule * type_module,
 				    gsize * length)
 {
-
+  return NULL;
 }
 
 gboolean
@@ -185,6 +133,7 @@ golem_type_module_get_symbol(GolemTypeModule * type_module,
 			      GError ** error)
 {
 
+  return FALSE;
 }
 
 gboolean
@@ -193,6 +142,7 @@ golem_type_module_save_to_file(GolemTypeModule * type_module,
 				GError ** error)
 {
 
+  return FALSE;
 }
 
 gboolean
@@ -202,6 +152,7 @@ golem_type_module_save_to_buffer(GolemTypeModule * type_module,
 				  GError ** error)
 {
 
+  return FALSE;
 }
 
 gboolean
@@ -210,6 +161,7 @@ golem_type_module_save(GolemTypeModule * type_module,
 		       GError ** error)
 {
 
+  return FALSE;
 }
 
 static void
