@@ -27,16 +27,19 @@ struct _GolemSymbolArgumentInfo
 struct _GolemSymbolInfo
 {
   /* data */
-  gboolean is_external;
   gboolean is_static;
   gchar * name;
+
   /* return */
   GolemTypeCode return_type_code;
   gboolean return_constant;
   gchar * return_type_name;
+
   /* arguments */
   guint32 n_arguments;
-  GolemSymbolArgumentInfo ** arguments;
+  GolemSymbolArgumentInfo
+	  ** arguments;
+
   /* function */
   gpointer symbol_func;
 
@@ -54,7 +57,7 @@ struct _GolemSymbolCallable
 };
 
 
-gboolean
+static gboolean
 golem_symbol_info_check(GolemParser * parser)
 {
   gboolean result = FALSE;
@@ -70,7 +73,7 @@ golem_symbol_info_check(GolemParser * parser)
   return result;
 }
 
-void
+static void
 golem_symbol_argument_info_free(GolemSymbolArgumentInfo * info)
 {
   g_free(info->type_name);
@@ -78,7 +81,7 @@ golem_symbol_argument_info_free(GolemSymbolArgumentInfo * info)
   g_free(info);
 }
 
-gboolean
+static gboolean
 golem_symbol_callable_call(GolemSymbolCallable * callable,
 			   guint8 argc,
 			   GolemVMData * argv,
@@ -86,29 +89,11 @@ golem_symbol_callable_call(GolemSymbolCallable * callable,
 			   GError ** error)
 {
   gboolean done = TRUE;
-  if(callable->symbol_info->is_external)
-    {
 
-    }
-  else
-    {
-      guint8 real_argc = argc + 1;
-      GolemVMData * real_argv = g_new0(GolemVMData,real_argc);
-      real_argv[0].data->pointer_v = callable->this_value;
-      for(guint8 arg_index = 0;arg_index < argc; arg_index ++)
-	real_argv[arg_index + 1] = argv[arg_index + 1];
-      done = golem_vm_body_run(callable->symbol_info->vm_body,
-			       callable->symbol_info->vm_scope,
-			       real_argc,
-			       real_argv,
-			       ret,
-			       error);
-      g_free(real_argv);
-    }
   return done;
 }
 
-gboolean
+static gboolean
 golem_symbol_callable_static_call(GolemSymbolCallable * callable,
 				   guint8 argc,
 				   GolemVMData * argv,
@@ -119,14 +104,14 @@ golem_symbol_callable_static_call(GolemSymbolCallable * callable,
   return FALSE;
 }
 
-void
+static void
 golem_symbol_callable_finalize(GolemSymbolCallable * callable)
 {
   if(callable->this_value)
     g_object_unref(callable->this_value);
 }
 
-GolemCallable *
+static GolemCallable *
 golem_symbol_callable_new(gpointer object_instance,
 			  GolemSymbolInfo * symbol_info,
 			  GError ** error)
@@ -139,7 +124,7 @@ golem_symbol_callable_new(gpointer object_instance,
   return (GolemCallable*)symbol_callable;
 }
 
-GolemCallable *
+static GolemCallable *
 golem_symbol_callable_new_static(GolemSymbolInfo * symbol_info,
 				 GError ** error)
 {
@@ -151,7 +136,16 @@ golem_symbol_callable_new_static(GolemSymbolInfo * symbol_info,
   return (GolemCallable*)symbol_callable;
 }
 
-GolemSymbolInfo *
+static gboolean
+golem_symbol_info_compile(GolemSymbolInfo * symbol_info,
+			  GolemVMScope * scope,
+			  GolemScopeBuilder * scope_builder,
+			  GError ** error)
+{
+
+}
+
+static GolemSymbolInfo *
 golem_symbol_info_parse(GolemParser * parser,
 			GError ** error)
 {
@@ -211,13 +205,8 @@ golem_symbol_info_parse(GolemParser * parser,
 	      if(done)
 		{
 		  symbol_info = g_new0(GolemSymbolInfo,1);
-		  if(golem_parser_check(parser,";"))
+		  if(!golem_parser_check(parser,";"))
 		    {
-		      symbol_info->is_external = TRUE;
-		    }
-		  else
-		    {
-		      symbol_info->is_external = FALSE;
 		      symbol_info->stmt_body = golem_statement_parse(parser,error);
 		      symbol_info->vm_body = NULL;
 		      if(!symbol_info->stmt_body)

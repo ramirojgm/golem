@@ -16,12 +16,14 @@
  */
 
 #include "../golem.h"
+#include <ffi.h>
 
 struct _GolemTypeModulePrivate
 {
+  /* type_info */
   GList * symbols;
   GList * type_objects;
-  GList * type_struct;
+  GList * type_structs;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeModule,golem_type_module,G_TYPE_TYPE_MODULE)
@@ -98,8 +100,36 @@ golem_type_module_parse(GolemTypeModule * type_module,
 			 gsize length,
 			 GError ** error)
 {
-
-  return FALSE;
+  gboolean done = TRUE;
+  GolemParser * parser = golem_parser_new(name);
+  while(done && !golem_parser_is_end(parser))
+    {
+      if(golem_symbol_info_check(parser))
+	{
+	  GolemSymbolInfo * symbol_info = golem_symbol_info_parse(parser,
+								  error);
+	  if(symbol_info)
+	    {
+	      type_module->priv->symbols = g_list_append(
+		  type_module->priv->symbols,
+		  symbol_info);
+	    }
+	  else
+	    {
+	      done = TRUE;
+	      //TODO:throw exception
+	      break;
+	    }
+	}
+      else
+	{
+	  done = FALSE;
+	  //TODO:throw exception
+	  break;
+	}
+    }
+  g_object_unref(parser);
+  return TRUE;
 }
 
 gboolean
@@ -168,6 +198,9 @@ static void
 golem_type_module_init(GolemTypeModule * self)
 {
   self->priv = golem_type_module_get_instance_private(self);
+  self->priv->symbols = NULL;
+  self->priv->type_objects = NULL;
+  self->priv->type_structs = NULL;
 }
 
 static void

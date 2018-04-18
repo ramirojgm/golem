@@ -74,8 +74,14 @@ gboolean	 golem_type_module_compile(GolemTypeModule * type_module,
 gchar **	 golem_type_module_get_type_names(GolemTypeModule * type_module,
 						  gsize * length);
 
+GolemTypeInfo**	 golem_type_module_get_types(GolemTypeModule * type_module,
+						  gsize * length);
+
 gchar **	 golem_type_module_get_symbol_names(GolemTypeModule * type_module,
 						    gsize * length);
+
+GolemSymbolInfo** golem_type_module_get_symbols(GolemTypeModule * type_module,
+						gsize * length);
 
 gboolean	 golem_type_module_get_symbol(GolemTypeModule * type_module,
 					      const gchar * symbol_name,
@@ -91,6 +97,10 @@ gboolean	 golem_type_module_save_to_buffer(GolemTypeModule * type_module,
 						  gpointer * buffer,
 						  gsize * length,
 						  GError ** error);
+
+GolemTypeInfo *	 golem_type_module_get_type_info(GolemTypeModule * type_module,
+						 const gchar * type_name);
+
 G_END_DECLS
 
 #endif /* GOLEM_MODULE_H_ */
