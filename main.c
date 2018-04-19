@@ -99,6 +99,24 @@ test_function(gdouble a, gdouble b,GError ** error)
 gint
 main(gint argc,gchar ** argv)
 {
+  g_autofree gchar * content = NULL;
+  g_autofree GError * error = NULL;
+
+
+  if(g_file_get_contents("examples/main.glm",&content,NULL,&error))
+    {
+      GolemTypeModule * module_main = golem_type_module_new();
+      if(golem_type_module_parse(module_main,"example/main_module.glm",content,-1,&error))
+	{
+	  golem_type_module_compile(module_main,&error);
+	}
+    }
+
+  if(error)
+    {
+
+    }
+
  /* void (*main_func)(int argc,char ** argv);
 
   GolemTypeModule * main_module = golem_type_module_new();
@@ -108,8 +126,5 @@ main(gint argc,gchar ** argv)
   golem_type_module_get_symbol(main_module,"MyWindow::init",&main_func,NULL,NULL);
   main_func(argc,argv);*/
 
-  GError * error = NULL;
-  gdouble ret = test_function(10,25,&error);
-  g_print("%g",ret);
   return 0;
 }

@@ -33,8 +33,7 @@
 #include "compile/golemvar.h"
 #include "compile/golemconditional.h"
 
-#include "module/golemmodule.h"
-
 #include "golemerror.h"
+#include "module/golemtypemodule.h"
 
 #endif /* GOLEM_H_ */

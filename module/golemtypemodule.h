@@ -65,7 +65,7 @@ gboolean	 golem_type_module_load(GolemTypeModule * type_module,
 gboolean	 golem_type_module_parse(GolemTypeModule * type_module,
 					 const gchar * name,
 					 const gchar * str,
-					 gsize length,
+					 gssize length,
 					 GError ** error);
 
 gboolean	 golem_type_module_compile(GolemTypeModule * type_module,

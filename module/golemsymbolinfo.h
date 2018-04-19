@@ -67,7 +67,10 @@ golem_symbol_info_check(GolemParser * parser)
   if((result = golem_parser_check_is_named(parser))){
       golem_parser_skip(parser);
       if((result = golem_parser_check_is_named(parser)))
+	{
+	  golem_parser_skip(parser);
 	  result = golem_parser_check(parser,"(");
+	}
   }
   golem_parser_restore_point(parser);
   return result;

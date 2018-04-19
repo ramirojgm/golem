@@ -20,6 +20,9 @@
 
 struct _GolemTypeModulePrivate
 {
+  GolemVMScope * vm_scope;
+  GolemVMBody * vm_body;
+
   /* type_info */
   GList * symbols;
   GList * type_objects;
@@ -97,11 +100,12 @@ gboolean
 golem_type_module_parse(GolemTypeModule * type_module,
 			 const gchar * name,
 			 const gchar * str,
-			 gsize length,
+			 gssize length,
 			 GError ** error)
 {
   gboolean done = TRUE;
   GolemParser * parser = golem_parser_new(name);
+  golem_parser_parse(parser,str,length);
   while(done && !golem_parser_is_end(parser))
     {
       if(golem_symbol_info_check(parser))
@@ -116,7 +120,7 @@ golem_type_module_parse(GolemTypeModule * type_module,
 	    }
 	  else
 	    {
-	      done = TRUE;
+	      done = FALSE;
 	      //TODO:throw exception
 	      break;
 	    }
