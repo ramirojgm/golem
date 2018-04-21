@@ -63,11 +63,11 @@ golem_var_get_type_code(const gchar * type_name)
   else if (g_strcmp0(type_name,"double") == 0)
     return GOLEM_TYPE_CODE_DOUBLE;
   else if (g_strcmp0(type_name,"string") == 0)
-    return GOLEM_TYPE_CODE_STRING;
+    return GOLEM_TYPE_CODE_POINTER;
   else if (g_strcmp0(type_name,"pointer") == 0)
     return GOLEM_TYPE_CODE_POINTER;
   else if (g_strcmp0(type_name,"object") == 0)
-    return GOLEM_TYPE_CODE_OBJECT;
+    return GOLEM_TYPE_CODE_POINTER;
   else
     return GOLEM_TYPE_CODE_UNDEFINED;
 }

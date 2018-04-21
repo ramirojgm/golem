@@ -66,8 +66,8 @@ golem_vm_body_write_data(GolemVMBody * body,
       guint16 m_data_size = body->m_data_size[data_index];
       if(m_data_type == reg_type && m_data_size == reg_size)
 	{
-	  if(m_data_type == GOLEM_TYPE_CODE_STRING
-	      && strncmp((gchar*)m_data->data->pointer_v,(gchar*)reg->data->pointer_v,reg_size) == 0)
+	  if(m_data_type == GOLEM_TYPE_CODE_POINTER
+	      && memcmp(m_data->data->pointer_v,reg->data->pointer_v,reg_size) == 0)
 	    {
 	      return data_index;
 	    }
@@ -84,9 +84,7 @@ golem_vm_body_write_data(GolemVMBody * body,
   body->m_data_size = g_realloc(body->m_data_size,sizeof(guint16) * (body->n_data + 1));
   body->n_data += 1;
 
-  if(reg_type == GOLEM_TYPE_CODE_STRING)
-    body->m_data[offset].data->pointer_v = g_strndup((gchar*)reg->data->pointer_v,reg_size);
-  else if(reg_type == GOLEM_TYPE_CODE_POINTER)
+  if(reg_type == GOLEM_TYPE_CODE_POINTER)
     body->m_data[offset].data->pointer_v = g_memdup(reg->data->pointer_v,reg_size);
   else
     body->m_data[offset] = *reg;
@@ -163,6 +161,38 @@ golem_vm_body_update_op32(GolemVMBody * body,
   body->m_op[opindex].data.int32_v = arg0;
 }
 
+GolemRefPtr*
+golem_refptr_new(gpointer ptr,
+		 GType type,
+		 GFreeFunc free_func)
+{
+  GolemRefPtr * refptr = g_new0(GolemRefPtr,1);
+  refptr->refcount = 1;
+  refptr->type = type;
+  refptr->data = ptr;
+  refptr->free_func = free_func;
+  return refptr;
+}
+
+GolemRefPtr*
+golem_refptr_ref(GolemRefPtr * refptr)
+{
+  refptr->refcount ++;
+  return refptr;
+}
+
+void
+golem_refptr_unref(GolemRefPtr * refptr)
+{
+  refptr->refcount --;
+  if(refptr->refcount <= 0)
+    {
+      if(refptr->free_func)
+	refptr->free_func(refptr);
+      g_free(refptr);
+    }
+}
+
 
 gboolean
 golem_vm_body_run(GolemVMBody * body,
@@ -235,7 +265,7 @@ golem_vm_body_run(GolemVMBody * body,
 	  break;
 	case GOLEM_OP_GC: //GARBAGE COLLECTOR
 	  golem_vm_scope_gc(scope,
-			    &(m_reg[n_reg-1]).data->pointer_v);
+			    (GolemRefPtr*)&(m_reg[n_reg-1]).data->pointer_v);
 	  break;
 	case GOLEM_OP_SX: //SCOPE EXIT
 	  golem_vm_scope_exit(scope,
@@ -610,10 +640,7 @@ golem_vm_body_copy(GolemVMBody * body)
       reg_type = body->m_data_type[index];
       reg_size = body->m_data_size[index];
 
-      if(reg_type == GOLEM_TYPE_CODE_STRING)
-         new_body->m_data[index].data->pointer_v = g_strndup((gchar*)reg->data->pointer_v,
-						       reg_size);
-      else if(reg_type == GOLEM_TYPE_CODE_POINTER)
+      if(reg_type == GOLEM_TYPE_CODE_POINTER)
 	 new_body->m_data[index].data->pointer_v = g_memdup(reg->data->pointer_v,
 						      reg_size);
 
@@ -646,8 +673,7 @@ golem_vm_scope_enter(GolemVMScope * scope,
   scope->m_data[scope->n_data] = g_new0(GolemVMScopeData,1);
   scope->m_data[scope->n_data]->n_ref = 1;
   scope->m_data[scope->n_data]->m_data = (GolemVMData*)g_malloc(size);
-  scope->m_data[scope->n_data]->m_gcobj = NULL;
-  scope->m_data[scope->n_data]->m_gcmem = NULL;
+  scope->m_data[scope->n_data]->m_gc = NULL;
   scope->m_data[scope->n_data]->n_size = size;
   scope->n_data ++;
 }
@@ -693,7 +719,7 @@ golem_vm_scope_exit(GolemVMScope * scope,
         if(scope->m_data[index]->n_ref <= 0)
           {
             g_free(scope->m_data[index]->m_data);
-            g_list_free_full(scope->m_data[index]->m_gcobj,g_object_unref);
+            g_list_free_full(scope->m_data[index]->m_gc,(GDestroyNotify)golem_refptr_unref);
             g_free(scope->m_data[index]);
           }
       scope->m_data = g_realloc(
@@ -704,11 +730,10 @@ golem_vm_scope_exit(GolemVMScope * scope,
 }
 
 inline void
-golem_vm_scope_gc(GolemVMScope * scope,gpointer data)
+golem_vm_scope_gc(GolemVMScope * scope,GolemRefPtr * data)
 {
-
-  scope->m_data[scope->n_data - 1]->m_gcobj =
-      g_list_append(scope->m_data[scope->n_data - 1]->m_gcobj,data);
+  scope->m_data[scope->n_data - 1]->m_gc =
+      g_list_append(scope->m_data[scope->n_data - 1]->m_gc,golem_refptr_ref(data));
 }
 
 inline GolemVMScope *

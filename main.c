@@ -102,6 +102,7 @@ main(gint argc,gchar ** argv)
   g_autofree gchar * content = NULL;
   g_autofree GError * error = NULL;
 
+  gint (*add_func)(gint a, gint b);
 
   if(g_file_get_contents("examples/main.glm",&content,NULL,&error))
     {
@@ -109,6 +110,12 @@ main(gint argc,gchar ** argv)
       if(golem_type_module_parse(module_main,"example/main_module.glm",content,-1,&error))
 	{
 	  golem_type_module_compile(module_main,&error);
+	  golem_type_module_get_symbol(module_main,
+				       "add_func",
+				       (gpointer*)&add_func,
+				       NULL,
+				       &error);
+	  g_print("%d",add_func(5,10));
 	}
     }
 

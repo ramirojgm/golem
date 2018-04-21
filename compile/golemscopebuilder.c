@@ -113,9 +113,7 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
 	case GOLEM_TYPE_CODE_DOUBLE:
 	  def->n_size = sizeof(gint64);
 	  break;
-	case GOLEM_TYPE_CODE_OBJECT:
-	case GOLEM_TYPE_CODE_STRING:
-	case GOLEM_TYPE_CODE_STRUCT:
+	case GOLEM_TYPE_CODE_POINTER:
 	  def->n_size = sizeof(gpointer);
 	  break;
 	default:

@@ -15,21 +15,31 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-struct _GolemObjectInfo
-{
-  GolemTypeInfo parent;
-  GType	gtype;
-  guint32 n_properties;
-  GolemPropertyInfo ** properties;
-  guint32 n_symbols;
-  GolemSymbolInfo ** symbols;
+#ifndef GOLEMSYMBOL_H_
+#define GOLEMSYMBOL_H_
+
+typedef struct _GolemSymbolArgument GolemSymbolArgument;
+
+#define GOLEM_SYMBOL_CLASS	(golem_symbol_get_class())
+#define GOLEM_SYMBOL(p)		((GolemSymbol*)p)
+
+typedef struct _GolemSymbol	GolemSymbol;
+
+struct _GolemSymbol {
+  GolemStatement parent;
+  gboolean external;
+  gboolean ret_const;
+  gchar *  ret_type;
+  gchar * name;
+  GList * arguments;
+  GolemStatement * body;
 };
 
-
-struct _GolemPropertyInfo
-{
-  GParamSpec * spec;
-  GolemVMBody * get_body;
-  GolemVMBody * set_body;
+struct _GolemSymbolArgument {
+  gchar * type;
+  gchar * name;
 };
 
+GolemStatementClass * golem_symbol_get_class(void);
+
+#endif /* GOLEMSYMBOL_H_ */

@@ -1,4 +1,4 @@
-void main(int argc,pointer argv)
+int add_func(int a, int b)
 {
-
+    return a + b;
 }

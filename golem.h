@@ -33,7 +33,12 @@
 #include "compile/golemvar.h"
 #include "compile/golemconditional.h"
 
-#include "golemerror.h"
+#include "module/golemsymbolinfo.h"
 #include "module/golemtypemodule.h"
+
+
+#include "compile/golemsymbol.h"
+
+#include "golemerror.h"
 
 #endif /* GOLEM_H_ */

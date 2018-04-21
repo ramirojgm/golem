@@ -20,8 +20,8 @@
 
 struct _GolemTypeModulePrivate
 {
-  GolemVMScope * vm_scope;
   GolemVMBody * vm_body;
+  GList * 	vm_stmt;
 
   /* type_info */
   GList * symbols;
@@ -32,7 +32,6 @@ struct _GolemTypeModulePrivate
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeModule,golem_type_module,G_TYPE_TYPE_MODULE)
 
 typedef struct _GolemTypeInfoClass GolemTypeInfoClass;
-typedef struct _GolemSymbolArgumentInfo GolemSymbolArgumentInfo;
 
 struct _GolemTypeInfoClass
 {
@@ -57,10 +56,6 @@ struct _GolemTypeInfo
   const GolemTypeInfoClass * klass;
   gchar * name;
 };
-
-#include "golemsymbolinfo.h"
-#include "golemstructinfo.h"
-#include "golemobjectinfo.h"
 
 GolemTypeModule *
 golem_type_module_new(void)
@@ -202,6 +197,11 @@ static void
 golem_type_module_init(GolemTypeModule * self)
 {
   self->priv = golem_type_module_get_instance_private(self);
+  /* previous compile */
+  self->priv->vm_stmt = NULL;
+
+  /* post compile */
+  self->priv->vm_body = NULL;
   self->priv->symbols = NULL;
   self->priv->type_objects = NULL;
   self->priv->type_structs = NULL;

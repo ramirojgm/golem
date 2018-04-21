@@ -70,7 +70,7 @@ golem_const_parse(GolemConst * cnst,
       gchar * uncompressed = g_strndup(const_str + 1,g_utf8_strlen(const_str,G_MAXUINT16) - 2);
       cnst->data.data->pointer_v = g_strcompress(uncompressed);
       cnst->size = g_utf8_strlen((gchar*)cnst->data.data->pointer_v,G_MAXUINT16);
-      cnst->size = GOLEM_TYPE_CODE_STRING;
+      cnst->size = GOLEM_TYPE_CODE_POINTER;
       g_free(uncompressed);
     }
   else if(g_str_has_prefix(const_str,"'") && g_str_has_suffix(const_str,"'"))
@@ -222,7 +222,7 @@ golem_const_parse(GolemConst * cnst,
 static void
 golem_const_dispose(GolemConst * cnst)
 {
-  if(cnst->type == GOLEM_TYPE_CODE_STRING)
+  if(cnst->type == GOLEM_TYPE_CODE_POINTER)
     g_free(cnst->data.data->pointer_v);
 }
 
