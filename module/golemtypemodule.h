@@ -23,12 +23,6 @@ G_DECLARE_FINAL_TYPE(GolemTypeModule,golem_type_module,GOLEM,TYPE_MODULE,GTypeMo
 
 typedef struct _GolemTypeModulePrivate GolemTypeModulePrivate;
 
-typedef struct _GolemTypeInfo GolemTypeInfo;
-typedef struct _GolemStructInfo GolemStructInfo;
-typedef struct _GolemObjectInfo GolemObjectInfo;
-typedef struct _GolemSymbolInfo GolemSymbolInfo;
-typedef struct _GolemPropertyInfo GolemPropertyInfo;
-
 struct _GolemTypeModuleClass
 {
   GTypeModuleClass parent_class;
@@ -40,6 +34,7 @@ struct _GolemTypeModule
   /* private */
   GolemTypeModulePrivate * priv;
 };
+
 
 G_BEGIN_DECLS
 

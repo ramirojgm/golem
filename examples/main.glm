@@ -1,3 +1,5 @@
+int g_print(string fmt,int result);
+
 int add_func(int a, int b)
 {
     return a + b;

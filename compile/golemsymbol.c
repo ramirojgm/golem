@@ -75,7 +75,7 @@ golem_symbol_parse(GolemSymbol * symbol,
 			   GolemSymbolArgument * symbol_argument = g_new0(GolemSymbolArgument,1);
 			   symbol_argument->type = g_strdup(argument_type);
 			   symbol_argument->name = g_strdup(golem_parser_next_word(parser,TRUE));
-			   symbol->arguments = g_list_append(symbol_argument,symbol_argument);
+			   symbol->arguments = g_list_append(symbol->arguments,symbol_argument);
 			 }
 		       else
 			 {
@@ -115,9 +115,12 @@ golem_symbol_parse(GolemSymbol * symbol,
 			  g_free(symbol);
 			  symbol = NULL;
 			}
+		      else
+			  g_print("Internal");
 		    }
 		  else
 		    {
+		      g_print("External");
 		      symbol->external = TRUE;
 		    }
 		}

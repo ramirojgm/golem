@@ -20,8 +20,8 @@
 
 struct _GolemTypeModulePrivate
 {
-  GolemVMBody * vm_body;
-  GList * 	vm_stmt;
+  GolemVMBody * body;
+  GList * 	statements;
 
   /* type_info */
   GList * symbols;
@@ -31,31 +31,6 @@ struct _GolemTypeModulePrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemTypeModule,golem_type_module,G_TYPE_TYPE_MODULE)
 
-typedef struct _GolemTypeInfoClass GolemTypeInfoClass;
-
-struct _GolemTypeInfoClass
-{
-  GolemTypeCode (*get_member_type_code)(GolemTypeInfo * info,
-					const gchar * name);
-
-  gboolean (*get_member)(GolemTypeInfo * info,
-			 gpointer instance,
-			 const gchar * name,
-			 GolemVMData * dst,
-			 GError ** error);
-
-  gboolean (*set_member)(GolemTypeInfo * info,
-			 gpointer instance,
-  			 const gchar * name,
-  			 GolemVMData * src,
-  			 GError ** error);
-};
-
-struct _GolemTypeInfo
-{
-  const GolemTypeInfoClass * klass;
-  gchar * name;
-};
 
 GolemTypeModule *
 golem_type_module_new(void)
@@ -91,6 +66,66 @@ golem_type_module_load(GolemTypeModule * type_module,
   return FALSE;
 }
 
+static GolemStatement *
+golem_type_module_statement_parse(GolemParser * parser,
+				  GError ** error)
+{
+  GolemStatementClass * klass = NULL;
+   GolemStatement * statement = NULL;
+   while(golem_parser_check(parser,";"));
+
+   /* search class */
+   if(golem_statement_check(GOLEM_SYMBOL_CLASS,parser))
+       klass = GOLEM_SYMBOL_CLASS;
+   else if(golem_statement_check(GOLEM_BLOCK_CLASS,parser))
+     klass = GOLEM_BLOCK_CLASS;
+   else if(golem_statement_check(GOLEM_VAR_CLASS,parser))
+     klass = GOLEM_VAR_CLASS;
+   else
+     klass = GOLEM_EXPRESSION_CLASS;
+
+   /* initialize and parse */
+   if(klass)
+     {
+       statement = g_malloc0(klass->size);
+       statement->klass = klass;
+       statement->source = g_strdup(golem_parser_get_source_name(parser));
+       statement->line = golem_parser_get_line(parser);
+       klass->init(statement);
+       if(!klass->parse(statement,parser,GOLEM_EXPRESSION_LIMIT_SEMICOLON,error))
+ 	{
+ 	  golem_statement_free(statement);
+ 	  statement = NULL;
+ 	}
+       else if( klass == GOLEM_EXPRESSION_CLASS && !golem_parser_check(parser,";"))
+ 	{
+ 	  g_propagate_error(error,
+ 	  		g_error_new(GOLEM_ERROR,
+ 	  			  GOLEM_COMPILE_ERROR_SYNTAXES,
+ 	  			  "%s: %d: was expected \";\" instead \"%s\"",
+ 	  			  golem_parser_get_source_name(parser),
+ 	  			  golem_parser_get_line(parser),
+ 	  			  golem_parser_next_word(parser,FALSE))
+ 			    );
+
+ 	  golem_statement_free(statement);
+ 	  statement = NULL;
+ 	}
+     }
+   else
+     {
+       g_propagate_error(error,
+ 		g_error_new(GOLEM_ERROR,
+ 			  GOLEM_COMPILE_ERROR_SYNTAXES,
+ 			  "%s: %d: can't solve syntaxes \"%s\"",
+ 			  golem_parser_get_source_name(parser),
+ 			  golem_parser_get_line(parser),
+ 			  golem_parser_next_word(parser,FALSE))
+       );
+     }
+   return statement;
+}
+
 gboolean
 golem_type_module_parse(GolemTypeModule * type_module,
 			 const gchar * name,
@@ -101,42 +136,39 @@ golem_type_module_parse(GolemTypeModule * type_module,
   gboolean done = TRUE;
   GolemParser * parser = golem_parser_new(name);
   golem_parser_parse(parser,str,length);
-  while(done && !golem_parser_is_end(parser))
+
+  while((!golem_parser_is_end(parser)) && done)
     {
-      if(golem_symbol_info_check(parser))
-	{
-	  GolemSymbolInfo * symbol_info = golem_symbol_info_parse(parser,
-								  error);
-	  if(symbol_info)
-	    {
-	      type_module->priv->symbols = g_list_append(
-		  type_module->priv->symbols,
-		  symbol_info);
-	    }
-	  else
-	    {
-	      done = FALSE;
-	      //TODO:throw exception
-	      break;
-	    }
-	}
+      GolemStatement * statement = golem_type_module_statement_parse(parser,
+								     error);
+      if(statement)
+	type_module->priv->statements = g_list_append(type_module->priv->statements,
+						      statement);
       else
-	{
-	  done = FALSE;
-	  //TODO:throw exception
-	  break;
-	}
+	done = FALSE;
     }
+
+
   g_object_unref(parser);
-  return TRUE;
+  return done;
 }
 
 gboolean
 golem_type_module_compile(GolemTypeModule * type_module,
 			   GError ** error)
 {
+  gboolean done = TRUE;
+  for(GList * iter = g_list_first(type_module->priv->statements);
+      iter;
+      iter = g_list_next(iter))
+    {
+      GolemStatement * statement = (GolemStatement*)(iter->data);
+      if(statement->klass == GOLEM_SYMBOL_CLASS)
+	{
 
-  return FALSE;
+	}
+    }
+  return done;
 }
 
 gchar **
@@ -198,10 +230,10 @@ golem_type_module_init(GolemTypeModule * self)
 {
   self->priv = golem_type_module_get_instance_private(self);
   /* previous compile */
-  self->priv->vm_stmt = NULL;
+  self->priv->statements = NULL;
 
   /* post compile */
-  self->priv->vm_body = NULL;
+  self->priv->body = NULL;
   self->priv->symbols = NULL;
   self->priv->type_objects = NULL;
   self->priv->type_structs = NULL;

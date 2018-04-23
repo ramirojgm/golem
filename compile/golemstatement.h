@@ -46,6 +46,7 @@
 
 typedef struct _GolemStatementClass GolemStatementClass;
 typedef struct _GolemStatement GolemStatement;
+typedef struct _GolemStatementExt GolemStatementExt;
 typedef enum _GolemExpressionLimit GolemExpressionLimit;
 
 typedef void 	 (*GolemStatementInit)(GolemStatement * statement);
@@ -86,6 +87,11 @@ struct _GolemStatement {
   GolemStatementClass * klass;
   gchar * source;
   guint line;
+};
+
+struct _GolemStatementExt {
+  GolemStatement parent;
+  GolemStatement * base;
 };
 
 

@@ -24,6 +24,7 @@
 #include "compile/golemscopebuilder.h"
 #include "compile/golemstatement.h"
 #include "compile/golemexpression.h"
+#include "compile/golemcall.h"
 #include "compile/golemnot.h"
 #include "compile/golemnegative.h"
 #include "compile/golemgsvar.h"
@@ -32,7 +33,9 @@
 #include "compile/golemconst.h"
 #include "compile/golemvar.h"
 #include "compile/golemconditional.h"
+#include "compile/golemsymbol.h"
 
+#include "module/golemtypeinfo.h"
 #include "module/golemsymbolinfo.h"
 #include "module/golemtypemodule.h"
 

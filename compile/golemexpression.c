@@ -28,12 +28,44 @@ GOLEM_DEFINE_STATEMENT(GolemExpression,golem_expression)
 
 static GolemStatement *
 golem_extend_expression_parse(GolemParser * parser,
-			 GolemStatement * base,
-			 GolemExpressionLimit limit,
-			 GError ** error)
+			       GolemStatement * base,
+			       GolemExpressionLimit limit,
+			       GError ** error)
 {
+  GolemStatementClass * klass = NULL;
+  GolemStatement * statement = NULL;
 
-  return base;
+  /* search class */
+  if(golem_statement_check(GOLEM_CALL_CLASS,parser))
+    klass = GOLEM_CALL_CLASS;
+
+  /* initialize and parse */
+  if(klass)
+    {
+      statement = g_malloc0(klass->size);
+      statement->klass = klass;
+      statement->source = g_strdup(golem_parser_get_source_name(parser));
+      statement->line = golem_parser_get_line(parser);
+      ((GolemStatementExt*)statement)->base = base;
+      klass->init(statement);
+      if(!klass->parse(statement,parser,limit,error))
+      {
+	golem_statement_free(statement);
+	statement = NULL;
+      }
+    }
+  else
+    {
+      g_propagate_error(error,
+	    g_error_new(GOLEM_ERROR,
+		      GOLEM_COMPILE_ERROR_SYNTAXES,
+		      "%s: %d: can't solve syntaxes \"%s\"",
+		      golem_parser_get_source_name(parser),
+		      golem_parser_get_line(parser),
+		      golem_parser_next_word(parser,FALSE))
+      );
+    }
+  return statement;
 }
 
 GolemStatement *
@@ -190,26 +222,6 @@ golem_expression_single_free(GolemExpressionSingle * single)
     golem_statement_free(single->exp);
   g_free(single->exp);
 }
-
-/*static void
-golem_expression_operation_print(GolemExpressionOperation * op)
-{
-  if(op->operator == GOLEM_OPERATOR_NON)
-    {
-      if(op->value->klass == GOLEM_CONST_CLASS)
-	g_print("%g",((GolemConst*)op->value)->data.double_v);
-      else
-	g_print("%p",op->value);
-    }
-  else
-    {
-      g_print("(");
-      golem_expression_operation_print(op->exp1);
-      g_print(" %d ",op->operator);
-      golem_expression_operation_print(op->exp2);
-      g_print(")");
-    }
-}*/
 
 static GolemExpressionOperation *
 golem_expression_operation_new(GList * start,GList * end)

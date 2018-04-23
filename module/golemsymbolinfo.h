@@ -29,6 +29,7 @@ struct _GolemSymbolArgumentInfo
 
 struct _GolemSymbolInfo
 {
+  GolemTypeInfo parent;
   gboolean return_constant;
   GType	 return_type;
   gchar * name;
