@@ -165,8 +165,9 @@ golem_type_module_compile(GolemTypeModule * type_module,
       GolemStatement * statement = (GolemStatement*)(iter->data);
       if(statement->klass == GOLEM_SYMBOL_CLASS)
 	{
-
+	  golem_symbol_
 	}
+
     }
   return done;
 }
