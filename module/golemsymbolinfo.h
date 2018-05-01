@@ -34,7 +34,7 @@ struct _GolemSymbolInfo
   GType	 return_type;
   gchar * name;
   guint8 n_arguments;
-  GolemSymbolArgumentInfo ** arguments;
+  GolemSymbolArgumentInfo * arguments;
   gpointer callback;
 };
 
@@ -48,7 +48,7 @@ GLIB_AVAILABLE_IN_ALL
 const gchar *	golem_symbol_get_name(GolemSymbolInfo * symbol_info);
 
 GLIB_AVAILABLE_IN_ALL
-const GolemSymbolArgumentInfo **
+const GolemSymbolArgumentInfo *
 		golem_symbol_get_arguments(GolemSymbolInfo * symbol_info);
 
 GLIB_AVAILABLE_IN_ALL

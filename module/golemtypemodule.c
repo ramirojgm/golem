@@ -153,11 +153,41 @@ golem_type_module_parse(GolemTypeModule * type_module,
   return done;
 }
 
+
+GType
+golem_resolve_type(const gchar * type_name)
+{
+  return G_TYPE_NONE;
+}
+
+static GolemSymbolInfo *
+golem_symbol_get_info(GolemSymbol * symbol)
+{
+  GolemSymbolInfo * symbol_info = g_new0(GolemSymbolInfo,1);
+  symbol_info->name = g_strdup(symbol->name);
+  symbol_info->return_constant = symbol->ret_const;
+  symbol_info->return_type = golem_resolve_type(symbol->ret_type);
+  symbol_info->n_arguments = g_list_length(symbol->arguments);
+  symbol_info->arguments = g_new(GolemSymbolArgumentInfo,symbol_info->n_arguments);
+  guint8 argument_index = 0;
+  for(GList * iter = g_list_first(symbol->arguments); iter; iter = g_list_next(iter))
+    {
+      GolemSymbolArgument * arg = (GolemSymbolArgument*)iter->data;
+      symbol_info->arguments[argument_index].name = g_strdup(arg->name);
+      symbol_info->arguments[argument_index].type = golem_resolve_type(arg->type);
+    }
+  return symbol_info;
+}
+
 gboolean
 golem_type_module_compile(GolemTypeModule * type_module,
 			   GError ** error)
 {
   gboolean done = TRUE;
+  GolemScopeBuilder * scope_builder = golem_scope_builder_new();
+  GolemVMBody * body = golem_vm_body_new();
+
+
   for(GList * iter = g_list_first(type_module->priv->statements);
       iter;
       iter = g_list_next(iter))
@@ -165,9 +195,15 @@ golem_type_module_compile(GolemTypeModule * type_module,
       GolemStatement * statement = (GolemStatement*)(iter->data);
       if(statement->klass == GOLEM_SYMBOL_CLASS)
 	{
-	  golem_symbol_
-	}
 
+	}
+    }
+
+  if(done)
+    {
+      type_module->priv->body = body;
+      g_list_free_full(type_module->priv->statements,golem_statement_free);
+      type_module->priv->statements = NULL;
     }
   return done;
 }

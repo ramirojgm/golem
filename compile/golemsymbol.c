@@ -142,11 +142,13 @@ golem_symbol_parse(GolemSymbol * symbol,
   return done;
 }
 
+
+
 static gboolean
 golem_symbol_compile(GolemSymbol * symbol,
-		      GolemVMBody * body,
-		      GolemScopeBuilder * scope_builder,
-		      GError ** error)
+		    GolemVMBody * body,
+		    GolemScopeBuilder * scope_builder,
+		    GError ** error)
 {
   return FALSE;
 }

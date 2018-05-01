@@ -42,6 +42,5 @@ struct _GolemSymbolArgument {
 
 GolemStatementClass * golem_symbol_get_class(void);
 
-GolemSymbolInfo *     golem_symbol_get_info(GolemSymbol * symbol);
 
 #endif /* GOLEMSYMBOL_H_ */
