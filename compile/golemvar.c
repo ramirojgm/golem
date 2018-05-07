@@ -27,57 +27,12 @@ golem_var_init(GolemVar * var)
   var->vars = NULL;
 }
 
-static GolemTypeCode
-golem_var_get_type_code(const gchar * type_name)
-{
-  if (g_strcmp0(type_name,"int8") == 0)
-    return GOLEM_TYPE_CODE_INT8;
-  else if (g_strcmp0(type_name,"uint8") == 0)
-    return GOLEM_TYPE_CODE_UINT8;
-  else if (g_strcmp0(type_name,"int16") == 0)
-    return GOLEM_TYPE_CODE_INT16;
-  else if (g_strcmp0(type_name,"uint16") == 0)
-    return GOLEM_TYPE_CODE_UINT16;
-  else if (g_strcmp0(type_name,"int32") == 0)
-    return GOLEM_TYPE_CODE_INT32;
-  else if (g_strcmp0(type_name,"uint32") == 0)
-    return GOLEM_TYPE_CODE_UINT32;
-  else if (g_strcmp0(type_name,"int") == 0)
-    return GOLEM_TYPE_CODE_INT32;
-  else if (g_strcmp0(type_name,"uint") == 0)
-    return GOLEM_TYPE_CODE_UINT32;
-  else if (g_strcmp0(type_name,"int64") == 0)
-    return GOLEM_TYPE_CODE_INT64;
-  else if (g_strcmp0(type_name,"uint64") == 0)
-    return GOLEM_TYPE_CODE_UINT64;
-  else if (g_strcmp0(type_name,"long") == 0)
-    return GOLEM_TYPE_CODE_INT64;
-  else if (g_strcmp0(type_name,"ulong") == 0)
-    return GOLEM_TYPE_CODE_UINT64;
-  else if (g_strcmp0(type_name,"int64") == 0)
-    return GOLEM_TYPE_CODE_INT64;
-  else if (g_strcmp0(type_name,"uint64") == 0)
-    return GOLEM_TYPE_CODE_UINT64;
-  else if (g_strcmp0(type_name,"float") == 0)
-    return GOLEM_TYPE_CODE_FLOAT;
-  else if (g_strcmp0(type_name,"double") == 0)
-    return GOLEM_TYPE_CODE_DOUBLE;
-  else if (g_strcmp0(type_name,"string") == 0)
-    return GOLEM_TYPE_CODE_POINTER;
-  else if (g_strcmp0(type_name,"pointer") == 0)
-    return GOLEM_TYPE_CODE_POINTER;
-  else if (g_strcmp0(type_name,"object") == 0)
-    return GOLEM_TYPE_CODE_POINTER;
-  else
-    return GOLEM_TYPE_CODE_UNDEFINED;
-}
-
-static GolemTypeCode
+static GType
 golem_var_value_type(GolemVar * var,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-  return GOLEM_TYPE_CODE_UNDEFINED;
+  return G_TYPE_NONE;
 }
 
 
@@ -88,7 +43,7 @@ golem_var_compile(GolemVar * var,
 		  GError ** error)
 {
   gboolean done = TRUE;
-  GolemTypeCode type = golem_var_get_type_code(var->type_name);
+  GType type = golem_resolve_type_name(var->type_name);
   for(GList * var_iter = g_list_first(var->vars);
       var_iter;
       var_iter = g_list_next(var_iter))

@@ -22,6 +22,11 @@
 #include <gio/gio.h>
 #include <glib-object.h>
 
+#define G_TYPE_INT16	G_TYPE_MAKE_FUNDAMENTAL(22)
+#define G_TYPE_UINT16	G_TYPE_MAKE_FUNDAMENTAL(23)
+
+#define GOLEM_TYPE_SYMBOL	(golem_symbol_get_type())
+
 typedef enum
 {
   /* OP */
@@ -104,6 +109,7 @@ typedef enum
   GOLEM_OP_PO, //POINTER OF
   GOLEM_OP_PW, //WRITE POINTER
   GOLEM_OP_PR, //READ POINTER
+
   /* FUNCTION */
   GOLEM_OP_FN, //LOAD FUNCTION
   GOLEM_OP_RA, //READ ARGUMENT
@@ -125,23 +131,6 @@ typedef enum
   GOLEM_OP_NULL //NULL
 
 } GolemVMOpCode;
-
-typedef enum
-{
-  GOLEM_TYPE_CODE_UNDEFINED,
-  GOLEM_TYPE_CODE_INT8,
-  GOLEM_TYPE_CODE_INT16,
-  GOLEM_TYPE_CODE_INT32,
-  GOLEM_TYPE_CODE_INT64,
-  GOLEM_TYPE_CODE_UINT8,
-  GOLEM_TYPE_CODE_UINT16,
-  GOLEM_TYPE_CODE_UINT32,
-  GOLEM_TYPE_CODE_UINT64,
-  GOLEM_TYPE_CODE_FLOAT,
-  GOLEM_TYPE_CODE_DOUBLE,
-  GOLEM_TYPE_CODE_POINTER,
-  GOLEM_TYPE_CODE_SYMBOL
-} GolemTypeCode;
 
 typedef struct
 {
@@ -202,7 +191,7 @@ typedef struct
 typedef struct
 {
   GolemVMData * m_data;
-  GolemTypeCode * m_data_type;
+  GType * m_data_type;
   guint16 * m_data_size;
   guint16 n_data;
   GolemVMOp * m_op;
@@ -226,15 +215,8 @@ typedef struct
 G_BEGIN_DECLS
 
 GLIB_AVAILABLE_IN_ALL
-GolemRefPtr* 	golem_refptr_new(gpointer ptr,
-				 GType type,
-				 GFreeFunc free_func);
+GType		golem_symbol_get_type(void);
 
-GLIB_AVAILABLE_IN_ALL
-GolemRefPtr*	golem_refptr_ref(GolemRefPtr * refptr);
-
-GLIB_AVAILABLE_IN_ALL
-void		golem_refptr_unref(GolemRefPtr * refptr);
 
 GLIB_AVAILABLE_IN_ALL
 GolemVMScope* 	golem_vm_scope_new(void);
@@ -298,7 +280,7 @@ gsize		golem_vm_body_get_length(GolemVMBody * body);
 GLIB_AVAILABLE_IN_ALL
 guint16		golem_vm_body_write_data(GolemVMBody * body,
 					 GolemVMData * reg,
-					 GolemTypeCode reg_type,
+					 GType reg_type,
 					 guint16 reg_size);
 
 GLIB_AVAILABLE_IN_ALL

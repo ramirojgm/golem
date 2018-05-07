@@ -33,7 +33,7 @@ typedef struct
 
 typedef struct
 {
-  GolemTypeCode n_type;
+  GType n_type;
   gchar * m_name;
   guint32 n_offset;
   guint8 n_size;
@@ -63,11 +63,11 @@ golem_scope_builder_new()
 
 gboolean
 golem_scope_builder_define(GolemScopeBuilder * scope,
-			   GolemTypeCode type,
+			   GType type,
 			   const gchar * name,
 			   GError ** error)
 {
-  g_return_val_if_fail(type != GOLEM_TYPE_CODE_UNDEFINED,FALSE);
+  g_return_val_if_fail(type != G_TYPE_NONE,FALSE);
 
   if(scope->priv->scopes)
     {
@@ -95,25 +95,30 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
       def->n_offset = scope_info->n_size;
       switch(type)
       {
-	case GOLEM_TYPE_CODE_INT8:
-	case GOLEM_TYPE_CODE_UINT8:
+	case G_TYPE_CHAR:
+	case G_TYPE_UCHAR:
 	  def->n_size = sizeof(gint8);
 	  break;
-	case GOLEM_TYPE_CODE_INT16:
-	case GOLEM_TYPE_CODE_UINT16:
+	case G_TYPE_INT16:
+	case G_TYPE_UINT16:
 	  def->n_size = sizeof(gint16);
 	  break;
-	case GOLEM_TYPE_CODE_INT32:
-	case GOLEM_TYPE_CODE_UINT32:
-	case GOLEM_TYPE_CODE_FLOAT:
+	case G_TYPE_INT:
+	case G_TYPE_UINT:
+	case G_TYPE_FLOAT:
 	  def->n_size = sizeof(gint32);
 	  break;
-	case GOLEM_TYPE_CODE_INT64:
-	case GOLEM_TYPE_CODE_UINT64:
-	case GOLEM_TYPE_CODE_DOUBLE:
+	case G_TYPE_INT64:
+	case G_TYPE_UINT64:
+	case G_TYPE_LONG:
+	case G_TYPE_ULONG:
+	case G_TYPE_DOUBLE:
 	  def->n_size = sizeof(gint64);
 	  break;
-	case GOLEM_TYPE_CODE_POINTER:
+	case G_TYPE_POINTER:
+	case G_TYPE_OBJECT:
+	case G_TYPE_STRING:
+	case G_TYPE_BOXED:
 	  def->n_size = sizeof(gpointer);
 	  break;
 	default:
@@ -138,11 +143,11 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
 
 gboolean
 golem_scope_builder_argument(GolemScopeBuilder * scope,
-			     GolemTypeCode type,
+			     GType type,
 			     const gchar * name,
 			     GError ** error)
 {
-  g_return_val_if_fail(type != GOLEM_TYPE_CODE_UNDEFINED,FALSE);
+  g_return_val_if_fail(type != G_TYPE_NONE,FALSE);
   gboolean done = FALSE;
   if(scope->priv->scopes)
     {
@@ -157,7 +162,7 @@ golem_scope_builder_argument(GolemScopeBuilder * scope,
   return done;
 }
 
-GolemTypeCode
+GType
 golem_scope_builder_type(GolemScopeBuilder * scope,
 			 const gchar * name)
 {
@@ -175,7 +180,7 @@ golem_scope_builder_type(GolemScopeBuilder * scope,
 	    return def_info->n_type;
 	}
     }
-  return GOLEM_TYPE_CODE_UNDEFINED;
+  return G_TYPE_INVALID;
 }
 
 gboolean

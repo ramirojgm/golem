@@ -15,35 +15,41 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMTYPEINFO_H_
-#define GOLEMTYPEINFO_H_
+#ifndef GOLEMSYMBOL_H_
+#define GOLEMSYMBOL_H_
 
-typedef struct _GolemTypeInfoClass GolemTypeInfoClass;
-typedef struct _GolemTypeInfo GolemTypeInfo;
+typedef struct _GolemSymbol GolemSymbol;
+typedef struct _GolemSymbolArgument GolemSymbolArgument;
 
-struct _GolemTypeInfoClass
+struct _GolemSymbolArgument
 {
-  GType	   (*get_member_type)(GolemTypeInfo * info,
-			      const gchar * name);
-
-  gboolean (*get_member)(GolemTypeInfo * info,
-			 gpointer instance,
-			 const gchar * name,
-			 GolemVMData * dst,
-			 GError ** error);
-
-  gboolean (*set_member)(GolemTypeInfo * info,
-			 gpointer instance,
-  			 const gchar * name,
-  			 GolemVMData * src,
-  			 GError ** error);
+  GType	 type;
+  gchar* name;
+  gpointer padding[2];
 };
 
-struct _GolemTypeInfo
+struct _GolemSymbol
 {
-  const GolemTypeInfoClass * klass;
+  GolemTypeInfo parent;
+  /* return */
+  gboolean return_constant;
+  GType	 return_type;
+
+  /* name */
   gchar * name;
+
+  /* arguments */
+  guint8 n_arguments;
+  GolemSymbolArgument * arguments;
+
+  /* callback */
+  gpointer callback;
+
+  /* body */
+  GolemVMScope 	* scope_vm;
+  GolemVMBody 	* body_vm;
 };
 
 
-#endif /* GOLEMTYPEINFO_H_ */
+
+#endif /* GOLEMSYMBOL_H_ */

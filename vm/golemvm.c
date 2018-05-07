@@ -20,8 +20,22 @@
 #include <string.h>
 #include <math.h>
 
-#define GOLEM_VM_REG_COUNT 32
+#define GOLEM_VM_REG_COUNT 4
 #define GOLEM_VM_ARG_COUNT 32
+
+G_DEFINE_POINTER_TYPE(GolemSymbol,golem_symbol)
+
+/*static void __attribute__((constructor))
+g_type_int16_init()
+{
+  static GTypeInfo gint16_info;
+  static GTypeFundamentalInfo gint16_fund;
+  gint16_info.instance_size = sizeof(gint16);
+  gint16_fund.type_flags = G_TYPE_FLA;
+
+  g_type_register_fundamental(G_TYPE_INT16,"gint16",&gint16_info,&gint16_fund,G_TYPE_FLAG_VALUE_ABSTRACT);
+  g_type_register_fundamental(G_TYPE_UINT16,"guint16",&gint16_info,&gint16_fund,G_TYPE_FLAG_VALUE_ABSTRACT);
+}*/
 
 typedef struct
 {
@@ -56,18 +70,18 @@ golem_vm_body_get_length(GolemVMBody * body)
 guint16
 golem_vm_body_write_data(GolemVMBody * body,
 			 GolemVMData * reg,
-			 GolemTypeCode reg_type,
+			 GType	reg_type,
 			 guint16 reg_size)
 {
   for(guint16 data_index = 0; data_index < body->n_data; data_index ++)
     {
       GolemVMData * m_data = &(body->m_data[data_index]);
-      GolemTypeCode m_data_type = body->m_data_type[data_index];
+      GType m_data_type = body->m_data_type[data_index];
       guint16 m_data_size = body->m_data_size[data_index];
       if(m_data_type == reg_type && m_data_size == reg_size)
 	{
-	  if(m_data_type == GOLEM_TYPE_CODE_POINTER
-	      && memcmp(m_data->data->pointer_v,reg->data->pointer_v,reg_size) == 0)
+	  if(m_data_type == G_TYPE_STRING
+	      && strncmp(m_data->data->pointer_v,reg->data->pointer_v,reg_size) == 0)
 	    {
 	      return data_index;
 	    }
@@ -80,11 +94,13 @@ golem_vm_body_write_data(GolemVMBody * body,
 
   guint16 offset = body->n_data;
   body->m_data = g_realloc(body->m_data,sizeof(GolemVMData) * (body->n_data + 1));
-  body->m_data_type = g_realloc(body->m_data_type,sizeof(GolemTypeCode) * (body->n_data + 1));
+  body->m_data_type = g_realloc(body->m_data_type,sizeof(GType) * (body->n_data + 1));
   body->m_data_size = g_realloc(body->m_data_size,sizeof(guint16) * (body->n_data + 1));
   body->n_data += 1;
 
-  if(reg_type == GOLEM_TYPE_CODE_POINTER)
+  if(reg_type == G_TYPE_STRING)
+    body->m_data[offset].data->pointer_v = g_strndup(reg->data->pointer_v,reg_size);
+  else if(reg_type == G_TYPE_POINTER)
     body->m_data[offset].data->pointer_v = g_memdup(reg->data->pointer_v,reg_size);
   else
     body->m_data[offset] = *reg;
@@ -624,15 +640,15 @@ golem_vm_body_copy(GolemVMBody * body)
   new_body->m_data = g_memdup(body->m_data,
 			      sizeof(GolemVMData) * body->n_data);
   new_body->m_data_type = g_memdup(body->m_data_type,
-				   sizeof(GolemTypeCode) * body->n_data);
+				   sizeof(GType) * body->n_data);
   new_body->n_data = body->n_data;
   new_body->m_op = g_memdup(body->m_op,
 			    sizeof(GolemVMOp) * body->n_op);
   new_body->n_op = body->n_op;
 
   GolemVMData * reg;
-  GolemTypeCode reg_type;
-  guint16 reg_size;
+  GType 	reg_type;
+  guint16 	reg_size;
 
   for(guint16 index = body->n_data;index < body->n_data; index ++)
     {
@@ -640,7 +656,11 @@ golem_vm_body_copy(GolemVMBody * body)
       reg_type = body->m_data_type[index];
       reg_size = body->m_data_size[index];
 
-      if(reg_type == GOLEM_TYPE_CODE_POINTER)
+      if(reg_type == G_TYPE_STRING)
+	new_body->m_data[index].data->pointer_v = g_strndup((gchar*)
+							    reg->data->pointer_v,
+							    reg_size);
+      else if(reg_type == G_TYPE_POINTER)
 	 new_body->m_data[index].data->pointer_v = g_memdup(reg->data->pointer_v,
 						      reg_size);
 
@@ -665,7 +685,7 @@ golem_vm_scope_new(void)
 
 inline void
 golem_vm_scope_enter(GolemVMScope * scope,
-		       guint16 size)
+		     guint16 size)
 {
   scope->m_data = g_realloc(
 			scope->m_data,
@@ -680,29 +700,29 @@ golem_vm_scope_enter(GolemVMScope * scope,
 
 inline void
 golem_vm_scope_get(GolemVMScope * scope,
-		     guint16 index,
-		     guint16 offset,
-		     guint8 size,
-		     GolemVMData * dest)
+		   guint16 index,
+		   guint16 offset,
+		   guint8 size,
+		   GolemVMData * dest)
 {
   memcpy(dest,scope->m_data[index]->m_data + offset,size);
 }
 
 inline void
 golem_vm_scope_set(GolemVMScope * scope,
-		     guint16 index,
-		     guint16 offset,
-		     guint8 size,
-		     const GolemVMData * src)
+		   guint16 index,
+		   guint16 offset,
+		   guint8 size,
+		   const GolemVMData * src)
 {
   memcpy(scope->m_data[index]->m_data + offset,src,size);
 }
 
 inline void
 golem_vm_scope_ptr(GolemVMScope * scope,
-		       guint16 index,
-		       guint16 offset,
-		       GolemVMData * dest)
+		   guint16 index,
+		   guint16 offset,
+		   GolemVMData * dest)
 {
   dest->data->pointer_v = (scope->m_data[index]->m_data + offset);
 }

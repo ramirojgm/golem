@@ -98,7 +98,7 @@ golem_statement_compile(GolemStatement * statement,
 				   error);
 }
 
-GolemTypeCode
+GType
 golem_statement_value_type(GolemStatement * statement,
 			GolemScopeBuilder * scope_builder,
 			GError ** error)

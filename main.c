@@ -36,8 +36,8 @@ test_function(gdouble a, gdouble b,GError ** error)
 	  GolemScopeBuilder * scope_builder = golem_scope_builder_new();
 	  body = golem_vm_body_new();
 	  golem_scope_builder_enter(scope_builder,body,error);
-	  golem_scope_builder_argument(scope_builder,GOLEM_TYPE_CODE_DOUBLE,"a",error);
-	  golem_scope_builder_argument(scope_builder,GOLEM_TYPE_CODE_DOUBLE,"b",error);
+	  golem_scope_builder_argument(scope_builder,G_TYPE_DOUBLE,"a",error);
+	  golem_scope_builder_argument(scope_builder,G_TYPE_DOUBLE,"b",error);
 
 	  golem_statement_compile(block,
 				body,
@@ -96,6 +96,8 @@ test_function(gdouble a, gdouble b,GError ** error)
  *}
  */
 
+
+
 gint
 main(gint argc,gchar ** argv)
 {
@@ -109,19 +111,23 @@ main(gint argc,gchar ** argv)
       GolemTypeModule * module_main = golem_type_module_new();
       if(golem_type_module_parse(module_main,"example/main_module.glm",content,-1,&error))
 	{
+
 	  golem_type_module_compile(module_main,&error);
+
 	  golem_type_module_get_symbol(module_main,
 				       "add_func",
 				       (gpointer*)&add_func,
 				       NULL,
 				       &error);
+
 	  g_print("%d",add_func(5,10));
+
 	}
     }
 
   if(error)
     {
-
+      g_print("have error");
     }
 
  /* void (*main_func)(int argc,char ** argv);

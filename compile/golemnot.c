@@ -26,12 +26,12 @@ golem_not_init(GolemNot * not)
   not->value = NULL;
 }
 
-static GolemTypeCode
+static GType
 golem_not_value_type(GolemNot * not,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-    return GOLEM_TYPE_CODE_INT32;
+    return G_TYPE_BOOLEAN;
 }
 
 

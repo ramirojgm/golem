@@ -17,6 +17,7 @@
 
 #include "../golem.h"
 
+/*
 GType
 golem_symbol_get_return_type(GolemSymbolInfo * symbol_info)
 {
@@ -35,10 +36,10 @@ golem_symbol_get_name(GolemSymbolInfo * symbol_info)
   return symbol_info->name;
 }
 
-const GolemSymbolArgumentInfo **
+const GolemSymbolArgumentInfo *
 golem_symbol_get_arguments(GolemSymbolInfo * symbol_info)
 {
-  return (const GolemSymbolArgumentInfo **)symbol_info->arguments;
+  return (const GolemSymbolArgumentInfo *)symbol_info->arguments;
 }
 
 guint8
@@ -51,5 +52,5 @@ gpointer
 golem_symbol_get_callback(GolemSymbolInfo * symbol_info)
 {
   return symbol_info->callback;
-}
+}*/
 

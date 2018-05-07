@@ -1,6 +1,10 @@
-int g_print(string fmt,int result);
+void run()
+{
+
+}
 
 int add_func(int a, int b)
 {
-    return a + b;
+    
+    return a + b * a;
 }

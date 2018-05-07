@@ -15,17 +15,17 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMSYMBOL_H_
-#define GOLEMSYMBOL_H_
+#ifndef GOLEMSYMBOLENTRY_H_
+#define GOLEMSYMBOLENTRY_H_
 
-typedef struct _GolemSymbolArgument GolemSymbolArgument;
+typedef struct _GolemSymbolEntryArgument GolemSymbolEntryArgument;
 
-#define GOLEM_SYMBOL_CLASS	(golem_symbol_get_class())
-#define GOLEM_SYMBOL(p)		((GolemSymbol*)p)
+#define GOLEM_SYMBOL_ENTRY_CLASS	(golem_symbol_entry_get_class())
+#define GOLEM_SYMBOL_ENTRY(p)		((GolemSymbolEntry*)p)
 
-typedef struct _GolemSymbol	GolemSymbol;
+typedef struct _GolemSymbolEntry	GolemSymbolEntry;
 
-struct _GolemSymbol {
+struct _GolemSymbolEntry {
   GolemStatement parent;
   gboolean external;
   gboolean ret_const;
@@ -35,12 +35,12 @@ struct _GolemSymbol {
   GolemStatement * body;
 };
 
-struct _GolemSymbolArgument {
+struct _GolemSymbolEntryArgument {
   gchar * type;
   gchar * name;
 };
 
-GolemStatementClass * golem_symbol_get_class(void);
+GolemStatementClass * golem_symbol_entry_get_class(void);
 
 
-#endif /* GOLEMSYMBOL_H_ */
+#endif /* GOLEMSYMBOLENTRY_H_ */

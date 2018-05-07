@@ -26,13 +26,13 @@ golem_call_init(GolemCall * call)
   call->arguments = NULL;
 }
 
-static GolemTypeCode
+static GType
 golem_call_value_type(GolemCall * call,
 		      GolemScopeBuilder *scope_builder,
 		      GError ** error)
 {
   //TODO: check for type return
-  return GOLEM_TYPE_CODE_INT32;
+  return G_TYPE_INT;
 }
 
 

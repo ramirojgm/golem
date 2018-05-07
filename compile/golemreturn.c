@@ -26,12 +26,12 @@ golem_return_init(GolemReturn * ret)
   ret->m_expression = NULL;
 }
 
-static GolemTypeCode
+static GType
 golem_return_value_type(GolemReturn * ret,
 		       GolemScopeBuilder *scope_builder,
 		       GError ** error)
 {
-  return GOLEM_TYPE_CODE_UNDEFINED;
+  return G_TYPE_NONE;
 }
 
 

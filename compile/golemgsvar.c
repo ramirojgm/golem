@@ -27,13 +27,13 @@ golem_gsvar_init(GolemGSVar * gsvar)
   gsvar->value = NULL;
 }
 
-static GolemTypeCode
+static GType
 golem_gsvar_value_type(GolemGSVar * gsvar,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-  GolemTypeCode type = golem_scope_builder_type(scope_builder,gsvar->variable_name);
-  if(type == GOLEM_TYPE_CODE_UNDEFINED)
+  GType type = golem_scope_builder_type(scope_builder,gsvar->variable_name);
+  if(type == G_TYPE_INVALID)
     {
       g_propagate_error(error,
 			g_error_new(GOLEM_ERROR,

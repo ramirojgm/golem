@@ -17,10 +17,10 @@
 
 #include "../golem.h"
 
-GOLEM_DEFINE_STATEMENT(GolemSymbol,golem_symbol)
+GOLEM_DEFINE_STATEMENT(GolemSymbolEntry,golem_symbol_entry)
 
 static void
-golem_symbol_init(GolemSymbol * symbol)
+golem_symbol_entry_init(GolemSymbolEntry * symbol)
 {
   symbol->body = NULL;
   symbol->external = FALSE;
@@ -30,7 +30,7 @@ golem_symbol_init(GolemSymbol * symbol)
 }
 
 static gboolean
-golem_symbol_check(GolemParser * parser)
+golem_symbol_entry_check(GolemParser * parser)
 {
   gboolean result = FALSE;
   golem_parser_save_point(parser);
@@ -48,7 +48,7 @@ golem_symbol_check(GolemParser * parser)
 }
 
 static gboolean
-golem_symbol_parse(GolemSymbol * symbol,
+golem_symbol_entry_parse(GolemSymbolEntry * symbol,
 		    GolemParser * parser,
 		    GolemExpressionLimit limit,
 		    GError ** error)
@@ -72,14 +72,19 @@ golem_symbol_parse(GolemSymbol * symbol,
 		       const gchar * argument_type = golem_parser_next_word(parser,TRUE);
 		       if(golem_parser_check_is_named(parser))
 			 {
-			   GolemSymbolArgument * symbol_argument = g_new0(GolemSymbolArgument,1);
+			   GolemSymbolEntryArgument * symbol_argument = g_new0(GolemSymbolEntryArgument,1);
 			   symbol_argument->type = g_strdup(argument_type);
 			   symbol_argument->name = g_strdup(golem_parser_next_word(parser,TRUE));
 			   symbol->arguments = g_list_append(symbol->arguments,symbol_argument);
 			 }
 		       else
 			 {
-			   //TODO: throw exception
+			   //TODO: exception
+			   g_propagate_error(error,g_error_new(
+			       GOLEM_ERROR,
+			       GOLEM_COMPILE_ERROR_SYNTAXES,
+			       ""
+			   ));
 			   done = FALSE;
 			   break;
 			 }
@@ -88,6 +93,11 @@ golem_symbol_parse(GolemSymbol * symbol,
 		    {
 		      //TODO: throw exception
 		      done = FALSE;
+		      g_propagate_error(error,g_error_new(
+			 GOLEM_ERROR,
+			 GOLEM_COMPILE_ERROR_SYNTAXES,
+			 ""
+		      ));
 		      break;
 		    }
 
@@ -115,12 +125,9 @@ golem_symbol_parse(GolemSymbol * symbol,
 			  g_free(symbol);
 			  symbol = NULL;
 			}
-		      else
-			  g_print("Internal");
 		    }
 		  else
 		    {
-		      g_print("External");
 		      symbol->external = TRUE;
 		    }
 		}
@@ -128,16 +135,31 @@ golem_symbol_parse(GolemSymbol * symbol,
 	  else
 	    {
 	      //TODO:throw exception
+	      g_propagate_error(error,g_error_new(
+		 GOLEM_ERROR,
+		 GOLEM_COMPILE_ERROR_SYNTAXES,
+		 ""
+	      ));
 	    }
 	}
       else
 	{
 	  //TODO: throw exception
+	  g_propagate_error(error,g_error_new(
+	     GOLEM_ERROR,
+	     GOLEM_COMPILE_ERROR_SYNTAXES,
+	     ""
+	  ));
 	}
     }
   else
     {
       //TODO: throw exception
+      g_propagate_error(error,g_error_new(
+	 GOLEM_ERROR,
+	 GOLEM_COMPILE_ERROR_SYNTAXES,
+	 ""
+      ));
     }
   return done;
 }
@@ -145,24 +167,39 @@ golem_symbol_parse(GolemSymbol * symbol,
 
 
 static gboolean
-golem_symbol_compile(GolemSymbol * symbol,
+golem_symbol_entry_compile(GolemSymbolEntry * symbol,
 		    GolemVMBody * body,
 		    GolemScopeBuilder * scope_builder,
 		    GError ** error)
 {
-  return FALSE;
+  gboolean done = TRUE;
+  GolemVMData functioName;
+  functioName.data->pointer_v = symbol->name;
+  golem_scope_builder_define(scope_builder,
+			     GOLEM_TYPE_SYMBOL,
+			     symbol->name,
+			     error);
+
+  golem_vm_body_write_data(body,
+			   &functioName,
+			   G_TYPE_STRING,
+			   g_utf8_strlen(symbol->name,1024));
+
+  golem_vm_body_write_op(body,GOLEM_OP_FN);
+  golem_scope_builder_set(scope_builder,symbol->name,error);
+  return done;
 }
 
-static GolemTypeCode
-golem_symbol_value_type(GolemSymbol * symbol,
+static GType
+golem_symbol_entry_value_type(GolemSymbolEntry * symbol,
 			GolemScopeBuilder * scope_builder,
 			GError ** error)
 {
-  return GOLEM_TYPE_CODE_UNDEFINED;
+  return G_TYPE_NONE;
 }
 
 static void
-golem_symbol_dispose(GolemSymbol * symbol)
+golem_symbol_entry_dispose(GolemSymbolEntry * symbol)
 {
 
 }

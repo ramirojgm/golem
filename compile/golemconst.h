@@ -25,7 +25,7 @@ typedef struct _GolemConst	GolemConst;
 
 struct _GolemConst {
   GolemStatement parent;
-  GolemTypeCode type;
+  GType type;
   GolemVMData data;
   guint16 size;
 };

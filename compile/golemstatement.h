@@ -27,7 +27,7 @@
 								  GolemVMBody * body,\
 								  GolemScopeBuilder * scope_builder,\
 								  GError ** error);\
-				     static GolemTypeCode n##_value_type (N* statement,\
+				     static GType n##_value_type (N* statement,\
 								  GolemScopeBuilder * scope_builder,\
 								  GError ** error);\
 				     static void n##_dispose     (N * statement);\
@@ -61,9 +61,9 @@ typedef gboolean (*GolemStatementCompile)(GolemStatement * statement,
 					  GolemScopeBuilder * scope_builder,
 					  GError ** error);
 
-typedef GolemTypeCode (*GolemStatementValueType)(GolemStatement * statement,
-						GolemScopeBuilder * scope_builder,
-						GError ** error);
+typedef GType (*GolemStatementValueType)(GolemStatement * statement,
+					  GolemScopeBuilder * scope_builder,
+					  GError ** error);
 
 typedef void 	 (*GolemStatementDispose)(GolemStatement * statement);
 
@@ -105,7 +105,7 @@ gboolean	 golem_statement_compile(GolemStatement * statement,
 					GolemScopeBuilder * scope_builder,
 					GError ** error);
 
-GolemTypeCode	 golem_statement_value_type(GolemStatement * statement,
+GType		 golem_statement_value_type(GolemStatement * statement,
 					    GolemScopeBuilder * scope_builder,
 					    GError ** error);
 

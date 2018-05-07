@@ -33,15 +33,15 @@
 #include "compile/golemconst.h"
 #include "compile/golemvar.h"
 #include "compile/golemconditional.h"
-#include "compile/golemsymbol.h"
+#include "compile/golemsymbolentry.h"
+#include "compile/golemsymbolentry.h"
 
 #include "module/golemtypeinfo.h"
-#include "module/golemsymbolinfo.h"
+#include "module/golemsymbol.h"
 #include "module/golemtypemodule.h"
 
 
-#include "compile/golemsymbol.h"
-
 #include "golemerror.h"
+
 
 #endif /* GOLEM_H_ */

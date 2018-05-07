@@ -25,12 +25,12 @@ golem_block_init(GolemBlock * block)
   block->statements = NULL;
 }
 
-static GolemTypeCode
+static GType
 golem_block_value_type(GolemBlock * var,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-  return GOLEM_TYPE_CODE_UNDEFINED;
+  return G_TYPE_NONE;
 }
 
 

@@ -26,7 +26,7 @@ golem_negative_init(GolemNegative * negative)
   negative->value = NULL;
 }
 
-static GolemTypeCode
+static GType
 golem_negative_value_type(GolemNegative * negative,
 			   GolemScopeBuilder *scope_builder,
 			   GError ** error)
@@ -47,27 +47,28 @@ golem_negative_compile(GolemNegative * negative,
 				  error);
   if(done)
     {
-      GolemTypeCode type_code = golem_statement_value_type(negative->value,
+      GType type_code = golem_statement_value_type(negative->value,
       						       scope_builder,
       						       error);
       switch(type_code)
       {
-	case GOLEM_TYPE_CODE_INT8:
-	case GOLEM_TYPE_CODE_UINT8:
-	case GOLEM_TYPE_CODE_INT16:
-	case GOLEM_TYPE_CODE_UINT16:
-	case GOLEM_TYPE_CODE_INT32:
-	case GOLEM_TYPE_CODE_UINT32:
+	case G_TYPE_CHAR:
+	case G_TYPE_UCHAR:
+	case G_TYPE_BOOLEAN:
+	case G_TYPE_INT16:
+	case G_TYPE_UINT16:
+	case G_TYPE_INT:
+	case G_TYPE_UINT:
 	  golem_vm_body_write_op(body,GOLEM_OP_NI32);
 	  break;
-	case GOLEM_TYPE_CODE_INT64:
-	case GOLEM_TYPE_CODE_UINT64:
+	case G_TYPE_INT64:
+	case G_TYPE_UINT64:
 	  golem_vm_body_write_op(body,GOLEM_OP_NI64);
 	  break;
-	case GOLEM_TYPE_CODE_FLOAT:
+	case G_TYPE_FLOAT:
 	  golem_vm_body_write_op(body,GOLEM_OP_NF32);
 	  break;
-	case GOLEM_TYPE_CODE_DOUBLE:
+	case G_TYPE_DOUBLE:
 	  golem_vm_body_write_op(body,GOLEM_OP_ND64);
 	  break;
 	default:
