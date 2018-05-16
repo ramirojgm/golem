@@ -102,7 +102,7 @@ gint
 main(gint argc,gchar ** argv)
 {
   g_autofree gchar * content = NULL;
-  g_autofree GError * error = NULL;
+  /*g_autofree*/ GError * error = NULL;
 
   gint (*add_func)(gint a, gint b);
 
@@ -127,7 +127,8 @@ main(gint argc,gchar ** argv)
 
   if(error)
     {
-      g_print("have error");
+      g_print("error:%s",error->message);
+
     }
 
  /* void (*main_func)(int argc,char ** argv);

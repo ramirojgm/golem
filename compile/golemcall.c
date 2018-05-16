@@ -47,6 +47,26 @@ golem_call_compile(GolemCall * call,
 				  scope_builder,
 				  error);
 
+  for(GList * arg_iter = g_list_first(call->arguments);
+      arg_iter;
+      arg_iter = g_list_next(arg_iter))
+    {
+      if((done = golem_statement_compile((GolemStatement*)arg_iter->data,
+					  body,
+					  scope_builder,
+					  error)))
+	{
+	  golem_vm_body_write_op(body,GOLEM_OP_WA);
+	}
+      else
+	{
+	  break;
+	}
+    }
+
+  golem_vm_body_write_op16(body,
+			   GOLEM_OP_CL,
+			   g_list_length(call->arguments));
   return done;
 }
 

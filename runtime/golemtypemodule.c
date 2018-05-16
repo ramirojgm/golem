@@ -204,20 +204,40 @@ golem_resolve_type_name(const gchar * type_name)
 static GolemSymbol *
 golem_type_module_symbol_entry(GolemSymbolEntry * symbol)
 {
-  GolemSymbol * symbol_info = g_new0(GolemSymbol,1);
+  GolemSymbol * symbol_info;
+  if(symbol->external)
+    symbol_info = g_new0(GolemSymbol,1);
+  else
+    symbol_info = (GolemSymbol*)g_new0(GolemFunction,1);
+
+  symbol_info->internal =!symbol->external;
   symbol_info->name = g_strdup(symbol->name);
-  symbol_info->return_constant = symbol->ret_const;
-  symbol_info->return_type = golem_resolve_type_name(symbol->ret_type);
-  symbol_info->n_arguments = g_list_length(symbol->arguments);
-  symbol_info->arguments = g_new(GolemSymbolArgument,symbol_info->n_arguments);
+
+  //Define marshal
+  guint8 n_arguments = g_list_length(symbol->arguments);
+  g_autofree GType  * argument_types = g_new(GType,n_arguments);
+  gchar ** argument_names = g_new0(gchar *,n_arguments + 1);
+
   guint8 argument_index = 0;
   for(GList * iter = g_list_first(symbol->arguments); iter; iter = g_list_next(iter))
     {
       GolemSymbolEntryArgument * arg = (GolemSymbolEntryArgument*)iter->data;
-      symbol_info->arguments[argument_index].name = g_strdup(arg->name);
-      symbol_info->arguments[argument_index].type = golem_resolve_type_name(arg->type);
+      argument_names[argument_index] = g_strdup(arg->name);
+      argument_types[argument_index] = golem_resolve_type_name(arg->type);
       argument_index ++;
     }
+
+  symbol_info->marshal_type = golem_declare_marshal(
+      symbol->ret_const,
+      golem_resolve_type_name(symbol->ret_type),
+      n_arguments,
+      argument_types);
+
+  if(symbol->body)
+    ((GolemFunction*)symbol_info)->arguments = argument_names;
+  else
+    g_strfreev(argument_names);
+
   return symbol_info;
 }
 
@@ -234,6 +254,23 @@ golem_type_module_compile(GolemTypeModule * type_module,
 
   GolemScopeBuilder * scope_builder = golem_scope_builder_new();
   GolemVMBody * body = golem_vm_body_new();
+
+  golem_scope_builder_enter(scope_builder,body,error);
+
+  //Compiling module instructions
+   for(GList * iter = g_list_first(type_module->priv->statement);
+       iter;
+       iter = g_list_next(iter))
+     {
+       GolemStatement * statement = (GolemStatement*)(iter->data);
+       if((done = golem_statement_compile(statement,
+			       body,
+			       scope_builder,
+			       error)))
+	   {
+	     break;
+	   }
+     }
 
   //Compiling functions bodies
   for(GList * iter = g_list_first(type_module->priv->statement);
@@ -253,15 +290,16 @@ golem_type_module_compile(GolemTypeModule * type_module,
 	  if(!symbol_entry->external)
 	    {
 	      GolemVMBody * symbol_body = golem_vm_body_new();
+	      GolemMarshalInfo * marshal = g_type_get_marshal_info(symbol_info->marshal_type);
+	      GolemFunction * function = (GolemFunction *) symbol_info;
 	      golem_scope_builder_enter(scope_builder,symbol_body,error);
 	      for(guint8 arg_index = 0;
-		  arg_index < symbol_info->n_arguments;
+		  arg_index < marshal->n_arguments;
 		  arg_index ++)
 		{
-		  GolemSymbolArgument * arg = &(symbol_info->arguments[arg_index]);
 		  golem_scope_builder_argument(scope_builder,
 					       G_TYPE_INT,
-					       arg->name,
+					       function->arguments[arg_index],
 					       error);
 		}
 	      golem_statement_compile(symbol_entry->body,
@@ -269,10 +307,12 @@ golem_type_module_compile(GolemTypeModule * type_module,
 				      scope_builder,
 				      error);
 	      golem_scope_builder_exit(scope_builder,error);
-	      symbol_info->body_vm = symbol_body;
+	      function->body_vm = symbol_body;
 	    }
 	}
     }
+
+  golem_scope_builder_exit(scope_builder,error);
 
   type_module->priv->n_symbol = g_list_length(symbols_list);
   type_module->priv->symbol = g_new0(GolemSymbol*,type_module->priv->n_symbol);
@@ -388,19 +428,22 @@ golem_type_module_init(GolemTypeModule * self)
 }
 
 static void
-golem_symbol_call(ffi_cif *cif,
-		 gpointer ret,
-		 gpointer args[],
-		 gpointer user_data)
+golem_function_ffi_call(ffi_cif *cif,
+			 gpointer ret,
+			 gpointer args[],
+			 gpointer user_data)
 {
 
-  GolemSymbol * symbol = (GolemSymbol*)user_data;
+  GolemFunction * symbol = (GolemFunction*)user_data;
+  GolemMarshalInfo * marshal = g_type_get_marshal_info(symbol->symbol.marshal_type);
+
   ffi_arg * 	result = (ffi_arg*) ret;
   GolemVMData   vm_result;
-  GolemVMData * vm_arg = g_new(GolemVMData,symbol->n_arguments);
+
+  GolemVMData * vm_arg = g_new(GolemVMData,marshal->n_arguments);
 
   for(guint8 arg_index = 0;
-      arg_index < symbol->n_arguments;
+      arg_index < marshal->n_arguments;
       arg_index ++)
     {
       vm_arg[arg_index].data->int64_v = *((gint64*)args[arg_index]);
@@ -408,14 +451,13 @@ golem_symbol_call(ffi_cif *cif,
 
   golem_vm_body_run(symbol->body_vm,
 		    symbol->scope_vm,
-		    symbol->n_arguments,
+		    marshal->n_arguments,
 		    vm_arg,
 		    &vm_result,
 		    NULL);
   g_free(vm_arg);
 
   *result = vm_result.data->int64_v;
-  /**(ffi_arg *)ret = fputs(*(char **)args[0], (FILE *)stream);*/
 }
 
 static ffi_type *
@@ -484,38 +526,41 @@ _golem_type_module_load(GTypeModule * module,
 	  type_module->priv->loaded = TRUE;
 	  GolemVMScope * scope = golem_vm_scope_new();
 
-	    //ffi_closure_free(closure);
 	  GModule * global_module = g_module_open(NULL,G_MODULE_BIND_LOCAL);
 	  for(guint32 symbol_index = 0;
 	      symbol_index < type_module->priv->n_symbol;
 	      symbol_index ++)
 	    {
 	      GolemSymbol * symbol = type_module->priv->symbol[symbol_index];
-	      if(symbol->body_vm)
+	      if(symbol->internal)
 		{
-		  symbol->scope_vm = scope;
+		  GolemMarshalInfo * marshal = g_type_get_marshal_info(symbol->marshal_type);
+		  GolemFunction * function = (GolemFunction*)symbol;
+
+		  function->scope_vm = scope;
+
 		  ffi_type ** args = NULL;
 		  ffi_closure *closure;
 		  gpointer callback = NULL;
 		  closure = ffi_closure_alloc(sizeof(ffi_closure), &callback);
 		  if(closure)
 		    {
-		      args = g_new0(ffi_type*,symbol->n_arguments);
+		      args = g_new0(ffi_type*,marshal->n_arguments);
 		      for(guint8 arg_index = 0;
-			  arg_index < symbol->n_arguments;
+			  arg_index < marshal->n_arguments;
 			  arg_index ++)
-			args[arg_index] = golem_ffi_type_of(symbol->arguments[arg_index].type);
+			args[arg_index] = golem_ffi_type_of(marshal->argument_types[arg_index]);
 
 		      done = ffi_prep_cif(&(type_module->priv->cif),
 					  FFI_DEFAULT_ABI,
-					  symbol->n_arguments,
-		                          golem_ffi_type_of(symbol->return_type),
+					  marshal->n_arguments,
+		                          golem_ffi_type_of(marshal->return_type),
 					  args) == FFI_OK;
 		      if(done)
 			{
 			  done = ffi_prep_closure_loc(closure,
 						      &(type_module->priv->cif),
-						      golem_symbol_call,
+						      golem_function_ffi_call,
 						      symbol,
 						      callback) == FFI_OK;
 			  if(done)

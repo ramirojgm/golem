@@ -20,6 +20,8 @@
 
 #include "vm/golemvm.h"
 
+#include "golemerror.h"
+
 #include "compile/golemparser.h"
 #include "compile/golemscopebuilder.h"
 #include "compile/golemstatement.h"
@@ -35,13 +37,13 @@
 #include "compile/golemconditional.h"
 #include "compile/golemsymbolentry.h"
 #include "compile/golemsymbolentry.h"
-
-#include "module/golemtypeinfo.h"
-#include "module/golemsymbol.h"
-#include "module/golemtypemodule.h"
+#include "runtime/golemmarshal.h"
 
 
-#include "golemerror.h"
+
+#include "runtime/golemsymbol.h"
+#include "runtime/golemtypeinfo.h"
+#include "runtime/golemtypemodule.h"
 
 
 #endif /* GOLEM_H_ */

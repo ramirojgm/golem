@@ -15,41 +15,29 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMSYMBOL_H_
-#define GOLEMSYMBOL_H_
+#ifndef GOLEMMARSHAL_H_
+#define GOLEMMARSHAL_H_
 
-typedef struct _GolemSymbol GolemSymbol;
-typedef struct _GolemSymbolArgument GolemSymbolArgument;
+typedef struct _GolemMarshalInfo GolemMarshalInfo;
 
-struct _GolemSymbolArgument
+struct _GolemMarshalInfo
 {
-  GType	 type;
-  gchar* name;
-  gpointer padding[2];
-};
-
-struct _GolemSymbol
-{
-  GolemTypeInfo parent;
   /* return */
-  gboolean return_constant;
-  GType	 return_type;
+  gboolean 	return_const;
+  GType		return_type;
 
-  /* name */
-  gchar * name;
-
-  /* arguments */
-  guint8 n_arguments;
-  GolemSymbolArgument * arguments;
-
-  /* callback */
-  gpointer callback;
-
-  /* body */
-  GolemVMScope 	* scope_vm;
-  GolemVMBody 	* body_vm;
+  /* arguments*/
+  guint8	n_arguments;
+  GType *	argument_types;
 };
 
+GolemMarshalInfo *
+		g_type_get_marshal_info(GType type);
+
+GType 		golem_declare_marshal(gboolean 	return_const,
+				       GType		return_type,
+				       guint8		n_arguments,
+				       const GType * 	argument_types);
 
 
-#endif /* GOLEMSYMBOL_H_ */
+#endif /* GOLEMMARSHAL_H_ */
