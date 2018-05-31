@@ -15,29 +15,21 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMMARSHAL_H_
-#define GOLEMMARSHAL_H_
+#ifndef GOLEMMETADATA_H_
+#define GOLEMMETADATA_H_
 
-typedef struct _GolemMarshalInfo GolemMarshalInfo;
+#define GOLEM_TYPE_METADATA	(golem_metadata_get_type())
+G_DECLARE_DERIVABLE_TYPE(GolemMetadata,golem_metadata,GOLEM,METADATA,GObject)
 
-struct _GolemMarshalInfo
+struct _GolemMetadataClass
 {
-  /* return */
-  gboolean 	return_const;
-  GType		return_type;
+  GObjectClass parent_class;
 
-  /* arguments*/
-  guint8	n_arguments;
-  GType *	argument_types;
 };
 
-GolemMarshalInfo *
-		g_type_get_marshal_info(GType type);
+GType		golem_metadata_get_type(void);
 
-GType 		golem_declare_marshal(gboolean 	return_const,
-				       GType		return_type,
-				       guint8		n_arguments,
-				       const GType * 	argument_types);
+const gchar *	golem_metadata_get_name(GolemMetadata * metadata);
 
 
-#endif /* GOLEMMARSHAL_H_ */
+#endif /* GOLEMMETADATA_H_ */

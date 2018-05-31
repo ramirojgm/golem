@@ -101,12 +101,12 @@ test_function(gdouble a, gdouble b,GError ** error)
 gint
 main(gint argc,gchar ** argv)
 {
-  g_autofree gchar * content = NULL;
+  //g_autofree gchar * content = NULL;
   /*g_autofree*/ GError * error = NULL;
 
   gint (*add_func)(gint a, gint b);
 
-  if(g_file_get_contents("examples/main.glm",&content,NULL,&error))
+  /*if(g_file_get_contents("examples/main.glm",&content,NULL,&error))
     {
       GolemTypeModule * module_main = golem_type_module_new();
       if(golem_type_module_parse(module_main,"example/main_module.glm",content,-1,&error))
@@ -129,7 +129,7 @@ main(gint argc,gchar ** argv)
     {
       g_print("error:%s",error->message);
 
-    }
+    }*/
 
  /* void (*main_func)(int argc,char ** argv);
 

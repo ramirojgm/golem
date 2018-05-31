@@ -15,32 +15,29 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMSYMBOL_H_
-#define GOLEMSYMBOL_H_
+#ifndef GOLEMFUNCTIONINFO_H_
+#define GOLEMFUNCTIONINFO_H_
 
-typedef struct _GolemSymbol GolemSymbol;
-typedef struct _GolemFunction GolemFunction;
+#define GOLEM_TYPE_FUNCTION_INFO	(golem_function_info_get_type())
+G_DECLARE_DERIVABLE_TYPE(GolemFunctionInfo,golem_function_info,GOLEM,FUNCTION_INFO,GolemMetadata)
 
-struct _GolemSymbol
+struct _GolemFunctionInfoClass
 {
-  GType marshal_type;
-  gchar * name;
-  gboolean internal;
-  gpointer callback;
+  GolemMetadataClass parent_class;
+
+
 };
 
-struct _GolemFunction
-{
-  GolemSymbol symbol;
+GType			golem_type_info_get_type(void);
 
-  /* arguments */
-  gchar ** arguments;
+const GolemTypeInfo *	golem_type_info_get_parent(GolemTypeInfo * type_info);
 
-  /* body */
-   GolemVMScope * scope_vm;
-   GolemVMBody 	* body_vm;
-};
+gboolean		golem_type_info_is_derived_type(GolemTypeInfo * type_info,
+							GolemTypeInfo * type_derived);
 
+GolemMetadata *		golem_type_info_get_member_info(GolemTypeInfo * type_info,
+							const gchar * member_name,
+							GError ** error);
 
 
-#endif /* GOLEMSYMBOL_H_ */
+#endif /* GOLEMFUNCTIONINFO_H_ */

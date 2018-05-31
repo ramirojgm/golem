@@ -18,32 +18,30 @@
 #ifndef GOLEMTYPEINFO_H_
 #define GOLEMTYPEINFO_H_
 
-typedef struct _GolemTypeInfoClass GolemTypeInfoClass;
-typedef struct _GolemTypeInfo GolemTypeInfo;
+#define GOLEM_TYPE_TYPE_INFO	(golem_type_info_get_type())
+G_DECLARE_DERIVABLE_TYPE(GolemTypeInfo,golem_type_info,GOLEM,TYPE_INFO,GolemMetadata)
 
 struct _GolemTypeInfoClass
 {
-  GType	   (*get_member_type)(GolemTypeInfo * info,
-			      const gchar * name);
+  GolemMetadataClass parent_class;
 
-  gboolean (*get_member)(GolemTypeInfo * info,
-			 gpointer instance,
-			 const gchar * name,
-			 GolemVMData * dst,
-			 GError ** error);
+  gboolean 	  (*is_derived_type)(GolemTypeInfo * type_info,
+				     GolemTypeInfo * type_derived);
 
-  gboolean (*set_member)(GolemTypeInfo * info,
-			 gpointer instance,
-  			 const gchar * name,
-  			 GolemVMData * src,
-  			 GError ** error);
+  GolemMetadata * (*get_member_info)(GolemTypeInfo * type_info,
+				     const gchar * member_name,
+				     GError ** error);
 };
 
-struct _GolemTypeInfo
-{
-  const GolemTypeInfoClass * klass;
-  gchar * name;
-};
+GType			golem_type_info_get_type(void);
 
+const GolemTypeInfo *	golem_type_info_get_parent(GolemTypeInfo * type_info);
+
+gboolean		golem_type_info_is_derived_type(GolemTypeInfo * type_info,
+							GolemTypeInfo * type_derived);
+
+GolemMetadata *		golem_type_info_get_member_info(GolemTypeInfo * type_info,
+							const gchar * member_name,
+							GError ** error);
 
 #endif /* GOLEMTYPEINFO_H_ */
