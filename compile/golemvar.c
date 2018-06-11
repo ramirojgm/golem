@@ -43,7 +43,7 @@ golem_var_compile(GolemVar * var,
 		  GError ** error)
 {
   gboolean done = TRUE;
-  GType type = golem_resolve_type_name(var->type_name);
+  GType type = G_TYPE_OBJECT;
   for(GList * var_iter = g_list_first(var->vars);
       var_iter;
       var_iter = g_list_next(var_iter))

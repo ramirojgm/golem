@@ -23,6 +23,7 @@ typedef struct _GolemMetadataPrivate	GolemMetadataPrivate;
 struct _GolemMetadataPrivate
 {
   gchar * name;
+  GolemSource * source;
 };
 
 G_DEFINE_ABSTRACT_TYPE(GolemMetadata,golem_metadata,G_TYPE_OBJECT)
@@ -31,6 +32,7 @@ enum _GolemMetadataProps
 {
   GOLEM_METADATA_PROP_0,
   GOLEM_METADATA_PROP_NAME,
+  GOLEM_METADATA_PROP_SOURCE,
   GOLEM_METADATA_N_PROP
 };
 
@@ -51,6 +53,10 @@ golem_metadata_set_property(GObject * obj,
       g_clear_pointer(&priv->name,g_free);
       priv->name = g_value_dup_string(value);
       break;
+    case GOLEM_METADATA_PROP_SOURCE:
+      priv->source = GOLEM_SOURCE(g_value_get_object(value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, property_id, pspec);
       break;
@@ -70,6 +76,9 @@ golem_metadata_get_property(GObject * obj,
   {
     case GOLEM_METADATA_PROP_NAME:
       g_value_set_string(value,priv->name);
+      break;
+    case GOLEM_METADATA_PROP_SOURCE:
+      g_value_set_object(value,priv->source);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (obj, property_id, pspec);
@@ -104,6 +113,13 @@ golem_metadata_class_init(GolemMetadataClass * klass)
 			  "name",
 			  "Name of metadata",
 			  "",
+			  G_PARAM_CONSTRUCT|G_PARAM_CONSTRUCT_ONLY);
+
+  _golem_metadata_properties[GOLEM_METADATA_PROP_SOURCE] =
+      g_param_spec_object("source",
+			  "source",
+			  "Source of metadata",
+			  GOLEM_TYPE_SOURCE,
 			  G_PARAM_CONSTRUCT|G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties(

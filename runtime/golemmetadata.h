@@ -31,5 +31,7 @@ GType		golem_metadata_get_type(void);
 
 const gchar *	golem_metadata_get_name(GolemMetadata * metadata);
 
+GolemSource *	golem_metadata_get_source(GolemMetadata * metadata);
+
 
 #endif /* GOLEMMETADATA_H_ */

@@ -15,21 +15,15 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMAPPLICATIONCONTEXT_H_
-#define GOLEMAPPLICATIONCONTEXT_H_
+#ifndef GOLEMSOURCE_H_
+#define GOLEMSOURCE_H_
 
-#define GOLEM_TYPE_APPLICATION_CONTEXT (golem_application_context_get_type())
-G_DECLARE_INTERFACE (GolemApplicationContext, golem_application_context, GOLEM, APPLICATION_CONTEXT, GObject)
+#define GOLEM_TYPE_SOURCE (golem_source_get_type())
+G_DECLARE_INTERFACE (GolemSource, golem_source, GOLEM, SOURCE, GObject)
 
-struct _GolemApplicationContextInterface
+struct _GolemSourceInterface
 {
   GTypeInterface parent_iface;
-
-  gboolean (*register_object)(const gchar * type_name);
-
-  gboolean (*register_struct)(const gchar * type_name);
-
-  gboolean (*register_marshal)(const gchar * type_name);
 
 
 };

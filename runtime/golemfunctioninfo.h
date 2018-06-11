@@ -19,25 +19,27 @@
 #define GOLEMFUNCTIONINFO_H_
 
 #define GOLEM_TYPE_FUNCTION_INFO	(golem_function_info_get_type())
+
 G_DECLARE_DERIVABLE_TYPE(GolemFunctionInfo,golem_function_info,GOLEM,FUNCTION_INFO,GolemMetadata)
+
+struct _GolemArgument GolemArgument;
+
+struct _GolemArgument
+{
+  GolemTypeInfo * type;
+  gchar * 	  name;
+};
 
 struct _GolemFunctionInfoClass
 {
   GolemMetadataClass parent_class;
 
+  guint		(*get_argument_count)(GolemFunctionInfo * function_info);
+  gchar **	(*get_argument_names)(GolemFunctionInfo * function_info);
 
 };
 
-GType			golem_type_info_get_type(void);
 
-const GolemTypeInfo *	golem_type_info_get_parent(GolemTypeInfo * type_info);
-
-gboolean		golem_type_info_is_derived_type(GolemTypeInfo * type_info,
-							GolemTypeInfo * type_derived);
-
-GolemMetadata *		golem_type_info_get_member_info(GolemTypeInfo * type_info,
-							const gchar * member_name,
-							GError ** error);
 
 
 #endif /* GOLEMFUNCTIONINFO_H_ */

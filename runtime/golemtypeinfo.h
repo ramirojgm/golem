@@ -40,8 +40,4 @@ const GolemTypeInfo *	golem_type_info_get_parent(GolemTypeInfo * type_info);
 gboolean		golem_type_info_is_derived_type(GolemTypeInfo * type_info,
 							GolemTypeInfo * type_derived);
 
-GolemMetadata *		golem_type_info_get_member_info(GolemTypeInfo * type_info,
-							const gchar * member_name,
-							GError ** error);
-
 #endif /* GOLEMTYPEINFO_H_ */

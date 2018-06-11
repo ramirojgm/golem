@@ -16,3 +16,12 @@
  */
 
 
+#include "../golem.h"
+
+G_DEFINE_INTERFACE(GolemSource,golem_source,G_TYPE_OBJECT)
+
+static void
+golem_source_default_init(GolemSourceInterface * iface)
+{
+
+}

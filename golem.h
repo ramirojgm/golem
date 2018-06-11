@@ -37,8 +37,10 @@
 #include "compile/golemconditional.h"
 #include "compile/golemsymbolentry.h"
 #include "compile/golemsymbolentry.h"
-#include "runtime/golemmetadata.h"
+
 #include "runtime/golemsource.h"
+#include "runtime/golemmetadata.h"
 #include "runtime/golemtypeinfo.h"
+#include "runtime/golemfunctioninfo.h"
 
 #endif /* GOLEM_H_ */
