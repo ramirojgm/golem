@@ -29,4 +29,4 @@ struct _GolemSourceInterface
 };
 
 
-#endif /* GOLEMAPPLICATIONCONTEXT_H_ */
+#endif /* GOLEMSOURCE_H_ */

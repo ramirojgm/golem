@@ -27,10 +27,6 @@ struct _GolemTypeInfoClass
 
   gboolean 	  (*is_derived_type)(GolemTypeInfo * type_info,
 				     GolemTypeInfo * type_derived);
-
-  GolemMetadata * (*get_member_info)(GolemTypeInfo * type_info,
-				     const gchar * member_name,
-				     GError ** error);
 };
 
 GType			golem_type_info_get_type(void);

@@ -43,4 +43,6 @@
 #include "runtime/golemtypeinfo.h"
 #include "runtime/golemfunctioninfo.h"
 
+#include "runtime/golemfunction.h"
+
 #endif /* GOLEM_H_ */

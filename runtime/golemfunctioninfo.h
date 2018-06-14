@@ -22,24 +22,42 @@
 
 G_DECLARE_DERIVABLE_TYPE(GolemFunctionInfo,golem_function_info,GOLEM,FUNCTION_INFO,GolemMetadata)
 
-struct _GolemArgument GolemArgument;
+typedef struct _GolemArgument GolemArgument;
+typedef enum _GolemArgumentFlags GolemArgumentFlags;
+
+enum _GolemArgumentFlags
+{
+  GOLEM_ARGUMENT_IN,
+  GOLEM_ARGUMENT_OUT
+};
 
 struct _GolemArgument
 {
-  GolemTypeInfo * type;
-  gchar * 	  name;
+  GolemTypeInfo * 	type;
+  gchar * 	  	name;
+  GolemArgumentFlags	flags;
 };
 
 struct _GolemFunctionInfoClass
 {
   GolemMetadataClass parent_class;
 
-  guint		(*get_argument_count)(GolemFunctionInfo * function_info);
-  gchar **	(*get_argument_names)(GolemFunctionInfo * function_info);
-
+  gboolean (*invoke)(GolemFunctionInfo * func,
+		    GolemVMScope * scope,
+		    gpointer instance,
+		    guint8 argc,
+		    GolemVMData * argv,
+		    GolemVMData * ret,
+		    GError ** error);
 };
 
-
+gboolean golem_function_info_invoke(GolemFunctionInfo * func,
+				    GolemVMScope * scope,
+				    gpointer instance,
+				    guint8 argc,
+				    GolemVMData * argv,
+				    GolemVMData * ret,
+				    GError ** error);
 
 
 #endif /* GOLEMFUNCTIONINFO_H_ */
