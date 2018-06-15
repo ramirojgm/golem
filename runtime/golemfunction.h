@@ -34,6 +34,8 @@ struct _GolemFunctionClass
 
 gpointer		golem_function_get_instance(GolemFunction * func);
 
+gpointer		golem_function_get_symbol(GolemFunction * func);
+
 GolemFunctionInfo* 	golem_function_get_info(GolemFunction * func);
 
 gboolean		golem_function_invoke(GolemFunction * func,

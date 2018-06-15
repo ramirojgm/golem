@@ -18,10 +18,13 @@
 #ifndef GOLEM_H_
 #define GOLEM_H_
 
+/* VM */
 #include "vm/golemvm.h"
 
+/* Error */
 #include "golemerror.h"
 
+/* Compile */
 #include "compile/golemparser.h"
 #include "compile/golemscopebuilder.h"
 #include "compile/golemstatement.h"
@@ -39,10 +42,14 @@
 #include "compile/golemsymbolentry.h"
 
 #include "runtime/golemsource.h"
+
+/* Metadata */
 #include "runtime/golemmetadata.h"
 #include "runtime/golemtypeinfo.h"
 #include "runtime/golemfunctioninfo.h"
 
+/* Instance */
 #include "runtime/golemfunction.h"
+#include "runtime/golemfunctionwrap.h"
 
 #endif /* GOLEM_H_ */
