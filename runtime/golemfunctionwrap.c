@@ -16,6 +16,7 @@
  */
 
 #include "../golem.h"
+#include <ffi.h>
 
 struct _GolemFunctionWrapPrivate
 {
@@ -37,6 +38,50 @@ golem_function_wrap_invoke_real(GolemFunction * func,
 				GolemVMData * ret,
 				GError ** error)
 {
+  /* function_info */
+  gpointer symbol = golem_function_get_symbol(func);
+  GolemFunctionInfo * func_info = golem_function_get_info(func);
+  guint16 arg_count = 0;
+  GolemArgument ** arg_vector = golem_function_info_get_arguments(func_info,&argc);
+
+  /* FFI */
+  ffi_cif 	cif;
+  ffi_type 	**arg_types = g_new0(ffi_type,arg_count);
+  void 		**arg_values = g_new0(gpointer,arg_count);
+
+  ffi_status 	status;
+  ffi_arg 	result;
+
+
+  arg_types[0] = &ffi_type_uint;
+  arg_types[1] = &ffi_type_float;
+
+
+     g_free(arg_types);
+     g_free(arg_values);
+
+    // Prepare the ffi_cif structure.
+     if ((status = ffi_prep_cif(&cif, FFI_DEFAULT_ABI,
+         2, &ffi_type_uint8, arg_types)) != FFI_OK)
+     {
+         // Handle the ffi_status error.
+     }
+
+    // Specify the values of each argument.
+     unsigned int arg1 = 42;
+     float arg2 = 5.1;
+
+    arg_values[0] = &arg1;
+     arg_values[1] = &arg2;
+
+    // Invoke the function.
+     ffi_call(&cif, FFI_FN(foo), &result, arg_values);
+
+    // The ffi_arg 'result' now contains the unsigned char returned from foo(),
+     // which can be accessed by a typecast.
+     printf("result is %hhu", (unsigned char)result);
+
+    return 0;
 
   return TRUE;
 }

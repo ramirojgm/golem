@@ -121,7 +121,7 @@ golem_function_class_init(GolemFunctionClass * klass)
       g_param_spec_pointer("native","native","Native function",G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
 
   _golem_function_properties[GOLEM_FUNCTION_PROP_INFO] =
-      g_param_spec_object("function-info","Function Info","Function Info",GOLEM_TYPE_FUNCTION_INFO,G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
+      g_param_spec_object("function-info","Function Info","Function Info",GOLEM_TYPE_FUNCTION_TYPE,G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
 
   G_OBJECT_CLASS(klass)->set_property = _golem_function_set_property;
   G_OBJECT_CLASS(klass)->get_property = _golem_function_get_property;

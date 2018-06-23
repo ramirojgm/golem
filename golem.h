@@ -45,11 +45,9 @@
 
 /* Metadata */
 #include "runtime/golemmetadata.h"
-#include "runtime/golemtypeinfo.h"
-#include "runtime/golemfunctioninfo.h"
-
-/* Instance */
 #include "runtime/golemfunction.h"
+#include "runtime/golemfunctiontype.h"
 #include "runtime/golemfunctionwrap.h"
+#include "runtime/golemtype.h"
 
 #endif /* GOLEM_H_ */

@@ -18,14 +18,34 @@
 #ifndef GOLEMSOURCE_H_
 #define GOLEMSOURCE_H_
 
+typedef guint32	GolemTypeId;
+typedef guint32	GolemEnumId;
+typedef guint32	GolemClassId;
+typedef guint32	GolemInterfaceId;
+typedef guint32	GolemStructId;
+typedef guint32	GolemFunctionId;
+typedef guint32	GolemPropertyId;
+
 #define GOLEM_TYPE_SOURCE (golem_source_get_type())
 G_DECLARE_INTERFACE (GolemSource, golem_source, GOLEM, SOURCE, GObject)
+
+enum _GolemMetadataType
+{
+  GOLEM_METADATA_FUNDAMENTAL =	1<<0,
+  GOLEM_METADATA_ENUM = 	1<<1,
+  GOLEM_METADATA_CLASS = 	1<<2,
+  GOLEM_METADATA_INTERFACE = 	1<<3,
+  GOLEM_METADATA_STRUCT = 	1<<4,
+  GOLEM_METADATA_FUNCTION = 	1<<5,
+  GOLEM_METADATA_PROPERTY = 	1<<6,
+  GOLEM_METADATA_TYPE = 	GOLEM_METADATA_ENUM | GOLEM_METADATA_CLASS | GOLEM_METADATA_INTERFACE | GOLEM_METADATA_STRUCT
+};
 
 struct _GolemSourceInterface
 {
   GTypeInterface parent_iface;
 
-
+  GolemMetadata ** (*query)(GolemSource * source,GolemMetadataType type);
 };
 
 

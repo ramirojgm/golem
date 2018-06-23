@@ -15,26 +15,27 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef GOLEMFUNCTIONTYPE_H_
+#define GOLEMFUNCTIONTYPE_H_
 
-#include "../golem.h"
+#define GOLEM_TYPE_FUNCTION_TYPE	(golem_function_type_get_type())
 
-typedef struct _GolemFunctionInfoPrivate GolemFunctionInfoPrivate;
-struct _GolemFunctionInfoPrivate
+G_DECLARE_DERIVABLE_TYPE(GolemFunctionType,golem_function_type,GOLEM,FUNCTION_TYPE,GolemMetadata)
+
+struct _GolemFunctionTypeClass
 {
-  GolemArgument ** m_arguments;
-  guint16 n_arguments;
+  GolemMetadataClass parent_class;
+
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemFunctionInfo,golem_function_info,GOLEM_TYPE_METADATA)
+GolemFunctionType*	golem_function_type_new(GolemType * ret_type,guint16 argc,GolemType ** argv,gint throw_error);
 
-static void
-golem_function_info_init(GolemFunctionInfo * self)
-{
+GolemType		golem_function_type_
 
-}
+gboolean		golem_function_type_get_throw_error(GolemFunctionType * func_type);
 
-static void
-golem_function_info_class_init(GolemFunctionInfoClass * klass)
-{
+GolemType**		golem_function_type_get_arguments(GolemFunctionType * func_type,
+							  gsize * length);
 
-}
+
+#endif /* GOLEMFUNCTIONTYPE_H_ */

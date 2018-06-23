@@ -15,25 +15,12 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMTYPEINFO_H_
-#define GOLEMTYPEINFO_H_
+#ifndef GOLEMFUNDAMENTALTYPE_H_
+#define GOLEMFUNDAMENTALTYPE_H_
 
-#define GOLEM_TYPE_TYPE_INFO	(golem_type_info_get_type())
-G_DECLARE_DERIVABLE_TYPE(GolemTypeInfo,golem_type_info,GOLEM,TYPE_INFO,GolemMetadata)
-
-struct _GolemTypeInfoClass
+struct _GolemFundamentalType
 {
-  GolemMetadataClass parent_class;
 
-  gboolean 	  (*is_derived_type)(GolemTypeInfo * type_info,
-				     GolemTypeInfo * type_derived);
 };
 
-GType			golem_type_info_get_type(void);
-
-const GolemTypeInfo *	golem_type_info_get_parent(GolemTypeInfo * type_info);
-
-gboolean		golem_type_info_is_derived_type(GolemTypeInfo * type_info,
-							GolemTypeInfo * type_derived);
-
-#endif /* GOLEMTYPEINFO_H_ */
+#endif /* GOLEMFUNDAMENTALTYPE_H_ */
