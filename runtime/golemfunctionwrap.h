@@ -36,7 +36,7 @@ struct _GolemFunctionWrap
 
 GType		golem_function_wrap_get_type(void);
 
-GolemFunction * golem_function_wrap_new(GolemFunctionInfo * info,
+GolemFunction * golem_function_wrap_new(GolemFunctionType * type,
 					gpointer instance,
 					gpointer native);
 

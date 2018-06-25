@@ -36,17 +36,13 @@ gpointer		golem_function_get_instance(GolemFunction * func);
 
 gpointer		golem_function_get_symbol(GolemFunction * func);
 
-GolemFunctionInfo* 	golem_function_get_info(GolemFunction * func);
+GolemFunctionType* 	golem_function_get_function_type(GolemFunction * func);
 
 gboolean		golem_function_invoke(GolemFunction * func,
 				      guint16 argc,
 				      GolemVMData * argv,
 				      GolemVMData * ret,
 				      GError ** error);
-
-GClosure *		golem_function_create_closure(GolemFunction * func);
-
-gpointer		golem_function_create_callback(GolemFunction * func);
 
 
 

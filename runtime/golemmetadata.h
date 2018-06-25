@@ -24,10 +24,11 @@ G_DECLARE_DERIVABLE_TYPE(GolemMetadata,golem_metadata,GOLEM,METADATA,GObject)
 struct _GolemMetadataClass
 {
   GObjectClass parent_class;
-
+  gpointer     padding[12];
 };
 
-GType		golem_metadata_get_type(void);
+
+//GType		golem_metadata_get_type(void);
 
 const gchar *	golem_metadata_get_name(GolemMetadata * metadata);
 

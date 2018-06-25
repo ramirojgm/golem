@@ -41,13 +41,12 @@
 #include "compile/golemsymbolentry.h"
 #include "compile/golemsymbolentry.h"
 
-#include "runtime/golemsource.h"
-
 /* Metadata */
+#include "runtime/golemsource.h"
 #include "runtime/golemmetadata.h"
-#include "runtime/golemfunction.h"
-#include "runtime/golemfunctiontype.h"
-#include "runtime/golemfunctionwrap.h"
 #include "runtime/golemtype.h"
+#include "runtime/golemfunctiontype.h"
+#include "runtime/golemfunction.h"
+#include "runtime/golemfunctionwrap.h"
 
 #endif /* GOLEM_H_ */

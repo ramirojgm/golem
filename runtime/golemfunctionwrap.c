@@ -40,14 +40,14 @@ golem_function_wrap_invoke_real(GolemFunction * func,
 {
   /* function_info */
   gpointer symbol = golem_function_get_symbol(func);
-  GolemFunctionInfo * func_info = golem_function_get_info(func);
-  guint16 arg_count = 0;
-  GolemArgument ** arg_vector = golem_function_info_get_arguments(func_info,&argc);
+  GolemFunctionType * func_type = golem_function_get_function_type(func);
+  guint16 arg_c = 0;
+  GolemType ** arg_v = golem_function_type_get_arguments(func_type,&arg_c);
 
   /* FFI */
   ffi_cif 	cif;
-  ffi_type 	**arg_types = g_new0(ffi_type,arg_count);
-  void 		**arg_values = g_new0(gpointer,arg_count);
+  ffi_type 	**arg_types = g_new0(ffi_type,arg_c);
+  void 		**arg_values = g_new0(gpointer,arg_c);
 
   ffi_status 	status;
   ffi_arg 	result;
@@ -75,11 +75,11 @@ golem_function_wrap_invoke_real(GolemFunction * func,
      arg_values[1] = &arg2;
 
     // Invoke the function.
-     ffi_call(&cif, FFI_FN(foo), &result, arg_values);
+     //ffi_call(&cif, FFI_FN(foo), &result, arg_values);
 
     // The ffi_arg 'result' now contains the unsigned char returned from foo(),
      // which can be accessed by a typecast.
-     printf("result is %hhu", (unsigned char)result);
+     //printf("result is %hhu", (unsigned char)result);
 
     return 0;
 
@@ -94,13 +94,13 @@ golem_function_wrap_class_init(GolemFunctionWrapClass * klass)
 
 
 GolemFunction *
-golem_function_wrap_new(GolemFunctionInfo * info,
+golem_function_wrap_new(GolemFunctionType * func_type,
 			gpointer instance,
 			gpointer native)
 {
   return GOLEM_FUNCTION(
       g_object_new(GOLEM_TYPE_FUNCTION_WRAP,
-		   "function-info",info,
-		   "instance",info,
+		   "function-type",func_type,
+		   "instance",instance,
 		   "native",native));
 }

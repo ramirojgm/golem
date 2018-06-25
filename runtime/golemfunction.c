@@ -24,7 +24,7 @@ struct _GolemFunctionPrivate
 {
   gpointer instance;
   gpointer native;
-  GolemFunctionInfo * info;
+  GolemFunctionType * func_type;
 };
 
 G_DEFINE_ABSTRACT_TYPE(GolemFunction,golem_function,G_TYPE_OBJECT)
@@ -33,7 +33,7 @@ enum GolemFunctionProps
 {
   GOLEM_FUNCTION_PROP_0,
   GOLEM_FUNCTION_PROP_INSTANCE,
-  GOLEM_FUNCTION_PROP_INFO,
+  GOLEM_FUNCTION_PROP_FUNCTION_TYPE,
   GOLEM_FUNCTION_PROP_NATIVE,
   GOLEM_FUNCTION_PROP_N
 };
@@ -77,9 +77,9 @@ _golem_function_set_property(GObject        *object,
     case GOLEM_FUNCTION_PROP_NATIVE:
       priv->native = g_value_get_pointer(value);
       break;
-    case GOLEM_FUNCTION_PROP_INFO:
-      g_clear_object(&(priv->info));
-      priv->info = g_value_dup_object(value);
+    case GOLEM_FUNCTION_PROP_FUNCTION_TYPE:
+      g_clear_object(&(priv->func_type));
+      priv->func_type = g_value_dup_object(value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -101,8 +101,8 @@ _golem_function_get_property(GObject        *object,
     case GOLEM_FUNCTION_PROP_NATIVE:
       g_value_set_pointer(value,priv->native);
       break;
-    case GOLEM_FUNCTION_PROP_INFO:
-      g_value_set_object(value,priv->info);
+    case GOLEM_FUNCTION_PROP_FUNCTION_TYPE:
+      g_value_set_object(value,priv->func_type);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -120,18 +120,18 @@ golem_function_class_init(GolemFunctionClass * klass)
   _golem_function_properties[GOLEM_FUNCTION_PROP_NATIVE] =
       g_param_spec_pointer("native","native","Native function",G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
 
-  _golem_function_properties[GOLEM_FUNCTION_PROP_INFO] =
+  _golem_function_properties[GOLEM_FUNCTION_PROP_FUNCTION_TYPE] =
       g_param_spec_object("function-info","Function Info","Function Info",GOLEM_TYPE_FUNCTION_TYPE,G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
 
   G_OBJECT_CLASS(klass)->set_property = _golem_function_set_property;
   G_OBJECT_CLASS(klass)->get_property = _golem_function_get_property;
 }
 
-GolemFunctionInfo *
-golem_function_get_info(GolemFunction * func)
+GolemFunctionType *
+golem_function_get_function_type(GolemFunction * func)
 {
   GolemFunctionPrivate * priv = golem_function_get_instance_private(func);
-  return priv->info;
+  return priv->func_type;
 }
 
 gpointer

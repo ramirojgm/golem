@@ -21,8 +21,10 @@
 typedef struct _GolemFunctionTypePrivate GolemFunctionTypePrivate;
 struct _GolemFunctionTypePrivate
 {
-  GolemArgument ** m_arguments;
+  GolemType ** m_arguments;
+  GolemType * m_ret;
   guint16 n_arguments;
+  gint16 n_throw_error;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(GolemFunctionType,golem_function_type,GOLEM_TYPE_METADATA)
@@ -40,10 +42,7 @@ golem_function_type_finalize(GObject * obj)
 {
   GolemFunctionTypePrivate * priv = golem_function_type_get_instance_private(GOLEM_FUNCTION_TYPE(obj));
   for(guint index = 0; index < priv->n_arguments; index ++)
-    {
-      g_free(priv->m_arguments[index]->name);
-      g_free(priv->m_arguments[index]);
-    }
+      g_object_unref(priv->m_arguments[index]);
   g_free(priv->m_arguments);
 }
 
@@ -53,36 +52,25 @@ golem_function_type_class_init(GolemFunctionTypeClass * klass)
   G_OBJECT_CLASS(klass)->finalize = golem_function_type_finalize;
 }
 
-GolemFunctionType*
-golem_function_type_new(guint16 count)
+GolemFunctionType *
+golem_function_type_new(GolemType * ret_type,
+			guint16 count,
+			GolemType ** types,
+			gint16 throw_error)
 {
   GolemFunctionType * func_type = GOLEM_FUNCTION_TYPE(g_object_new(GOLEM_TYPE_FUNCTION_TYPE,NULL));
-  GolemFunctionTypePrivate * priv = golem_function_info_get_instance_private(func_type);
+  GolemFunctionTypePrivate * priv = golem_function_type_get_instance_private(func_type);
   priv->n_arguments = count;
-  priv->m_arguments = g_new0(GolemArgument*,count + 1);
+  priv->m_arguments = g_new0(GolemType*,count + 1);
+  for(guint32 index = 0; index < count; index ++)
+    priv->m_arguments[index] = GOLEM_TYPE(g_object_ref(types[index]));
+  priv->m_ret = ret_type;
+  priv->n_throw_error = throw_error;
   return func_type;
 }
 
-void
-golem_function_type_set_argument(GolemFunctionType * func_type,
-				 guint16 index,
-				 const gchar * name,
-				 GolemType * type)
-{
-  GolemFunctionTypePrivate * priv = golem_function_type_get_instance_private(func_type);
-  g_return_if_fail(index >= 0 && index < priv->n_arguments);
-
-  if(priv->m_arguments[index])
-    g_free(priv->m_arguments[index]->name);
-  else
-    priv->m_arguments[index] = g_new0(GolemArgument,1);
-
-  priv->m_arguments[index]->name = g_strdup(name);
-  priv->m_arguments[index]->type = type;
-}
-
-GolemArgument**
-golem_function_type_get_arguments(GolemFunctionType * func_type,gsize * length)
+GolemType**
+golem_function_type_get_arguments(GolemFunctionType * func_type,guint16 * length)
 {
   GolemFunctionTypePrivate * priv = golem_function_type_get_instance_private(func_type);
   if(length)

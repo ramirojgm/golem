@@ -28,14 +28,15 @@ struct _GolemFunctionTypeClass
 
 };
 
-GolemFunctionType*	golem_function_type_new(GolemType * ret_type,guint16 argc,GolemType ** argv,gint throw_error);
-
-GolemType		golem_function_type_
+GolemFunctionType*	golem_function_type_new(GolemType * ret_type,
+						guint16 argc,
+						GolemType ** argv,
+						gint16 throw_error);
 
 gboolean		golem_function_type_get_throw_error(GolemFunctionType * func_type);
 
 GolemType**		golem_function_type_get_arguments(GolemFunctionType * func_type,
-							  gsize * length);
+							  guint16 * length);
 
 
 #endif /* GOLEMFUNCTIONTYPE_H_ */
