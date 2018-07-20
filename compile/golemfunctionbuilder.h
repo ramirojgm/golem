@@ -15,24 +15,10 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMMETADATA_H_
-#define GOLEMMETADATA_H_
+#ifndef GOLEMFUNCTIONBUILDER_H_
+#define GOLEMFUNCTIONBUILDER_H_
 
-#define GOLEM_TYPE_METADATA	(golem_metadata_get_type())
-G_DECLARE_DERIVABLE_TYPE(GolemMetadata,golem_metadata,GOLEM,METADATA,GObject)
-
-struct _GolemMetadataClass
-{
-  GObjectClass parent_class;
-  gpointer     padding[12];
-};
+#define GOLEM_TYPE_FUNTION_BUILDER	(golem_function_builder_get_type())
 
 
-//GType		golem_metadata_get_type(void);
-
-const gchar *	golem_metadata_get_name(GolemMetadata * metadata);
-
-GolemSource *	golem_metadata_get_source(GolemMetadata * metadata);
-
-
-#endif /* GOLEMMETADATA_H_ */
+#endif /* GOLEMFUNCTIONBUILDER_H_ */

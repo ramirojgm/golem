@@ -15,28 +15,9 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMFUNCTIONTYPE_H_
-#define GOLEMFUNCTIONTYPE_H_
-
-#define GOLEM_TYPE_FUNCTION_TYPE	(golem_function_type_get_type())
-
-G_DECLARE_DERIVABLE_TYPE(GolemFunctionType,golem_function_type,GOLEM,FUNCTION_TYPE,GolemMetadata)
-
-struct _GolemFunctionTypeClass
-{
-  GolemMetadataClass parent_class;
-
-};
-
-GolemFunctionType*	golem_function_type_new(GolemType * ret_type,
-						guint16 argc,
-						GolemType ** argv,
-						gint16 throw_error);
-
-gboolean		golem_function_type_get_throw_error(GolemFunctionType * func_type);
-
-GolemType**		golem_function_type_get_arguments(GolemFunctionType * func_type,
-							  guint16 * length);
+#ifndef METADATA_GOLEMPROPERTY_H_
+#define METADATA_GOLEMPROPERTY_H_
 
 
-#endif /* GOLEMFUNCTIONTYPE_H_ */
+
+#endif /* METADATA_GOLEMPROPERTY_H_ */

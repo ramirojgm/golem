@@ -15,12 +15,9 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMFUNDAMENTALTYPE_H_
-#define GOLEMFUNDAMENTALTYPE_H_
+#ifndef METADATA_GOLEMCLASS_H_
+#define METADATA_GOLEMCLASS_H_
 
-struct _GolemFundamentalType
-{
 
-};
 
-#endif /* GOLEMFUNDAMENTALTYPE_H_ */
+#endif /* METADATA_GOLEMCLASS_H_ */

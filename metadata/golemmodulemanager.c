@@ -18,10 +18,25 @@
 
 #include "../golem.h"
 
-G_DEFINE_INTERFACE(GolemSource,golem_source,G_TYPE_OBJECT)
+G_DEFINE_INTERFACE(GolemModuleManager,golem_module_manager,G_TYPE_OBJECT)
 
 static void
-golem_source_default_init(GolemSourceInterface * iface)
+golem_module_manager_default_init(GolemModuleManagerInterface * mm)
 {
+  mm->lookup = NULL;
+}
 
+gpointer
+golem_module_manager_lookup(GolemModuleManager * mm,
+			    const gchar * name,
+			    GError ** error)
+{
+  GolemModuleManagerInterface *iface;
+
+  g_return_val_if_fail (GOLEM_IS_MODULE_MANAGER(mm),NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL,NULL);
+
+  iface = GOLEM_MODULE_MANAGER_GET_IFACE (mm);
+  g_return_val_if_fail (iface->lookup != NULL,NULL);
+  return iface->lookup (mm,name, error);
 }

@@ -44,6 +44,7 @@ golem_var_compile(GolemVar * var,
 {
   gboolean done = TRUE;
   GType type = G_TYPE_OBJECT;
+
   for(GList * var_iter = g_list_first(var->vars);
       var_iter;
       var_iter = g_list_next(var_iter))

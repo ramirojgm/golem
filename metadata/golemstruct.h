@@ -15,29 +15,9 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMFUNCTIONWRAP_H_
-#define GOLEMFUNCTIONWRAP_H_
+#ifndef GOLEMSTRUCT_H_
+#define GOLEMSTRUCT_H_
 
-#define GOLEM_TYPE_FUNCTION_WRAP	(golem_function_wrap_get_type())
-G_DECLARE_FINAL_TYPE(GolemFunctionWrap,golem_function_wrap,GOLEM,FUNCTION_WRAP,GolemFunction)
 
-typedef struct _GolemFunctionWrapPrivate GolemFunctionWrapPrivate;
 
-struct _GolemFunctionWrapClass
-{
-  GolemFunctionClass parent_class;
-};
-
-struct _GolemFunctionWrap
-{
-  GolemFunction parent_instance;
-  GolemFunctionWrapPrivate * priv;
-};
-
-GType		golem_function_wrap_get_type(void);
-
-GolemFunction * golem_function_wrap_new(GolemFunctionType * type,
-					gpointer instance,
-					gpointer native);
-
-#endif /* GOLEMSYMBOL_H_ */
+#endif /* GOLEMSTRUCT_H_ */

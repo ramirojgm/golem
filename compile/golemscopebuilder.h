@@ -43,6 +43,9 @@ GType			golem_scope_builder_get_type(void);
 GLIB_AVAILABLE_IN_ALL
 GolemScopeBuilder * 	golem_scope_builder_new();
 
+gpointer		golem_scope_builder_get_type_from_name(
+						   GolemScopeBuilder * scope,
+						   const gchar * name);
 
 GLIB_AVAILABLE_IN_ALL
 gboolean		golem_scope_builder_define(GolemScopeBuilder * scope,

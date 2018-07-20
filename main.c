@@ -29,7 +29,7 @@ test_function(gdouble a, gdouble b,GError ** error)
   if(!body)
     {
       GolemParser * p = golem_parser_new("main.glm");
-      golem_parser_parse(p,"{ return a + a * b; }",-1);
+      golem_parser_parse(p,"{ return a + a - b; }",-1);
       GolemStatement * block = golem_statement_parse(p,error);
       if(block)
 	{
@@ -101,44 +101,13 @@ test_function(gdouble a, gdouble b,GError ** error)
 gint
 main(gint argc,gchar ** argv)
 {
-  //g_autofree gchar * content = NULL;
-  /*g_autofree*/ GError * error = NULL;
+  g_print("%d",0xffffff);
+  GolemTypeReference ref = GOLEM_TYPE_REFERENCE(0,10);
+  g_print("%d - %d,%d\n",GOLEM_TYPE_GET_NAME(ref),GOLEM_TYPE_GET_MODULE(ref),ref);
 
-  gint (*add_func)(gint a, gint b);
-
-  /*if(g_file_get_contents("examples/main.glm",&content,NULL,&error))
+  /*for(int i = 0; i< 1000; i++)
     {
-      GolemTypeModule * module_main = golem_type_module_new();
-      if(golem_type_module_parse(module_main,"example/main_module.glm",content,-1,&error))
-	{
-
-	  golem_type_module_compile(module_main,&error);
-
-	  golem_type_module_get_symbol(module_main,
-				       "add_func",
-				       (gpointer*)&add_func,
-				       NULL,
-				       &error);
-
-	  g_print("%d",add_func(5,10));
-
-	}
-    }
-
-  if(error)
-    {
-      g_print("error:%s",error->message);
-
+      g_print("%g\n",test_function(2*i,3,NULL));
     }*/
-
- /* void (*main_func)(int argc,char ** argv);
-
-  GolemTypeModule * main_module = golem_type_module_new();
-  golem_type_module_load_from_file(main_module,"main.glb",NULL);
-
-  golem_type_module_get_symbol(main_module,"main",&main_func,NULL,NULL);
-  golem_type_module_get_symbol(main_module,"MyWindow::init",&main_func,NULL,NULL);
-  main_func(argc,argv);*/
-
   return 0;
 }

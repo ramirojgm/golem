@@ -18,6 +18,16 @@
 #ifndef GOLEM_H_
 #define GOLEM_H_
 
+#include <glib.h>
+#include <gio/gio.h>
+#include <glib-object.h>
+
+/* Metadata */
+#include "metadata/golemmodulemanager.h"
+#include "metadata/golemtype.h"
+#include "metadata/golemmodule.h"
+
+
 /* VM */
 #include "vm/golemvm.h"
 
@@ -26,6 +36,8 @@
 
 /* Compile */
 #include "compile/golemparser.h"
+#include "compile/golemmodulebuilder.h"
+#include "compile/golemtypebuilder.h"
 #include "compile/golemscopebuilder.h"
 #include "compile/golemstatement.h"
 #include "compile/golemexpression.h"
@@ -41,12 +53,6 @@
 #include "compile/golemsymbolentry.h"
 #include "compile/golemsymbolentry.h"
 
-/* Metadata */
-#include "runtime/golemsource.h"
-#include "runtime/golemmetadata.h"
-#include "runtime/golemtype.h"
-#include "runtime/golemfunctiontype.h"
-#include "runtime/golemfunction.h"
-#include "runtime/golemfunctionwrap.h"
+
 
 #endif /* GOLEM_H_ */
