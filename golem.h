@@ -25,6 +25,7 @@
 /* Metadata */
 #include "metadata/golemmodulemanager.h"
 #include "metadata/golemtype.h"
+#include "metadata/golemmarshall.h"
 #include "metadata/golemmodule.h"
 #include "metadata/golemmember.h"
 #include "metadata/golemfield.h"
@@ -32,8 +33,9 @@
 #include "metadata/golemproperty.h"
 #include "metadata/golemfunction.h"
 #include "metadata/golemclass.h"
+#include "metadata/goleminterface.h"
 
-/* VM */
+/* Runtime */
 #include "vm/golemvm.h"
 
 /* Error */
@@ -57,6 +59,8 @@
 #include "compile/golemconditional.h"
 #include "compile/golemsymbolentry.h"
 #include "compile/golemsymbolentry.h"
+#include "metadata/golemmarshall.h"
+#include "runtime/golembind.h"
 
 
 

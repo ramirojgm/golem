@@ -39,7 +39,7 @@ GType			golem_function_get_type(void);
 
 gpointer		golem_function_get_symbol(GolemFunction * function);
 
-GolemTypeReference	golem_function_get_marshal(GolemFunction * function);
+GolemMarshall *		golem_function_get_marshal(GolemFunction * function);
 
 gboolean		golem_function_call(GolemFunction * function,
 					    gpointer instance,
