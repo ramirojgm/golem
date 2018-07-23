@@ -37,7 +37,7 @@ enum _GolemMemberProps
 
 static GParamSpec * golem_member_properties[GOLEM_MEMBER_PROP_N] = {0,};
 
-G_DEFINE_TYPE_WITH_PRIVATE(GolemMember,golem_member,G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE(GolemMember,golem_member,G_TYPE_OBJECT)
 
 static void
 golem_member_init(GolemMember * self)
@@ -54,7 +54,23 @@ golem_member_set_property(GObject * object,
 			  const GValue * src,
 			  GParamSpec * spec)
 {
-
+  GolemMemberPrivate * priv =
+      golem_member_get_instance_private(GOLEM_MEMBER(object));
+  switch(prop_id)
+  {
+    case GOLEM_MEMBER_PROP_NAME:
+      g_clear_pointer(&(priv->name),g_free);
+      priv->name = g_value_dup_string(src);
+      break;
+    case GOLEM_MEMBER_PROP_MODULE:
+      priv->module = GOLEM_MODULE(g_value_get_object(src));
+      break;
+    case GOLEM_MEMBER_PROP_VALUE_TYPE:
+      priv->value_type = g_value_get_int(src);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,prop_id,spec);
+  }
 }
 
 static void
@@ -63,7 +79,22 @@ golem_member_get_property(GObject * object,
 			  GValue * dest,
 			  GParamSpec * spec)
 {
-
+  GolemMemberPrivate * priv =
+      golem_member_get_instance_private(GOLEM_MEMBER(object));
+  switch(prop_id)
+  {
+    case GOLEM_MEMBER_PROP_NAME:
+      g_value_set_string(dest,priv->name);
+      break;
+    case GOLEM_MEMBER_PROP_MODULE:
+      g_value_set_object(dest,priv->module);
+      break;
+    case GOLEM_MEMBER_PROP_VALUE_TYPE:
+      g_value_set_int(dest,priv->value_type);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,prop_id,spec);
+  }
 }
 
 static void

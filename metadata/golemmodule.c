@@ -15,33 +15,24 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMFIELD_H_
-#define GOLEMFIELD_H_
 
-#define GOLEM_TYPE_FIELD	(golem_field_get_type())
-G_DECLARE_FINAL_TYPE(GolemField,golem_field,GOLEM,FIELD,GolemMember)
+#include "../golem.h"
 
-typedef struct _GolemFieldPrivate GolemFieldPrivate;
-
-struct _GolemFieldClass
+struct _GolemModulePrivate
 {
-  GolemMemberClass parent_class;
+  gpointer padding[5];
 };
 
-struct _GolemField
+G_DEFINE_TYPE_WITH_PRIVATE(GolemModule,golem_module,G_TYPE_OBJECT)
+
+static void
+golem_module_init(GolemModule * self)
 {
-  GolemMember parent_instance;
 
-  GolemFieldPrivate * priv;
-};
+}
 
-GType	golem_field_get_type(void);
+static void
+golem_module_class_init(GolemModuleClass * klass)
+{
 
-guint16	golem_field_get_offset(GolemField * field);
-
-guint16	golem_field_get_size(GolemField * field);
-
-void	golem_field_reset(GolemField * field,
-			  gpointer instance);
-
-#endif /* GOLEMFIELD_H_ */
+}

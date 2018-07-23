@@ -15,9 +15,28 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef METADATA_GOLEMPROPERTY_H_
-#define METADATA_GOLEMPROPERTY_H_
+#ifndef GOLEMPROPERTY_H_
+#define GOLEMPROPERTY_H_
 
+#define GOLEM_TYPE_PROPERTY	(golem_property_get_type())
+G_DECLARE_FINAL_TYPE(GolemProperty,golem_property,GOLEM,PROPERTY,GolemMember)
 
+typedef struct _GolemPropertyPrivate GolemPropertyPrivate;
 
-#endif /* METADATA_GOLEMPROPERTY_H_ */
+struct _GolemPropertyClass
+{
+  GolemMemberClass parent_class;
+};
+
+struct _GolemProperty
+{
+  GolemMember parent_instance;
+
+  GolemPropertyPrivate * priv;
+};
+
+GType		golem_property_get_type(void);
+
+GParamSpec *	golem_property_get_spec(GolemProperty * property);
+
+#endif /* GOLEMPROPERTY_H_ */

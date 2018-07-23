@@ -28,7 +28,10 @@
 #include "metadata/golemmodule.h"
 #include "metadata/golemmember.h"
 #include "metadata/golemfield.h"
-
+#include "metadata/golemstruct.h"
+#include "metadata/golemproperty.h"
+#include "metadata/golemfunction.h"
+#include "metadata/golemclass.h"
 
 /* VM */
 #include "vm/golemvm.h"

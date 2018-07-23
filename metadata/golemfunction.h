@@ -15,33 +15,36 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMFIELD_H_
-#define GOLEMFIELD_H_
+#ifndef GOLEMFUNCTION_H_
+#define GOLEMFUNCTION_H_
 
-#define GOLEM_TYPE_FIELD	(golem_field_get_type())
-G_DECLARE_FINAL_TYPE(GolemField,golem_field,GOLEM,FIELD,GolemMember)
+#define GOLEM_TYPE_FUNCTION	(golem_function_get_type())
+G_DECLARE_FINAL_TYPE(GolemFunction,golem_function,GOLEM,FUNCTION,GolemMember)
 
-typedef struct _GolemFieldPrivate GolemFieldPrivate;
+typedef struct _GolemFunctionPrivate GolemFunctionPrivate;
 
-struct _GolemFieldClass
+struct _GolemFunctionClass
 {
   GolemMemberClass parent_class;
 };
 
-struct _GolemField
+struct _GolemFunction
 {
   GolemMember parent_instance;
 
-  GolemFieldPrivate * priv;
+  GolemFunctionPrivate * priv;
 };
 
-GType	golem_field_get_type(void);
+GType			golem_function_get_type(void);
 
-guint16	golem_field_get_offset(GolemField * field);
+gpointer		golem_function_get_symbol(GolemFunction * function);
 
-guint16	golem_field_get_size(GolemField * field);
+GolemTypeReference	golem_function_get_marshal(GolemFunction * function);
 
-void	golem_field_reset(GolemField * field,
-			  gpointer instance);
+gboolean		golem_function_call(GolemFunction * function,
+					    gpointer instance,
+					    guint8 argc,
+					    GValue * argv,
+					    GError ** error);
 
-#endif /* GOLEMFIELD_H_ */
+#endif /* GOLEMFUNCTION_H_ */
