@@ -26,6 +26,8 @@
 #include "metadata/golemmodulemanager.h"
 #include "metadata/golemtype.h"
 #include "metadata/golemmodule.h"
+#include "metadata/golemmember.h"
+#include "metadata/golemfield.h"
 
 
 /* VM */

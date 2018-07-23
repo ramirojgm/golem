@@ -15,9 +15,26 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef METADATA_GOLEMFIELD_H_
-#define METADATA_GOLEMFIELD_H_
+#ifndef GOLEMFIELD_H_
+#define GOLEMFIELD_H_
+
+#define GOLEM_TYPE_FIELD	(golem_field_get_type())
+G_DECLARE_FINAL_TYPE(GolemField,golem_field,GOLEM,FIELD,GObject)
+
+typedef struct _GolemFieldPrivate GolemFieldPrivate;
+
+struct _GolemFieldClass
+{
+  GObjectClass parent_class;
+};
+
+struct _GolemField
+{
+  GObject parent_instance;
+};
+
+GType			golem_field_get_type(void);
 
 
 
-#endif /* METADATA_GOLEMFIELD_H_ */
+#endif /* GOLEMFIELD_H_ */
