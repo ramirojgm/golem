@@ -15,19 +15,20 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMLAMBDA_H_
-#define GOLEMLAMBDA_H_
+#ifndef GOLEMERROR_H_
+#define GOLEMERROR_H_
 
-typedef struct _GolemLambdaPrivate	GolemLambdaPrivate;
+enum {
+  GOLEM_RUNTIME_ERROR_NULL_POINTER,
+  GOLEM_RUNTIME_ERROR_NOT_IMPLEMENTED_YET,
+  GOLEM_COMPILE_ERROR_NOT_DEFINED,
+  GOLEM_COMPILE_ERROR_SYNTAXES,
+} GolemErrorEnum;
 
-struct _GolemLambdaClass
-{
-  GObjectClass parent_class;
-};
 
-struct _GolemLambda
-{
-  GObject parent_instance;
-};
+#define GOLEM_ERROR (golem_error_quark())
 
-#endif /* GOLEMLAMBDA_H_ */
+GLIB_AVAILABLE_IN_ALL
+GQuark	golem_error_quark(void);
+
+#endif /* GOLEMERROR_H_ */

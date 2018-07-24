@@ -132,32 +132,6 @@ typedef enum
 
 } GolemVMOpCode;
 
-typedef struct
-{
-  union {
-    gint8 int8_v;
-    gint16 int16_v;
-    gint32 int32_v;
-    gint64 int64_v;
-    guint8 uint8_v;
-    guint16 uint16_v;
-    guint32 uint32_v;
-    guint64 uint64_v;
-    gfloat float_v;
-    gdouble double_v;
-    gpointer pointer_v;
-  } data[2];
-}GolemVMData;
-
-
-typedef	gboolean (*GolemCallableCall)(gpointer invoke,
-				       guint8 argc,
-				       GolemVMData * argv,
-				       GolemVMData * ret,
-				       GError ** error);
-
-typedef void	 (*GolemCallableFinalize)(gpointer invoke);
-
 
 typedef struct
 {
@@ -178,7 +152,7 @@ typedef struct
 {
   volatile guint32 n_ref;
   guint16	   n_size;
-  GolemVMData *    m_data;
+  GolemValue *	   m_data;
   GList * 	   m_gc;
 }GolemVMScopeData;
 
@@ -190,7 +164,7 @@ typedef struct
 
 typedef struct
 {
-  GolemVMData * m_data;
+  GolemValue * m_data;
   GType * m_data_type;
   guint16 * m_data_size;
   guint16 n_data;
@@ -206,16 +180,7 @@ typedef struct
   GFreeFunc free_func;
 } GolemRefPtr;
 
-typedef struct
-{
-  GolemCallableCall call;
-  GolemCallableFinalize finalize;
-} GolemCallable;
-
 G_BEGIN_DECLS
-
-GLIB_AVAILABLE_IN_ALL
-GType		golem_symbol_get_type(void);
 
 
 GLIB_AVAILABLE_IN_ALL
@@ -234,20 +199,20 @@ void		golem_vm_scope_get(GolemVMScope * scope,
 				     guint16 index,
 				     guint16 offset,
 				     guint8  size,
-				     GolemVMData * dest);
+				     GolemValue * dest);
 
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_set(GolemVMScope * scope,
 				     guint16 index,
 				     guint16 offset,
 				     guint8  size,
-				     const GolemVMData * src);
+				     GolemValue * src);
 
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_ptr(GolemVMScope * scope,
 				     guint16 index,
 				     guint16 offset,
-				     GolemVMData * dest);
+				     GolemValue * dest);
 
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_exit(GolemVMScope * scope,
@@ -259,14 +224,6 @@ GolemVMScope* 	golem_vm_scope_copy(GolemVMScope * scope);
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_scope_free(GolemVMScope * scope);
 
-GLIB_AVAILABLE_IN_ALL
-GolemCallable * golem_callable_new(gsize callable_size);
-
-GLIB_AVAILABLE_IN_ALL
-GolemCallable *	golem_callable_ref(GolemCallable * callable);
-
-GLIB_AVAILABLE_IN_ALL
-void		golem_callable_unref(GolemCallable * callable);
 
 GLIB_AVAILABLE_IN_ALL
 GolemVMBody *	golem_vm_body_new(void);
@@ -279,7 +236,7 @@ gsize		golem_vm_body_get_length(GolemVMBody * body);
 
 GLIB_AVAILABLE_IN_ALL
 guint16		golem_vm_body_write_data(GolemVMBody * body,
-					 GolemVMData * reg,
+					 GolemValue * data,
 					 GType reg_type,
 					 guint16 reg_size);
 
@@ -316,8 +273,8 @@ GLIB_AVAILABLE_IN_ALL
 gboolean	golem_vm_body_run(GolemVMBody * body,
 				  GolemVMScope * scope,
 				  guint16 	argc,
-				  GolemVMData * argv,
-				  GolemVMData * ret,
+				  GolemValue *  argv,
+				  GolemValue *  ret,
 				  GError ** error);
 
 GLIB_AVAILABLE_IN_ALL

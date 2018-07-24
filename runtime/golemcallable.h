@@ -15,19 +15,8 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMBIND_H_
-#define GOLEMBIND_H_
+#ifndef GOLEMCALLABLE_H_
+#define GOLEMCALLABLE_H_
 
-typedef struct _GolemBindPrivate	GolemBindPrivate;
 
-struct _GolemBindClass
-{
-  GObjectClass parent_class;
-};
-
-struct _GolemBind
-{
-  GObject parent_instance;
-};
-
-#endif /* GOLEMBIND_H_ */
+#endif /* GOLEMCALLABLE_H_ */

@@ -37,14 +37,14 @@ struct _GolemFunction
 
 GType			golem_function_get_type(void);
 
-gpointer		golem_function_get_symbol(GolemFunction * function);
+gpointer		golem_function_get_pointer(GolemFunction * function);
 
 GolemMarshall *		golem_function_get_marshal(GolemFunction * function);
 
 gboolean		golem_function_call(GolemFunction * function,
-					    gpointer instance,
+					    GolemValue * result,
 					    guint8 argc,
-					    GValue * argv,
+					    GolemValue * argv,
 					    GError ** error);
 
 #endif /* GOLEMFUNCTION_H_ */

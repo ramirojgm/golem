@@ -15,9 +15,23 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMINVOKABLE_H_
-#define GOLEMINVOKABLE_H_
+#ifndef GOLEMFUNCTIONLAMBDA_H_
+#define GOLEMFUNCTIONLAMBDA_H_
+
+typedef struct _GolemFunctionLambdaPrivate	GolemFunctionLambdaPrivate;
+
+struct _GolemFunctionLambdaClass
+{
+  GObjectClass parent_class;
+};
+
+struct _GolemFunctionLambda
+{
+  GObject parent_instance;
+
+  GolemFunctionLambdaPrivate * priv;
+};
 
 
 
-#endif /* GOLEMINVOKABLE_H_ */
+#endif /* GOLEMFUNCTIONLAMBDA_H_ */

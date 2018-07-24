@@ -22,6 +22,9 @@
 #include <gio/gio.h>
 #include <glib-object.h>
 
+/* Value */
+#include "golemvalue.h"
+
 /* Metadata */
 #include "metadata/golemmodulemanager.h"
 #include "metadata/golemtype.h"
@@ -36,10 +39,12 @@
 #include "metadata/goleminterface.h"
 
 /* Runtime */
-#include "vm/golemvm.h"
+#include "runtime/golemcallable.h"
+#include "runtime/golemfunctionbind.h"
+#include "runtime/golemfunctionlambda.h"
 
-/* Error */
-#include "golemerror.h"
+/* VM */
+#include "vm/golemvm.h"
 
 /* Compile */
 #include "compile/golemparser.h"
@@ -59,8 +64,8 @@
 #include "compile/golemconditional.h"
 #include "compile/golemsymbolentry.h"
 #include "compile/golemsymbolentry.h"
-#include "metadata/golemmarshall.h"
-#include "runtime/golembind.h"
+
+
 
 
 

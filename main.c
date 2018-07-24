@@ -96,11 +96,14 @@ test_function(gdouble a, gdouble b,GError ** error)
  *}
  */
 
+#include "runtime/golemcallable.h"
 
 
 gint
 main(gint argc,gchar ** argv)
 {
+
+
   g_print("%d",0xffffff);
   GolemTypeReference ref = GOLEM_TYPE_REFERENCE(0,10);
   g_print("%d - %d,%d\n",GOLEM_TYPE_GET_NAME(ref),GOLEM_TYPE_GET_MODULE(ref),ref);

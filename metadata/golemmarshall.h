@@ -35,11 +35,21 @@ struct _GolemMarshall
   GolemMarshallPrivate * priv;
 };
 
-GType		golem_marshall_get_type(void);
+GType			golem_marshall_get_type(void);
 
-GolemType *	golem_marshall_get_return(GolemMarshall * marshall);
+GolemMarshall *		golem_marshall_new(GolemTypeReference type_result,
+					   gboolean copy_result,
+					   gsize argc,
+					   GolemTypeReference * argv,
+					   gint error_catch);
 
-GolemType **	golem_marshall_get_arguments(GolemMarshall * marshall,
-					     gsize * length);
+gboolean		golem_marshall_get_copy_result(GolemMarshall * marshall);
+
+GolemTypeReference	golem_marshall_get_type_result(GolemMarshall * marshall);
+
+GolemTypeReference *	golem_marshall_get_arguments(GolemMarshall * marshall,
+						     gsize * length);
+
+gint			golem_marshall_get_error_catch(GolemMarshall * marshall);
 
 #endif /* GOLEMMARSHAL_H_ */

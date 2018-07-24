@@ -23,19 +23,6 @@
 #define GOLEM_VM_REG_COUNT 4
 #define GOLEM_VM_ARG_COUNT 32
 
-G_DEFINE_POINTER_TYPE(GolemSymbol,golem_symbol)
-
-/*static void __attribute__((constructor))
-g_type_int16_init()
-{
-  static GTypeInfo gint16_info;
-  static GTypeFundamentalInfo gint16_fund;
-  gint16_info.instance_size = sizeof(gint16);
-  gint16_fund.type_flags = G_TYPE_FLA;
-
-  g_type_register_fundamental(G_TYPE_INT16,"gint16",&gint16_info,&gint16_fund,G_TYPE_FLAG_VALUE_ABSTRACT);
-  g_type_register_fundamental(G_TYPE_UINT16,"guint16",&gint16_info,&gint16_fund,G_TYPE_FLAG_VALUE_ABSTRACT);
-}*/
 
 typedef struct
 {
@@ -69,19 +56,19 @@ golem_vm_body_get_length(GolemVMBody * body)
 
 guint16
 golem_vm_body_write_data(GolemVMBody * body,
-			 GolemVMData * reg,
-			 GType	reg_type,
+			 GolemValue * data,
+			 GolemTypeReference data_type,
 			 guint16 reg_size)
 {
   for(guint16 data_index = 0; data_index < body->n_data; data_index ++)
     {
-      GolemVMData * m_data = &(body->m_data[data_index]);
+      GolemValue * m_data = &(body->m_data[data_index]);
       GType m_data_type = body->m_data_type[data_index];
       guint16 m_data_size = body->m_data_size[data_index];
       if(m_data_type == reg_type && m_data_size == reg_size)
 	{
 	  if(m_data_type == G_TYPE_STRING
-	      && strncmp(m_data->data->pointer_v,reg->data->pointer_v,reg_size) == 0)
+	      && strncmp(GOLEM_STRING(m_data) m_data->data->pointer_v,reg->data->pointer_v,reg_size) == 0)
 	    {
 	      return data_index;
 	    }
