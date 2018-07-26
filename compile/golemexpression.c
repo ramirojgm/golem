@@ -281,20 +281,20 @@ golem_expression_operation_op_type(GolemExpressionOperation * exp,
 							   scope_builder,
 							   error);
 
-  if(type1 == G_TYPE_POINTER || type2 == G_TYPE_POINTER)
-    return G_TYPE_POINTER;
-  else if(type1 == G_TYPE_DOUBLE || type2 == G_TYPE_DOUBLE)
-    return G_TYPE_DOUBLE;
-  else if(type1 == G_TYPE_FLOAT || type2 == G_TYPE_FLOAT)
-    return G_TYPE_FLOAT;
-  else if(type1 == G_TYPE_INT64 || type2 == G_TYPE_INT64)
-    return G_TYPE_INT64;
-  else if(type1 == G_TYPE_INT || type2 == G_TYPE_INT)
-    return G_TYPE_INT;
-  else if(type1 == G_TYPE_INT16 || type2 == G_TYPE_INT16)
-    return G_TYPE_INT16;
+  if(type1 == GOLEM_TYPE_POINTER || type2 == GOLEM_TYPE_POINTER)
+    return GOLEM_TYPE_POINTER;
+  else if(type1 == GOLEM_TYPE_DOUBLE || type2 == GOLEM_TYPE_DOUBLE)
+    return GOLEM_TYPE_DOUBLE;
+  else if(type1 == GOLEM_TYPE_FLOAT || type2 == GOLEM_TYPE_FLOAT)
+    return GOLEM_TYPE_FLOAT;
+  else if(type1 == GOLEM_TYPE_INT64 || type2 == GOLEM_TYPE_INT64)
+    return GOLEM_TYPE_INT64;
+  else if(type1 == GOLEM_TYPE_INT32 || type2 == GOLEM_TYPE_INT32)
+    return GOLEM_TYPE_INT32;
+  else if(type1 == GOLEM_TYPE_INT16 || type2 == GOLEM_TYPE_INT16)
+    return GOLEM_TYPE_INT16;
   else
-    return G_TYPE_CHAR;
+    return GOLEM_TYPE_CHAR;
 }
 
 static GType
@@ -314,9 +314,9 @@ golem_expression_operation_value_type(GolemExpressionOperation * exp,
     case GOLEM_OPERATOR_LESI:
     case GOLEM_OPERATOR_LAND:
     case GOLEM_OPERATOR_LOR:
-      return G_TYPE_BOOLEAN;
+      return GOLEM_TYPE_BOOL;
     case GOLEM_OPERATOR_EXP:
-      return G_TYPE_DOUBLE;
+      return GOLEM_TYPE_DOUBLE;
     default:
       return golem_expression_operation_op_type(exp,scope_builder,error);
   }
@@ -376,9 +376,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       {
       	switch(type)
       	{
-      	  case G_TYPE_CHAR:
-      	  case G_TYPE_INT16:
-      	  case G_TYPE_INT:
+      	  case GOLEM_TYPE_CHAR:
+      	  case GOLEM_TYPE_INT16:
+      	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -386,7 +386,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_AI32,
       						       error);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -394,7 +394,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_AI64,
       						       error);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -402,7 +402,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_AF32,
       						       error);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -419,9 +419,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       {
       	switch(type)
       	{
-      	 case G_TYPE_CHAR:
-	  case G_TYPE_INT16:
-	  case G_TYPE_INT:
+      	 case GOLEM_TYPE_CHAR:
+	  case GOLEM_TYPE_INT16:
+	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -429,7 +429,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_SI32,
       						       error);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -437,7 +437,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_SI64,
       						       error);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -445,7 +445,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_SF32,
       						       error);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -462,9 +462,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       {
       	switch(type)
       	{
-      	  case G_TYPE_CHAR:
-      	  case G_TYPE_INT16:
-      	  case G_TYPE_INT:
+      	  case GOLEM_TYPE_CHAR:
+      	  case GOLEM_TYPE_INT16:
+      	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -472,7 +472,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_MI32,
       						       error);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -480,7 +480,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_MI64,
       						       error);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -488,7 +488,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_MF32,
       						       error);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -505,9 +505,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       {
       	switch(type)
       	{
-      	  case G_TYPE_CHAR:
-      	  case G_TYPE_INT16:
-      	  case G_TYPE_INT:
+      	  case GOLEM_TYPE_CHAR:
+      	  case GOLEM_TYPE_INT16:
+      	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -515,7 +515,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_DI32,
       						       error);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -523,7 +523,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_DI64,
       						       error);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -531,7 +531,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_DF32,
       						       error);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -548,9 +548,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       {
       	switch(type)
       	{
-      	  case G_TYPE_CHAR:
-      	  case G_TYPE_INT16:
-      	  case G_TYPE_INT:
+      	  case GOLEM_TYPE_CHAR:
+      	  case GOLEM_TYPE_INT16:
+      	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -558,7 +558,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_RI32,
       						       error);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -566,7 +566,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_RI64,
       						       error);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -574,7 +574,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_RF32,
       						       error);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -591,16 +591,16 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       done = golem_expression_operation_write_op(exp,
 						 body,
 						 scope_builder,
-						 G_TYPE_DOUBLE,
+						 GOLEM_TYPE_DOUBLE,
 						 GOLEM_OP_PD64,
 						 error);
       break;
     case GOLEM_OPERATOR_IQL:
 	switch(type)
 	{
-	  case G_TYPE_CHAR:
-	  case G_TYPE_INT16:
-	  case G_TYPE_INT:
+	  case GOLEM_TYPE_CHAR:
+	  case GOLEM_TYPE_INT16:
+	  case GOLEM_TYPE_INT32:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -608,7 +608,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_II32,
 						       error);
 	    break;
-	  case G_TYPE_INT64:
+	  case GOLEM_TYPE_INT64:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -616,7 +616,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_II64,
 						       error);
 	    break;
-	  case G_TYPE_FLOAT:
+	  case GOLEM_TYPE_FLOAT:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -624,7 +624,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_IF32,
 						       error);
 	    break;
-	  case G_TYPE_DOUBLE:
+	  case GOLEM_TYPE_DOUBLE:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -632,7 +632,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_ID64,
 						       error);
 	    break;
-	  case G_TYPE_POINTER:
+	  case GOLEM_TYPE_POINTER:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -647,9 +647,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
     case GOLEM_OPERATOR_DST:
       switch(type)
       	{
-      	  case G_TYPE_CHAR:
-      	  case G_TYPE_INT16:
-      	  case G_TYPE_INT:
+      	  case GOLEM_TYPE_CHAR:
+      	  case GOLEM_TYPE_INT16:
+      	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -659,7 +659,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       	    if(done)
       	      golem_vm_body_write_op(body,GOLEM_OP_NOT);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -669,7 +669,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       	    if(done)
 	      golem_vm_body_write_op(body,GOLEM_OP_NOT);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -679,7 +679,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       	    if(done)
 	      golem_vm_body_write_op(body,GOLEM_OP_NOT);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -689,7 +689,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       	    if(done)
 	      golem_vm_body_write_op(body,GOLEM_OP_NOT);
       	    break;
-      	  case G_TYPE_POINTER:
+      	  case GOLEM_TYPE_POINTER:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -706,9 +706,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
     case GOLEM_OPERATOR_GRE:
   	switch(type)
   	{
-  	  case G_TYPE_CHAR:
-  	  case G_TYPE_INT16:
-  	  case G_TYPE_INT:
+  	  case GOLEM_TYPE_CHAR:
+  	  case GOLEM_TYPE_INT16:
+  	  case GOLEM_TYPE_INT32:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -716,7 +716,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_GI32,
   						       error);
   	    break;
-  	  case G_TYPE_INT64:
+  	  case GOLEM_TYPE_INT64:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -724,7 +724,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_GI64,
   						       error);
   	    break;
-  	  case G_TYPE_FLOAT:
+  	  case GOLEM_TYPE_FLOAT:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -732,7 +732,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_GF32,
   						       error);
   	    break;
-  	  case G_TYPE_DOUBLE:
+  	  case GOLEM_TYPE_DOUBLE:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -740,7 +740,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_GD64,
   						       error);
   	    break;
-  	  case G_TYPE_POINTER:
+  	  case GOLEM_TYPE_POINTER:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -755,9 +755,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
     case GOLEM_OPERATOR_LES:
   	switch(type)
   	{
-  	  case G_TYPE_CHAR:
-  	  case G_TYPE_INT16:
-  	  case G_TYPE_INT:
+  	  case GOLEM_TYPE_CHAR:
+  	  case GOLEM_TYPE_INT16:
+  	  case GOLEM_TYPE_INT32:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -765,7 +765,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_LI32,
   						       error);
   	    break;
-  	  case G_TYPE_INT64:
+  	  case GOLEM_TYPE_INT64:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -773,7 +773,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_LI64,
   						       error);
   	    break;
-  	  case G_TYPE_FLOAT:
+  	  case GOLEM_TYPE_FLOAT:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -781,7 +781,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_LF32,
   						       error);
   	    break;
-  	  case G_TYPE_DOUBLE:
+  	  case GOLEM_TYPE_DOUBLE:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -789,7 +789,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
   						       GOLEM_OP_LD64,
   						       error);
   	    break;
-  	  case G_TYPE_POINTER:
+  	  case GOLEM_TYPE_POINTER:
   	    done = golem_expression_operation_write_op(exp,
   						       body,
   						       scope_builder,
@@ -804,9 +804,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
     case GOLEM_OPERATOR_GREI:
 	switch(type)
 	{
-	  case G_TYPE_CHAR:
-	  case G_TYPE_INT16:
-	  case G_TYPE_INT:
+	  case GOLEM_TYPE_CHAR:
+	  case GOLEM_TYPE_INT16:
+	  case GOLEM_TYPE_INT32:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -814,7 +814,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_GII32,
 						       error);
 	    break;
-	  case G_TYPE_INT64:
+	  case GOLEM_TYPE_INT64:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -822,7 +822,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_GII64,
 						       error);
 	    break;
-	  case G_TYPE_FLOAT:
+	  case GOLEM_TYPE_FLOAT:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -830,7 +830,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_GIF32,
 						       error);
 	    break;
-	  case G_TYPE_DOUBLE:
+	  case GOLEM_TYPE_DOUBLE:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -838,7 +838,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 						       GOLEM_OP_GID64,
 						       error);
 	    break;
-	  case G_TYPE_POINTER:
+	  case GOLEM_TYPE_POINTER:
 	    done = golem_expression_operation_write_op(exp,
 						       body,
 						       scope_builder,
@@ -853,9 +853,9 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
     case GOLEM_OPERATOR_LESI:
       switch(type)
       	{
-      	  case G_TYPE_CHAR:
-      	  case G_TYPE_INT16:
-      	  case G_TYPE_INT:
+      	  case GOLEM_TYPE_CHAR:
+      	  case GOLEM_TYPE_INT16:
+      	  case GOLEM_TYPE_INT32:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -863,7 +863,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_LII32,
       						       error);
       	    break;
-      	  case G_TYPE_INT64:
+      	  case GOLEM_TYPE_INT64:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -871,7 +871,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_LII64,
       						       error);
       	    break;
-      	  case G_TYPE_FLOAT:
+      	  case GOLEM_TYPE_FLOAT:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -879,7 +879,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_LIF32,
       						       error);
       	    break;
-      	  case G_TYPE_DOUBLE:
+      	  case GOLEM_TYPE_DOUBLE:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -887,7 +887,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       						       GOLEM_OP_LID64,
       						       error);
       	    break;
-      	  case G_TYPE_POINTER:
+      	  case GOLEM_TYPE_POINTER:
       	    done = golem_expression_operation_write_op(exp,
       						       body,
       						       scope_builder,
@@ -901,7 +901,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
       break;
     case GOLEM_OPERATOR_LAND:
     case GOLEM_OPERATOR_LOR:
-      return G_TYPE_CHAR;
+      return GOLEM_TYPE_CHAR;
     default:
       {
 	GType type1 = golem_expression_operation_value_type(exp->exp1,
@@ -912,18 +912,18 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 								 scope_builder,
 								 error);
 
-	if(type1 == G_TYPE_DOUBLE || type2 == G_TYPE_DOUBLE)
-	  return G_TYPE_DOUBLE;
-	else if(type1 == G_TYPE_FLOAT || type2 == G_TYPE_FLOAT)
-	  return G_TYPE_FLOAT;
-	else if(type1 == G_TYPE_INT64 || type2 == G_TYPE_INT64)
-	  return G_TYPE_INT64;
-	else if(type1 == G_TYPE_INT || type2 == G_TYPE_INT)
-	  return G_TYPE_INT;
-	else if(type1 == G_TYPE_INT16 || type2 == G_TYPE_INT16)
-	  return G_TYPE_INT16;
+	if(type1 == GOLEM_TYPE_DOUBLE || type2 == GOLEM_TYPE_DOUBLE)
+	  return GOLEM_TYPE_DOUBLE;
+	else if(type1 == GOLEM_TYPE_FLOAT || type2 == GOLEM_TYPE_FLOAT)
+	  return GOLEM_TYPE_FLOAT;
+	else if(type1 == GOLEM_TYPE_INT64 || type2 == GOLEM_TYPE_INT64)
+	  return GOLEM_TYPE_INT64;
+	else if(type1 == GOLEM_TYPE_INT32 || type2 == GOLEM_TYPE_INT32)
+	  return GOLEM_TYPE_INT32;
+	else if(type1 == GOLEM_TYPE_INT16 || type2 == GOLEM_TYPE_INT16)
+	  return GOLEM_TYPE_INT16;
 	else
-	  return G_TYPE_CHAR;
+	  return GOLEM_TYPE_CHAR;
       }
   }
   return done;

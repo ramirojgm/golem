@@ -52,23 +52,23 @@ golem_negative_compile(GolemNegative * negative,
       						       error);
       switch(type_code)
       {
-	case G_TYPE_CHAR:
-	case G_TYPE_UCHAR:
-	case G_TYPE_BOOLEAN:
-	case G_TYPE_INT16:
-	case G_TYPE_UINT16:
-	case G_TYPE_INT:
-	case G_TYPE_UINT:
+	case GOLEM_TYPE_CHAR:
+	case GOLEM_TYPE_UCHAR:
+	case GOLEM_TYPE_BOOL:
+	case GOLEM_TYPE_INT16:
+	case GOLEM_TYPE_UINT16:
+	case GOLEM_TYPE_INT32:
+	case GOLEM_TYPE_UINT32:
 	  golem_vm_body_write_op(body,GOLEM_OP_NI32);
 	  break;
-	case G_TYPE_INT64:
-	case G_TYPE_UINT64:
+	case GOLEM_TYPE_INT64:
+	case GOLEM_TYPE_UINT64:
 	  golem_vm_body_write_op(body,GOLEM_OP_NI64);
 	  break;
-	case G_TYPE_FLOAT:
+	case GOLEM_TYPE_FLOAT:
 	  golem_vm_body_write_op(body,GOLEM_OP_NF32);
 	  break;
-	case G_TYPE_DOUBLE:
+	case GOLEM_TYPE_DOUBLE:
 	  golem_vm_body_write_op(body,GOLEM_OP_ND64);
 	  break;
 	default:

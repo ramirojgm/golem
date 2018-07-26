@@ -18,15 +18,6 @@
 #ifndef GOLEM_VM_H_
 #define GOLEM_VM_H_
 
-#include <glib.h>
-#include <gio/gio.h>
-#include <glib-object.h>
-
-#define G_TYPE_INT16	G_TYPE_MAKE_FUNDAMENTAL(22)
-#define G_TYPE_UINT16	G_TYPE_MAKE_FUNDAMENTAL(23)
-
-#define GOLEM_TYPE_SYMBOL	(golem_symbol_get_type())
-
 typedef enum
 {
   /* OP */
@@ -237,8 +228,8 @@ gsize		golem_vm_body_get_length(GolemVMBody * body);
 GLIB_AVAILABLE_IN_ALL
 guint16		golem_vm_body_write_data(GolemVMBody * body,
 					 GolemValue * data,
-					 GType reg_type,
-					 guint16 reg_size);
+					 GolemTypeReference data_type,
+					 guint16 data_size);
 
 GLIB_AVAILABLE_IN_ALL
 void		golem_vm_body_write_op(GolemVMBody * body,

@@ -24,6 +24,7 @@
 
 /* Value */
 #include "golemvalue.h"
+#include "golemerror.h"
 
 /* Metadata */
 #include "metadata/golemmodulemanager.h"
@@ -62,11 +63,6 @@
 #include "compile/golemconst.h"
 #include "compile/golemvar.h"
 #include "compile/golemconditional.h"
-#include "compile/golemsymbolentry.h"
-#include "compile/golemsymbolentry.h"
-
-
-
 
 
 #endif /* GOLEM_H_ */

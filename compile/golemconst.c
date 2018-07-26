@@ -27,7 +27,7 @@ static void
 golem_const_init(GolemConst * cnst)
 {
   cnst->type = G_TYPE_NONE;
-  cnst->data.data->int64_v = 0;
+  cnst->data = 0;
 }
 
 static GType
@@ -68,8 +68,8 @@ golem_const_parse(GolemConst * cnst,
   if(g_str_has_prefix(const_str,"\"") && g_str_has_suffix(const_str,"\""))
     {
       gchar * uncompressed = g_strndup(const_str + 1,g_utf8_strlen(const_str,G_MAXUINT16) - 2);
-      cnst->data.data->pointer_v = g_strcompress(uncompressed);
-      cnst->size = g_utf8_strlen((gchar*)cnst->data.data->pointer_v,G_MAXUINT16);
+      GOLEM_STRING(&(cnst->data)) = g_strcompress(uncompressed);
+      cnst->size = g_utf8_strlen(GOLEM_STRING(&(cnst->data)),G_MAXUINT16);
       cnst->size = G_TYPE_STRING;
       g_free(uncompressed);
     }
@@ -77,7 +77,7 @@ golem_const_parse(GolemConst * cnst,
     {
       gchar * uncompressed = g_strndup(const_str + 1,g_utf8_strlen(const_str,6) - 2);
       gchar * compressed = g_strcompress(uncompressed);
-      cnst->data.data->int8_v = compressed[0];
+      GOLEM_INT8(&(cnst->data)) = compressed[0];
       cnst->size = sizeof(gint8);
       cnst->size = G_TYPE_CHAR;
       g_free(compressed);
@@ -88,50 +88,50 @@ golem_const_parse(GolemConst * cnst,
       sscanf(const_str,"%lx",&uint64);
       if(uint64 <= G_MAXINT8)
 	{
-	  cnst->data.data->int8_v = uint64;
-	  cnst->type = G_TYPE_CHAR;
+	  GOLEM_INT8(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_CHAR;
 	  cnst->size = sizeof(gint8);
 	}
       else if(uint64 <= G_MAXUINT8)
 	{
-	  cnst->data.data->uint8_v = uint64;
-	  cnst->type = G_TYPE_UCHAR;
+	  GOLEM_UINT8(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_UCHAR;
 	  cnst->size = sizeof(guint8);
 	}
       else if(uint64 <= G_MAXINT16)
 	{
-	  cnst->data.data->int16_v = uint64;
-	  cnst->type = G_TYPE_INT16;
+	  GOLEM_INT16(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_INT16;
 	  cnst->size = sizeof(gint16);
 	}
       else if(uint64 <= G_MAXUINT16)
       	{
-      	  cnst->data.data->uint16_v = uint64;
-      	  cnst->type = G_TYPE_UINT16;
+	  GOLEM_UINT16(&(cnst->data)) = uint64;
+      	  cnst->type = GOLEM_TYPE_UINT16;
       	  cnst->size = sizeof(guint16);
       	}
       else if(uint64 <= G_MAXINT32)
 	{
-	  cnst->data.data->int32_v = uint64;
-	  cnst->type = G_TYPE_INT;
+	  GOLEM_INT32(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_INT32;
 	  cnst->size = sizeof(gint32);
 	}
       else if(uint64 <= G_MAXUINT32)
 	{
-	  cnst->data.data->uint32_v = uint64;
-	  cnst->type = G_TYPE_UINT;
+	  GOLEM_UINT32(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_UINT32;
 	  cnst->size = sizeof(guint32);
 	}
       else if(uint64 <= G_MAXINT64)
 	{
-	  cnst->data.data->int64_v = uint64;
-	  cnst->type = G_TYPE_INT;
+	  GOLEM_INT64(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_INT64;
 	  cnst->size = sizeof(gint64);
 	}
       else if(uint64 <= G_MAXUINT64)
 	{
-	  cnst->data.data->uint64_v = uint64;
-	  cnst->type = G_TYPE_UINT64;
+	  GOLEM_UINT64(&(cnst->data)) = uint64;
+	  cnst->type = GOLEM_TYPE_UINT64;
 	  cnst->size = sizeof(guint64);
 	}
     }
@@ -146,14 +146,14 @@ golem_const_parse(GolemConst * cnst,
 	  gdouble double_value = decimals ? uint64 +  (decimals / pow(10.0,(int) log10(decimals) + 1)): uint64;
 	  if(g_str_has_suffix(decimal_str,"f"))
 	    {
-	      cnst->data.data->float_v = double_value;
-	      cnst->type = G_TYPE_FLOAT;
+	      GOLEM_FLOAT(&(cnst->data)) = double_value;
+	      cnst->type = GOLEM_TYPE_FLOAT;
 	      cnst->size = sizeof(gfloat);
 	    }
 	  else
 	    {
-	      cnst->data.data->double_v = double_value;
-	      cnst->type = G_TYPE_DOUBLE;
+	      GOLEM_DOUBLE(&(cnst->data)) = double_value;
+	      cnst->type = GOLEM_TYPE_DOUBLE;
 	      cnst->size = sizeof(gdouble);
 	    }
 	}
@@ -161,56 +161,56 @@ golem_const_parse(GolemConst * cnst,
 	{
 	  if(g_str_has_suffix(const_str,"l"))
 	    {
-	      cnst->data.data->int64_v = uint64;
+	      GOLEM_INT64(&(cnst->data)) = uint64;
 	      cnst->type = G_TYPE_INT64;
 	      cnst->size = sizeof(gint64);
 	    }
 	  else if(uint64 <= G_MAXINT8)
 	    {
-	      cnst->data.data->int8_v = uint64;
-	      cnst->type = G_TYPE_CHAR;
+	      GOLEM_INT8(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_CHAR;
 	      cnst->size = sizeof(gint8);
 	    }
 	   else if(uint64 <= G_MAXUINT8)
 	    {
-	      cnst->data.data->uint8_v = uint64;
-	      cnst->type = G_TYPE_UCHAR;
+	      GOLEM_UINT8(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_UCHAR;
 	      cnst->size = sizeof(guint8);
 	    }
 	   else if(uint64 <= G_MAXINT16)
 	    {
-	      cnst->data.data->int16_v = uint64;
-	      cnst->type = G_TYPE_INT16;
+	      GOLEM_INT16(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_INT16;
 	      cnst->size = sizeof(gint16);
 	    }
 	   else if(uint64 <= G_MAXUINT16)
 	    {
-	      cnst->data.data->uint16_v = uint64;
-	      cnst->type = G_TYPE_UINT16;
+	      GOLEM_UINT16(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_UINT16;
 	      cnst->size = sizeof(guint16);
 	    }
 	   else if(uint64 <= G_MAXINT32)
 	    {
-	      cnst->data.data->int32_v = uint64;
-	      cnst->type = G_TYPE_INT;
+	      GOLEM_INT32(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_INT32;
 	      cnst->size = sizeof(gint32);
 	    }
 	   else if(uint64 <= G_MAXUINT32)
 	    {
-	      cnst->data.data->uint32_v = uint64;
-	      cnst->type = G_TYPE_UINT;
+	      GOLEM_UINT32(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_UINT32;
 	      cnst->size = sizeof(guint32);
 	    }
 	   else if(uint64 <= G_MAXINT64)
 	    {
-	      cnst->data.data->int64_v = uint64;
-	      cnst->type = G_TYPE_INT;
+	      GOLEM_INT64(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_INT64;
 	      cnst->size = sizeof(gint64);
 	    }
 	   else if(uint64 <= G_MAXUINT64)
 	    {
-	      cnst->data.data->uint64_v = uint64;
-	      cnst->type = G_TYPE_UINT64;
+	      GOLEM_UINT64(&(cnst->data)) = uint64;
+	      cnst->type = GOLEM_TYPE_UINT64;
 	      cnst->size = sizeof(guint64);
 	    }
 	}
@@ -222,8 +222,8 @@ golem_const_parse(GolemConst * cnst,
 static void
 golem_const_dispose(GolemConst * cnst)
 {
-  if(cnst->type == G_TYPE_STRING)
-    g_free(cnst->data.data->pointer_v);
+  if(cnst->type == GOLEM_TYPE_STRING)
+    g_free(GOLEM_STRING(&(cnst->data)));
 }
 
 static gboolean

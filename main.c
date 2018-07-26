@@ -22,22 +22,22 @@
 gdouble
 test_function(gdouble a, gdouble b,GError ** error)
 {
-  GolemVMData ret;
-  GolemVMData arguments[2];
+  GolemValue ret;
+  GolemValue arguments[2];
   static GolemVMBody * body = NULL;
 
   if(!body)
     {
       GolemParser * p = golem_parser_new("main.glm");
-      golem_parser_parse(p,"{ return a + a - b; }",-1);
+      golem_parser_parse(p,"{ return a + b; }",-1);
       GolemStatement * block = golem_statement_parse(p,error);
       if(block)
 	{
 	  GolemScopeBuilder * scope_builder = golem_scope_builder_new();
 	  body = golem_vm_body_new();
 	  golem_scope_builder_enter(scope_builder,body,error);
-	  golem_scope_builder_argument(scope_builder,G_TYPE_DOUBLE,"a",error);
-	  golem_scope_builder_argument(scope_builder,G_TYPE_DOUBLE,"b",error);
+	  golem_scope_builder_argument(scope_builder,GOLEM_TYPE_DOUBLE,"a",error);
+	  golem_scope_builder_argument(scope_builder,GOLEM_TYPE_DOUBLE,"b",error);
 
 	  golem_statement_compile(block,
 				body,
@@ -51,11 +51,10 @@ test_function(gdouble a, gdouble b,GError ** error)
 	}
       g_object_unref(p);
     }
-
-  arguments[0].data->double_v = a;
-  arguments[1].data->double_v = b;
+  GOLEM_DOUBLE(&(arguments[0])) = a;
+  GOLEM_DOUBLE(&(arguments[1])) = b;
   golem_vm_body_run(body,NULL,2,arguments,&ret,NULL);
-  return ret.data->double_v;
+  return GOLEM_DOUBLE(&ret);
 }
 
 /* using gir.gtk;
@@ -102,13 +101,13 @@ test_function(gdouble a, gdouble b,GError ** error)
 gint
 main(gint argc,gchar ** argv)
 {
+  g_print("%g",test_function(20.5,20,NULL));
 
-
-  g_print("%d",0xffffff);
+/*  g_print("%d",0xffffff);
   GolemTypeReference ref = GOLEM_TYPE_REFERENCE(0,10);
   g_print("%d - %d,%d\n",GOLEM_TYPE_GET_NAME(ref),GOLEM_TYPE_GET_MODULE(ref),ref);
 
-  /*for(int i = 0; i< 1000; i++)
+  for(int i = 0; i< 1000; i++)
     {
       g_print("%g\n",test_function(2*i,3,NULL));
     }*/

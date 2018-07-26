@@ -15,7 +15,7 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "golemvm.h"
+#include "../golem.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -58,21 +58,21 @@ guint16
 golem_vm_body_write_data(GolemVMBody * body,
 			 GolemValue * data,
 			 GolemTypeReference data_type,
-			 guint16 reg_size)
+			 guint16 data_size)
 {
   for(guint16 data_index = 0; data_index < body->n_data; data_index ++)
     {
       GolemValue * m_data = &(body->m_data[data_index]);
-      GType m_data_type = body->m_data_type[data_index];
+      GolemTypeReference m_data_type = body->m_data_type[data_index];
       guint16 m_data_size = body->m_data_size[data_index];
-      if(m_data_type == reg_type && m_data_size == reg_size)
+      if(m_data_type == data_type && m_data_size == data_size)
 	{
-	  if(m_data_type == G_TYPE_STRING
-	      && strncmp(GOLEM_STRING(m_data) m_data->data->pointer_v,reg->data->pointer_v,reg_size) == 0)
+	  if(m_data_type == GOLEM_TYPE_STRING
+	      && strncmp(GOLEM_STRING(m_data),GOLEM_STRING(data),data_size) == 0)
 	    {
 	      return data_index;
 	    }
-	  else if(m_data->data->int64_v == reg->data->int64_v)
+	  else if(m_data == data)
 	    {
 	      return data_index;
 	    }
@@ -80,20 +80,20 @@ golem_vm_body_write_data(GolemVMBody * body,
     }
 
   guint16 offset = body->n_data;
-  body->m_data = g_realloc(body->m_data,sizeof(GolemVMData) * (body->n_data + 1));
-  body->m_data_type = g_realloc(body->m_data_type,sizeof(GType) * (body->n_data + 1));
+  body->m_data = g_realloc(body->m_data,sizeof(GolemValue) * (body->n_data + 1));
+  body->m_data_type = g_realloc(body->m_data_type,sizeof(GolemTypeReference) * (body->n_data + 1));
   body->m_data_size = g_realloc(body->m_data_size,sizeof(guint16) * (body->n_data + 1));
   body->n_data += 1;
 
-  if(reg_type == G_TYPE_STRING)
-    body->m_data[offset].data->pointer_v = g_strndup(reg->data->pointer_v,reg_size);
-  else if(reg_type == G_TYPE_POINTER)
-    body->m_data[offset].data->pointer_v = g_memdup(reg->data->pointer_v,reg_size);
+  if(data_type == GOLEM_TYPE_STRING)
+    GOLEM_STRING(&(body->m_data[offset])) = g_strndup(GOLEM_STRING(data),data_size);
+  else if(data_type == GOLEM_TYPE_POINTER)
+    GOLEM_PTR(&(body->m_data[offset])) = g_memdup(GOLEM_PTR(data),data_size);
   else
-    body->m_data[offset] = *reg;
+    body->m_data[offset] = *data;
 
-  body->m_data_type[offset] = reg_type;
-  body->m_data_size[offset] = reg_size;
+  body->m_data_type[offset] = data_type;
+  body->m_data_size[offset] = data_size;
   return offset;
 }
 
@@ -201,13 +201,13 @@ gboolean
 golem_vm_body_run(GolemVMBody * body,
 		  GolemVMScope * scope,
 		  guint16	argc,
-		  GolemVMData *	argv,
-		  GolemVMData * ret,
+		  GolemValue *	argv,
+		  GolemValue * ret,
 		  GError ** error)
 {
-  GolemVMData m_reg[GOLEM_VM_REG_COUNT];
+  GolemValue  m_reg[GOLEM_VM_REG_COUNT];
   gint8       n_reg = 0;
-  GolemVMData m_arg[GOLEM_VM_ARG_COUNT];
+  GolemValue  m_arg[GOLEM_VM_ARG_COUNT];
   gint8       n_arg = 0;
   gint8       c_arg = 0;
   GolemVMOp*  m_op = body->m_op;
@@ -267,8 +267,8 @@ golem_vm_body_run(GolemVMBody * body,
 			       op->data.int32_v);
 	  break;
 	case GOLEM_OP_GC: //GARBAGE COLLECTOR
-	  golem_vm_scope_gc(scope,
-			    (GolemRefPtr*)&(m_reg[n_reg-1]).data->pointer_v);
+	  /*golem_vm_scope_gc(scope,
+			    (GolemRefPtr*)&(m_reg[n_reg-1]).data->pointer_v);*/
 	  break;
 	case GOLEM_OP_SX: //SCOPE EXIT
 	  golem_vm_scope_exit(scope,
@@ -277,91 +277,87 @@ golem_vm_body_run(GolemVMBody * body,
 
 	  /* ARITMETICAL OP */
 	case GOLEM_OP_AI32: //ADD INTEGER 32BIT
-	  m_reg[n_reg - 2].data->int32_v = m_reg[n_reg - 2].data->int32_v + m_reg[n_reg - 1].data->int32_v;
+	  GOLEM_INT32(&(m_reg[n_reg - 2])) = GOLEM_INT32(&(m_reg[n_reg - 2])) + GOLEM_INT32(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_AI64: //ADD INTEGER 64BIT
-	  m_reg[n_reg - 2].data->int64_v = m_reg[n_reg - 2].data->int64_v + m_reg[n_reg - 1].data->int64_v;
+	  GOLEM_INT64(&(m_reg[n_reg - 2])) = GOLEM_INT64(&(m_reg[n_reg - 2])) + GOLEM_INT64(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_AF32: //ADD FLOAT 32BIT
-	  m_reg[n_reg - 2].data->float_v = m_reg[n_reg - 2].data->float_v + m_reg[n_reg - 1].data->float_v;
+	  GOLEM_FLOAT(&(m_reg[n_reg - 2])) = GOLEM_FLOAT(&(m_reg[n_reg - 2])) + GOLEM_FLOAT(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_AD64: //ADD DOUBLE 64BIT
-	  m_reg[n_reg - 2].data->double_v = m_reg[n_reg - 2].data->double_v + m_reg[n_reg - 1].data->double_v;
+	  GOLEM_DOUBLE(&(m_reg[n_reg - 2])) = GOLEM_DOUBLE(&(m_reg[n_reg - 2])) + GOLEM_DOUBLE(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 
 	case GOLEM_OP_SI32: //SUBSTRACT INTEGER 32BIT
-	  m_reg[n_reg - 2].data->int32_v = m_reg[n_reg - 2].data->int32_v - m_reg[n_reg - 1].data->int32_v;
+	  GOLEM_INT32(&(m_reg[n_reg - 2])) = GOLEM_INT32(&(m_reg[n_reg - 2])) - GOLEM_INT32(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_SI64: //SUBSTRACT INTEGER 64BIT
-	  m_reg[n_reg - 2].data->int64_v = m_reg[n_reg - 2].data->int64_v - m_reg[n_reg - 1].data->int64_v;
+	  GOLEM_INT64(&(m_reg[n_reg - 2])) = GOLEM_INT64(&(m_reg[n_reg - 2])) - GOLEM_INT64(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_SF32: //SUBSTRACT FLOAT 32BIT
-	  m_reg[n_reg - 2].data->float_v = m_reg[n_reg - 2].data->float_v - m_reg[n_reg - 1].data->float_v;
+	  GOLEM_FLOAT(&(m_reg[n_reg - 2])) = GOLEM_FLOAT(&(m_reg[n_reg - 2])) - GOLEM_FLOAT(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_SD64: //SUBSTRACT DOUBLE 64BIT
-	  m_reg[n_reg - 2].data->double_v = m_reg[n_reg - 2].data->double_v - m_reg[n_reg - 1].data->double_v;
+	  GOLEM_DOUBLE(&(m_reg[n_reg - 2])) = GOLEM_DOUBLE(&(m_reg[n_reg - 2])) - GOLEM_DOUBLE(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 
 	case GOLEM_OP_MI32: //MULTIPLICATE INTEGER 32BIT
-	  m_reg[n_reg - 2].data->int32_v = m_reg[n_reg - 2].data->int32_v * m_reg[n_reg - 1].data->int32_v;
+	  GOLEM_INT32(&(m_reg[n_reg - 2])) = GOLEM_INT32(&(m_reg[n_reg - 2])) * GOLEM_INT32(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_MI64: //MULTIPLICATE INTEGER 64BIT
-	  m_reg[n_reg - 2].data->int64_v = m_reg[n_reg - 2].data->int64_v * m_reg[n_reg - 1].data->int64_v;
+	  GOLEM_INT64(&(m_reg[n_reg - 2])) = GOLEM_INT64(&(m_reg[n_reg - 2])) * GOLEM_INT64(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_MF32: //MULTIPLICATE FLOAT 32BIT
-	  m_reg[n_reg - 2].data->float_v = m_reg[n_reg - 2].data->float_v * m_reg[n_reg - 1].data->float_v;
+	  GOLEM_FLOAT(&(m_reg[n_reg - 2])) = GOLEM_FLOAT(&(m_reg[n_reg - 2])) * GOLEM_FLOAT(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_MD64: //MULTIPLICATE DOUBLE 64BIT
-	  m_reg[n_reg - 2].data->double_v = m_reg[n_reg - 2].data->double_v * m_reg[n_reg - 1].data->double_v;
+	  GOLEM_DOUBLE(&(m_reg[n_reg - 2])) = GOLEM_DOUBLE(&(m_reg[n_reg - 2])) * GOLEM_DOUBLE(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 
 	case GOLEM_OP_DI32: //DIVIDE INTEGER 32BIT
-	  m_reg[n_reg - 2].data->int32_v = m_reg[n_reg - 2].data->int32_v / m_reg[n_reg - 1].data->int32_v;
+	  GOLEM_INT32(&(m_reg[n_reg - 2])) = GOLEM_INT32(&(m_reg[n_reg - 2])) / GOLEM_INT32(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_DI64: //DIVIDE INTEGER 64BIT
-	  m_reg[n_reg - 2].data->int64_v = m_reg[n_reg - 2].data->int64_v / m_reg[n_reg - 1].data->int64_v;
+	  GOLEM_INT64(&(m_reg[n_reg - 2])) = GOLEM_INT64(&(m_reg[n_reg - 2])) / GOLEM_INT64(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_DF32: //DIVIDE FLOAT 32BIT
-	  m_reg[n_reg - 2].data->float_v = m_reg[n_reg - 2].data->float_v / m_reg[n_reg - 1].data->float_v;
+	  GOLEM_FLOAT(&(m_reg[n_reg - 2])) = GOLEM_FLOAT(&(m_reg[n_reg - 2])) / GOLEM_FLOAT(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_DD64: //DIVIDE DOUBLE 64BIT
-	  m_reg[n_reg - 2].data->double_v = m_reg[n_reg - 2].data->double_v / m_reg[n_reg - 1].data->double_v;
+	  GOLEM_DOUBLE(&(m_reg[n_reg - 2])) = GOLEM_DOUBLE(&(m_reg[n_reg - 2])) / GOLEM_DOUBLE(&(m_reg[n_reg - 1]));
 	  n_reg --;
 	  break;
 
 	case GOLEM_OP_NI32: //NEGATIVE INTEGER 32BIT
-	  m_reg[n_reg - 1].data->int32_v = abs(m_reg[n_reg - 1].data->int32_v) * -1;
-	  n_reg --;
+	  GOLEM_INT32(&(m_reg[n_reg - 1])) = abs(GOLEM_INT32(&(m_reg[n_reg - 1]))) * -1;
 	  break;
 	case GOLEM_OP_NI64: //NEGATIVE INTEGER 64BIT
-	  m_reg[n_reg - 1].data->int64_v = labs(m_reg[n_reg - 1].data->int64_v) * -1;
-	  n_reg --;
+	  GOLEM_INT64(&(m_reg[n_reg - 1])) = labs(GOLEM_INT64(&(m_reg[n_reg - 1]))) * -1;
 	  break;
 	case GOLEM_OP_NF32: //NEGATIVE FLOAT 32BIT
-	  m_reg[n_reg - 1].data->float_v = fabsf(m_reg[n_reg - 1].data->float_v) * -1;
-	  n_reg --;
+	  GOLEM_FLOAT(&(m_reg[n_reg - 1])) = fabsf(GOLEM_FLOAT(&(m_reg[n_reg - 1]))) * -1;
 	  break;
 	case GOLEM_OP_ND64: //NEGATIVE DOUBLE 64BIT
-	  m_reg[n_reg - 1].data->double_v = fabs(m_reg[n_reg - 1].data->double_v) * -1;
-	  n_reg --;
+	  GOLEM_DOUBLE(&(m_reg[n_reg - 1])) = fabs(GOLEM_DOUBLE(&(m_reg[n_reg - 1]))) * -1;
 	  break;
 
-	case GOLEM_OP_RI32: //MODULE INTEGER 32BIT
+	/*case GOLEM_OP_RI32: //MODULE INTEGER 32BIT
 	  m_reg[n_reg - 2].data->int32_v = m_reg[n_reg - 2].data->int32_v % m_reg[n_reg - 1].data->int32_v;
 	  n_reg --;
 	  break;
@@ -381,10 +377,10 @@ golem_vm_body_run(GolemVMBody * body,
 	case GOLEM_OP_PD64: //POW DOUBLE 64BIT
 	  m_reg[n_reg - 2].data->double_v = pow(m_reg[n_reg - 2].data->double_v, m_reg[n_reg - 1].data->double_v);
 	  n_reg --;
-	  break;
+	  break;*/
 
 	  /* COMPARATION OP */
-	case GOLEM_OP_LI32:  //LESS INTEGER 32BIT
+	/*case GOLEM_OP_LI32:  //LESS INTEGER 32BIT
 	  m_reg[n_reg - 2].data->int8_v = m_reg[n_reg - 2].data->int32_v < m_reg[n_reg - 1].data->int32_v;
 	  n_reg --;
 	  break;
@@ -487,31 +483,31 @@ golem_vm_body_run(GolemVMBody * body,
 	case GOLEM_OP_IP: //IQUAL POINTER
 	  m_reg[n_reg - 2].data->int8_v = m_reg[n_reg - 2].data->pointer_v == m_reg[n_reg - 1].data->pointer_v;
 	  n_reg --;
-	  break;
+	  break;*/
 
 	  /* JUMP */
 	case GOLEM_OP_JP: //JUMP
 	  n_op = op->data.int32_v;
 	  break;
 	case GOLEM_OP_IF: //IF
-	  if(m_reg[n_reg - 1].data->int8_v)
+	  if(GOLEM_BOOL(&(m_reg[n_reg - 1])))
 	    n_op = op->data.int32_v - 1;
 	  n_reg --;
 	  break;
 
 	/* TRY CATCH */
 	case GOLEM_OP_AHE: //ADD HANDLE EXCEPTION
-	  {
+	  /*{
 	    GolemVM_EH * eh = g_new(GolemVM_EH,1);
 	    eh->n_jump = op->data.int32_v;
 	    eh->n_scope = scope->n_data - 1;
 	    m_eh_queue = g_list_append(m_eh_queue,eh);
-	  }
+	  }*/
 	  break;
 	case GOLEM_OP_THW: //THROW EXCEPTION
-	  m_done = FALSE;
+	  /*m_done = FALSE;
 	  m_eh_value = (GError*)m_reg[n_reg - 1].data->pointer_v;
-	  n_reg --;
+	  n_reg --;*/
 	  break;
 	case GOLEM_OP_RHE: //REMOVE HANDLE EXCEPTION
 	  m_eh_queue = g_list_remove_link(g_list_first(m_eh_queue),g_list_last(m_eh_queue));
@@ -519,11 +515,11 @@ golem_vm_body_run(GolemVMBody * body,
 
 	/* MEMORY */
 	case GOLEM_OP_MA: //ALLOC MEMORY
-	  m_reg[n_reg].data->pointer_v = g_malloc(op->data.int32_v);
+	  GOLEM_PTR(&(m_reg[n_reg])) = g_malloc(op->data.int32_v);
 	  n_reg ++;
 	  break;
 	case GOLEM_OP_MF: //FREE MEMORY
-	  g_free(m_reg[n_reg-1].data->pointer_v);
+	  g_free(GOLEM_PTR(&(m_reg[n_reg-1])));
 	  n_reg --;
 	  break;
 	case GOLEM_OP_PO: //POINTER OF
@@ -543,7 +539,7 @@ golem_vm_body_run(GolemVMBody * body,
 	  if(c_arg < argc)
 	    m_reg[n_reg] = argv[c_arg];
 	  else
-	    m_reg[n_reg].data->int64_v = 0;
+	    m_reg[n_reg] = 0;
 	  c_arg ++;
 	  n_reg ++;
 	  break;
@@ -553,7 +549,7 @@ golem_vm_body_run(GolemVMBody * body,
 	  n_arg ++;
 	  break;
 	case GOLEM_OP_CL: //CALL FUNCTION
-	  {
+	  /*{
 	    guint8 argc = op->data.int16_v;
 	    GolemVMData * argv = g_memdup(&(m_arg[n_arg - argc]),sizeof(GolemVMData) * argc);
 	    GolemCallable * callable = (GolemCallable *)m_reg[n_reg - 1].data->pointer_v;
@@ -564,7 +560,7 @@ golem_vm_body_run(GolemVMBody * body,
 	      m_done = FALSE;
 	    n_arg -= argc;
 	    g_free(argv);
-	  }
+	  }*/
 	  break;
 	/* LOGICAL OP */
 	case GOLEM_OP_AND:
@@ -574,16 +570,16 @@ golem_vm_body_run(GolemVMBody * body,
 	  //GOLEM_VM_OPI(|,GOLEM_VM_OPA)
 	  break;
 	case GOLEM_OP_NOT:
-	  m_reg[n_reg - 1].data->int32_v = !m_reg[n_reg - 1].data->int32_v;
+	  GOLEM_BOOL(&(m_reg[n_reg - 1])) = !GOLEM_BOOL(&(m_reg[n_reg - 1]));
 	  break;
 
 	  /* DATA OP */
 	case GOLEM_OP_TRUE: //TRUE
-	  m_reg[n_reg].data->int32_v = TRUE;
+	  GOLEM_BOOL(&(m_reg[n_reg - 1])) = TRUE;
 	  n_reg ++;
 	  break;
 	case GOLEM_OP_NULL: //NULL
-	  m_reg[n_reg].data->pointer_v = NULL;
+	  GOLEM_BOOL(&(m_reg[n_reg - 1])) = FALSE;
 	  n_reg ++;
 	  break;
 	default:
@@ -598,7 +594,7 @@ golem_vm_body_run(GolemVMBody * body,
 	      GolemVM_EH * eh = ((GolemVM_EH *)g_list_last(m_eh_queue)->data);
 	      n_op = eh->n_jump;
 	      golem_vm_scope_exit(scope,eh->n_scope);
-	      m_reg[n_reg].data->pointer_v = m_eh_value;
+	      //m_reg[n_reg].data->pointer_v = m_eh_value;
 	      n_reg ++;
 	      m_eh_queue = g_list_remove(m_eh_queue,eh);
 	      g_free(eh);
@@ -625,7 +621,7 @@ golem_vm_body_copy(GolemVMBody * body)
 {
   GolemVMBody * new_body = g_new(GolemVMBody,1);
   new_body->m_data = g_memdup(body->m_data,
-			      sizeof(GolemVMData) * body->n_data);
+			      sizeof(GolemValue) * body->n_data);
   new_body->m_data_type = g_memdup(body->m_data_type,
 				   sizeof(GType) * body->n_data);
   new_body->n_data = body->n_data;
@@ -633,7 +629,7 @@ golem_vm_body_copy(GolemVMBody * body)
 			    sizeof(GolemVMOp) * body->n_op);
   new_body->n_op = body->n_op;
 
-  GolemVMData * reg;
+  GolemValue *  reg;
   GType 	reg_type;
   guint16 	reg_size;
 
@@ -643,13 +639,12 @@ golem_vm_body_copy(GolemVMBody * body)
       reg_type = body->m_data_type[index];
       reg_size = body->m_data_size[index];
 
-      if(reg_type == G_TYPE_STRING)
-	new_body->m_data[index].data->pointer_v = g_strndup((gchar*)
-							    reg->data->pointer_v,
+      if(reg_type == GOLEM_TYPE_STRING)
+	GOLEM_STRING(&(new_body->m_data[index])) = g_strndup(GOLEM_STRING(&reg),
 							    reg_size);
       else if(reg_type == G_TYPE_POINTER)
-	 new_body->m_data[index].data->pointer_v = g_memdup(reg->data->pointer_v,
-						      reg_size);
+	GOLEM_PTR(&(new_body->m_data[index])) = g_memdup(GOLEM_STRING(&reg),
+							    reg_size);
 
     }
   return new_body;
@@ -679,7 +674,7 @@ golem_vm_scope_enter(GolemVMScope * scope,
 			sizeof(GolemVMScopeData*) * scope->n_data + 1);
   scope->m_data[scope->n_data] = g_new0(GolemVMScopeData,1);
   scope->m_data[scope->n_data]->n_ref = 1;
-  scope->m_data[scope->n_data]->m_data = (GolemVMData*)g_malloc(size);
+  scope->m_data[scope->n_data]->m_data = (GolemValue*)g_malloc(size);
   scope->m_data[scope->n_data]->m_gc = NULL;
   scope->m_data[scope->n_data]->n_size = size;
   scope->n_data ++;
@@ -690,7 +685,7 @@ golem_vm_scope_get(GolemVMScope * scope,
 		   guint16 index,
 		   guint16 offset,
 		   guint8 size,
-		   GolemVMData * dest)
+		   GolemValue * dest)
 {
   memcpy(dest,scope->m_data[index]->m_data + offset,size);
 }
@@ -700,7 +695,7 @@ golem_vm_scope_set(GolemVMScope * scope,
 		   guint16 index,
 		   guint16 offset,
 		   guint8 size,
-		   const GolemVMData * src)
+		   GolemValue * src)
 {
   memcpy(scope->m_data[index]->m_data + offset,src,size);
 }
@@ -709,9 +704,9 @@ inline void
 golem_vm_scope_ptr(GolemVMScope * scope,
 		   guint16 index,
 		   guint16 offset,
-		   GolemVMData * dest)
+		   GolemValue * dest)
 {
-  dest->data->pointer_v = (scope->m_data[index]->m_data + offset);
+  GOLEM_PTR(dest) = (scope->m_data[index]->m_data + offset);
 }
 
 

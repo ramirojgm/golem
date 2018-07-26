@@ -95,30 +95,27 @@ golem_scope_builder_define(GolemScopeBuilder * scope,
       def->n_offset = scope_info->n_size;
       switch(type)
       {
-	case G_TYPE_CHAR:
-	case G_TYPE_UCHAR:
+	case GOLEM_TYPE_CHAR:
+	case GOLEM_TYPE_UCHAR:
 	  def->n_size = sizeof(gint8);
 	  break;
-	case G_TYPE_INT16:
-	case G_TYPE_UINT16:
+	case GOLEM_TYPE_INT16:
+	case GOLEM_TYPE_UINT16:
 	  def->n_size = sizeof(gint16);
 	  break;
-	case G_TYPE_INT:
-	case G_TYPE_UINT:
-	case G_TYPE_FLOAT:
+	case GOLEM_TYPE_INT32:
+	case GOLEM_TYPE_UINT32:
+	case GOLEM_TYPE_FLOAT:
 	  def->n_size = sizeof(gint32);
 	  break;
-	case G_TYPE_INT64:
-	case G_TYPE_UINT64:
-	case G_TYPE_LONG:
-	case G_TYPE_ULONG:
-	case G_TYPE_DOUBLE:
+	case GOLEM_TYPE_INT64:
+	case GOLEM_TYPE_UINT64:
+	case GOLEM_TYPE_DOUBLE:
 	  def->n_size = sizeof(gint64);
 	  break;
-	case G_TYPE_POINTER:
-	case G_TYPE_OBJECT:
-	case G_TYPE_STRING:
-	case G_TYPE_BOXED:
+	case GOLEM_TYPE_POINTER:
+	case GOLEM_TYPE_OBJECT:
+	case GOLEM_TYPE_STRING:
 	  def->n_size = sizeof(gpointer);
 	  break;
 	default:
@@ -147,7 +144,7 @@ golem_scope_builder_argument(GolemScopeBuilder * scope,
 			     const gchar * name,
 			     GError ** error)
 {
-  g_return_val_if_fail(type != G_TYPE_NONE,FALSE);
+  g_return_val_if_fail(type != GOLEM_TYPE_NONE,FALSE);
   gboolean done = FALSE;
   if(scope->priv->scopes)
     {
