@@ -1,0 +1,136 @@
+sharedobject "libsqlite3.so.0"
+include "sqlite3.h"
+
+SQLite db = new SQLite {
+  filename: "db.db3"
+};
+
+SQliteStmt stmt = db.prepare("SELECT * FROM sqlite_master");
+
+if (stmt)
+{
+  while(stmt.step() == SQLITE_ROW) 
+  {
+    TableInfo table = new TableInfo {
+      name: stmt.column_text(0)
+    };
+    
+    SQLiteStmt stmt_cols = db.prepare("SELECT * FROM sqlite_master"
+    
+  }
+}
+
+
+class SQLite
+{
+  private {
+    pointer stmt_ptr;
+  }
+	
+	init {
+		priv.stmt_ptr = null;
+	}
+
+	bool step()
+	{
+
+		return false;
+	}
+
+	string get_column_name(int index)
+	{
+		
+	}
+
+	int get_column_index(string column_name)
+	{}
+
+	var get(int index)
+	{
+
+	}
+
+	var get_by_name(string name)
+	{
+
+	}
+
+	void finalize()
+	{
+		if(priv.stmt_ptr != null)
+		{
+			priv.stmt_ptr = null;
+		}
+	}
+
+	dispose {
+		if(priv.stmt_ptr != null)
+			this.finalize();
+	}
+}
+
+
+class SQLite
+{
+  private {
+    pointer ptr_db;
+  }
+
+	property string filename {
+		setter {
+			priv.filename = value;
+		}
+		getter {
+		  return priv.filename;
+		}
+	}
+
+	init 
+	{
+		priv.filename = null;
+	}
+
+	constructed 
+	{
+		pointer ptr_db = null;
+		if(sqlite3_open(priv.filename,pointerof(ptr_db)) == 0)
+		{
+			priv.ptr_db = ptr_db;
+		}
+		else
+		{
+			priv.ptr_db = null;
+		}
+	}
+
+	dispose {
+		this.close();
+	}
+
+	SQLiteResult query(string query,object data)
+	{
+	
+	
+		return new SQLiteResult {
+      
+		};
+	}
+
+	void execute(string sql)
+	{
+		if(priv.ptr_db != null)
+      sqlite3_exec(priv.ptr_db,sql,null,null,null);
+    else
+      throw new SQLiteError();
+	}
+
+	void close()
+	{
+		if(priv.ptr_db != null)
+		{
+      if (sqlite3_close(priv.ptr_db) == SQLITE_OK);
+  			priv.ptr_db = null;
+		}
+	}
+}
+

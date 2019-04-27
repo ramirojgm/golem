@@ -1,0 +1,11 @@
+int g_print(string fmt);
+
+void run()
+{
+    
+}
+
+int add_func(int a, int b)
+{
+    return a + b * a;
+}

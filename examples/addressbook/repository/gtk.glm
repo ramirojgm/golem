@@ -1,0 +1,150 @@
+sharedobject "libgtk-3.so.0"
+
+/*
+extern void API_gtk_list_store_append(GtkListStore store,pointer iter): gtk_list_store_append;
+extern void API_gtk_list_store_remove(GtkListStore store,pointer iter): gtk_list_store_remove;
+*/
+
+extern struct GtkTreeIter
+{
+  padding [20];
+}
+
+extern class GApplication 
+{
+  static GApplication new(string application_id,GApplicationFlags flags);
+
+  int run(int argc,string[] argv);
+  
+  void quit();
+};
+
+extends GtkStyleContext
+{
+  extern void add_class(string class_name);
+}
+
+extern GtkApplication
+{
+  extern void add_window(GtkWindow win);
+  extern void remove_window(GtkWindow win);
+}
+
+extends GtkWidget
+{
+  extern void show();
+  extern void hide();
+  extern void map();
+  extern void unmap();
+  extern const GtkStyleContext get_style_context();
+  extern void destroy();
+}
+
+extends GtkDialog
+{
+  extern int run();
+  extern void add_action_widget(GtkWidget action_widget,int response_id);
+  extern const GtkButton add_button(string text,int response_id);
+  extern const GtkHeaderBar get_header_bar();
+  extern void response(int response_id);
+  extern const GtkBox get_content_area();
+
+}
+
+extends GtkWindow
+{
+  extern void set_titlebar(GtkWidget titlebar);
+}
+
+extends GtkBox 
+{
+  extern void pack_start(GtkWidget child,bool fill,bool expand,int spacing);
+  extern void pack_end(GtkWidget child,bool fill,bool expand,int spacing);
+}
+
+extends GtkContainer 
+{
+  extern void add(GtkWidget child);
+  extern void remove(GtkWidget child);
+}
+
+extends GtkHeaderBar
+{
+  extern void pack_start(GtkWidget child);
+  extern void pack_end(GtkWidget child);
+}
+
+
+extends GtkActionBar
+{
+  extern GtkActionBar new();
+
+  extern void pack_start(GtkWidget child);
+  extern void pack_end(GtkWidget child);
+}
+
+extends GtkBin
+{
+  extern GtkWidget get_child();
+}
+
+extends GtkNotebook 
+{
+  extern int append_page(GtkWidget child,GtkWidget label);
+}
+
+extends GtkPopover
+{
+  extern void popup();
+  extern void popdown();
+}
+
+extends GtkListStore
+{
+  extern GtkListStore new(int n);
+  extern void clear();
+  extern void set_column_types(int n,array types);
+  extern void append(GtkTreeIter iter);
+  extern void remove(GtkTreeIter iter);
+  extern void set_value(GtkTreeIter iter,int column,var src);
+}
+
+extends GtkTreeModel
+{
+  extern bool get_iter_first(GtkTreeIter iter);
+  extern bool iter_next(GtkTreeIter iter);
+
+  extern void get_value(GtkTreeIter iter,int column,pointer dest);
+}
+
+extends GtkTreeIter
+{
+  GtkTreeIter new() {
+    return new GtkTreeIter {
+    
+    };
+  }
+}
+
+extends GtkTreeView
+{
+  extern void append_column(GtkTreeViewColumn column);
+  extern const GtkTreeViewSelection get_selection();
+}
+
+extends GtkTreeSelection
+{
+  extern bool get_selected(pointer model,GtkTreeIter iter);
+}
+
+extends GtkGrid
+{
+  extern void attach(GtkWidget child, int left,int top, int width,int height);
+}
+
+extends GtkTreeViewColumn
+{
+  extern void pack_start(GtkCellRenderer cell,bool expand);
+  extern void pack_end(GtkCellRenderer cell,bool expand);
+  extern void add_attribute(GtkCellRenderer cell,string attributename,int column);
+}
