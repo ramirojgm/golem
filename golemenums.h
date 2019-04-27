@@ -44,13 +44,6 @@ enum _GolemPrimitiveType
   GOLEM_PRIMITIVE_TYPE_POINTER
 };
 
-enum _GolemPrimitiveCast
-{
-  GOLEM_CAST_I32_TO_UI32,
-  GOLEM_CAST_UI32_TO_I32,
-  GOLEM_CAST_I64_TO_UI64,
-  GOLEM_CAST_UI64_TO_I64,
-};
 
 GType		   golem_primitive_type_get_type(void);
 

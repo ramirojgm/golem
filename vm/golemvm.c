@@ -1016,6 +1016,30 @@ _golem_vm_op_br (GolemVMOp * op,
 }
 
 static inline void
+_golem_vm_op_i32tf32 (GolemVMOp * op,
+                 GolemVMStack * stack)
+{
+  golem_vm_stack_v1c(stack,FLOAT32) = golem_vm_stack_v1c(stack,INT32);
+  golem_vm_stack_next(stack);
+}
+
+static inline void
+_golem_vm_op_i64tf64 (GolemVMOp * op,
+                 GolemVMStack * stack)
+{
+  golem_vm_stack_v1c(stack,FLOAT64) = golem_vm_stack_v1c(stack,INT64);
+  golem_vm_stack_next(stack);
+}
+
+static inline void
+_golem_vm_op_i128tf128 (GolemVMOp * op,
+                 GolemVMStack * stack)
+{
+  golem_vm_stack_v1c(stack,FLOAT128) = golem_vm_stack_v1c(stack,INT128);
+  golem_vm_stack_next(stack);
+}
+
+static inline void
 _golem_vm_op_true (GolemVMOp * op,
                    GolemVMStack * stack)
 {
@@ -1142,8 +1166,12 @@ GolemVMOpFunc _golem_vm_op_[GOLEM_OP_N] = {
   _golem_vm_op_xor32,	//XOR AT 32BIT
   _golem_vm_op_xor64,	//XOR AT 32BIT
   _golem_vm_op_xor128,	//XOR AT 128BIT
-  _golem_vm_op_bl, 		//BITS TO LEFT
-  _golem_vm_op_br, 		//BITS TO RIGHT
+  _golem_vm_op_bl, 	//BITS TO LEFT
+  _golem_vm_op_br, 	//BITS TO RIGHT
+
+  _golem_vm_op_i32tf32, 	//CONVERT I32 TO F32
+  _golem_vm_op_i64tf64, 	//CONVERT I64 TO F64
+  _golem_vm_op_i128tf128, 	//CONVERT I128 TO F128
 
   /* CONSTANTS OP */
   _golem_vm_op_true,	//TRUE

@@ -18,51 +18,67 @@
 
 
 #include "golem.h"
+#include "stdio.h"
 
 
-gdouble
-test_function(gdouble a, gdouble b,GError ** error)
+GolemValue
+test_exp(const gchar * test,GError ** error)
 {
   GolemValue ret;
-  GolemValue arguments[2];
-  static GolemVMBody * body = NULL;
-
-  if(!body)
+  GolemVMBody * body = NULL;
+  GolemParser * p = golem_parser_new("test");
+  gchar * test_script = g_strdup_printf("{ return %s; }",test);
+  golem_parser_parse(p,test_script,-1);
+  GolemStatement * block = golem_statement_parse(p,error);
+  if(block)
     {
-      GolemParser * p = golem_parser_new("main.glm");
-      golem_parser_parse(p,"{ return (10.0 * 10.0)/2.25; }",-1);
-      GolemStatement * block = golem_statement_parse(p,error);
-      if(block)
-	{
-	  GolemScopeBuilder * scope_builder = golem_scope_builder_new();
-	  body = golem_vm_body_new();
-	  golem_scope_builder_enter(scope_builder,body,error);
-	/*  golem_scope_builder_argument(scope_builder,GOLEM_TYPE_DOUBLE,"a",error);
-	  golem_scope_builder_argument(scope_builder,GOLEM_TYPE_DOUBLE,"b",error);
-*/
-	  golem_statement_compile(block,
-				body,
-				scope_builder,
-				error);
+      GolemScopeBuilder * scope_builder = golem_scope_builder_new();
+      body = golem_vm_body_new();
+      golem_scope_builder_enter(scope_builder,body,error);
+      golem_statement_compile(block,
+			    body,
+			    scope_builder,
+			    error);
 
-	  golem_scope_builder_exit(scope_builder,error);
+      golem_scope_builder_exit(scope_builder,error);
 
-	  g_object_unref(scope_builder);
-	  golem_statement_free(block);
-	}
-      g_object_unref(p);
+      g_object_unref(scope_builder);
+      golem_statement_free(block);
     }
-
-  GOLEM_FLOAT64(&arguments[0]) = a;
-  GOLEM_FLOAT64(&arguments[1]) = b;
-  golem_vm_body_run(body,NULL,2,arguments,&ret,NULL);
-  return GOLEM_FLOAT64(&ret);
+  g_object_unref(p);
+  g_free(test_script);
+  golem_vm_body_run(body,NULL,0,NULL,&ret,NULL);
+  return ret;
 }
 
 gint
 main(gint argc,gchar ** argv)
 {
+  gchar buff[128] = {0,};
+  GError * error = NULL;
+  GolemValue ret = 0;
 
-  g_print("%g",test_function(10,6,NULL));
+  g_print("Write 'quit' to finish\n");
+
+  for(;;)
+    {
+      g_print(">");
+      scanf("%s",buff);
+      fflush(stdin);
+      if (g_strcmp0(buff,"quit") == 0)
+	break;
+      ret = test_exp(buff,&error);
+      if (error)
+	{
+	  g_print("Error: %s",error->message);
+	  g_clear_error(&error);
+	}
+      else
+	{
+	  g_print("I32: %d\nF64: %g\n",
+		  GOLEM_INT32(&ret),
+		  GOLEM_FLOAT64(&ret));
+	}
+    }
   return 0;
 }

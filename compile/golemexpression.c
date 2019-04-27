@@ -266,8 +266,36 @@ golem_expression_operation_new(GList * start,GList * end)
   return op;
 }
 
+static gboolean
+_golem_metadata_is_int32(GolemMetadata * metadata)
+{
+  return (metadata == GOLEM_TYPE_INT||
+        metadata == GOLEM_TYPE_SHORT||
+        metadata == GOLEM_TYPE_SBYTE||
+        metadata == GOLEM_TYPE_CHAR||
+	metadata == GOLEM_TYPE_UINT||
+	metadata == GOLEM_TYPE_USHORT||
+	metadata == GOLEM_TYPE_BYTE||
+	metadata == GOLEM_TYPE_UCHAR);
+}
 
+static gboolean
+_golem_metadata_is_int(GolemMetadata * metadata)
+{
+  return (metadata == GOLEM_TYPE_INT128 ||
+	  metadata == GOLEM_TYPE_UINT128 ||
+          metadata == GOLEM_TYPE_LONG ||
+	  metadata == GOLEM_TYPE_ULONG ||
+  	  _golem_metadata_is_int32(metadata));
+}
 
+static gboolean
+_golem_metadata_is_float(GolemMetadata * metadata)
+{
+  return (metadata == GOLEM_TYPE_FLOAT ||
+          metadata == GOLEM_TYPE_DOUBLE ||
+	  metadata == GOLEM_TYPE_QUAD);
+}
 
 static GolemMetadata *
 golem_expression_operation_op_type(GolemExpressionOperation * exp,
@@ -285,24 +313,55 @@ golem_expression_operation_op_type(GolemExpressionOperation * exp,
 							   scope_builder,
 							   error);
 
-  if(type1 == GOLEM_TYPE_POINTER || type2 == GOLEM_TYPE_POINTER)
-    return GOLEM_TYPE_POINTER;
-  else if(type1 == GOLEM_TYPE_QUAD || type2 == GOLEM_TYPE_QUAD)
-    return GOLEM_TYPE_QUAD;
-  else if(type1 == GOLEM_TYPE_DOUBLE || type2 == GOLEM_TYPE_DOUBLE)
-      return GOLEM_TYPE_DOUBLE;
-  else if(type1 == GOLEM_TYPE_FLOAT || type2 == GOLEM_TYPE_FLOAT)
-    return GOLEM_TYPE_FLOAT;
-  else if(type1 == GOLEM_TYPE_INT128 || type2 == GOLEM_TYPE_INT128)
-    return GOLEM_TYPE_INT128;
-  else if(type1 == GOLEM_TYPE_LONG || type2 == GOLEM_TYPE_LONG)
-    return GOLEM_TYPE_LONG;
-  else if(type1 == GOLEM_TYPE_INT || type2 == GOLEM_TYPE_INT)
-    return GOLEM_TYPE_INT;
-  else if(type1 == GOLEM_TYPE_SHORT || type2 == GOLEM_TYPE_SHORT)
-    return GOLEM_TYPE_SHORT;
+  if (type1 == type2)
+    {
+      return type1;
+    }
   else
-    return GOLEM_TYPE_SBYTE;
+    {
+      if (_golem_metadata_is_float(type1) && _golem_metadata_is_float(type2))
+	{
+	  //Float operation
+	  if (type1 == GOLEM_TYPE_QUAD || type2 == GOLEM_TYPE_QUAD)
+	    return GOLEM_TYPE_QUAD;
+	  else if (type1 == GOLEM_TYPE_DOUBLE || type2 == GOLEM_TYPE_DOUBLE)
+	    return GOLEM_TYPE_DOUBLE;
+	  else
+	    return GOLEM_TYPE_FLOAT;
+	}
+      else if (_golem_metadata_is_int(type1) && _golem_metadata_is_int(type2))
+      	{
+      	  //Integer operation
+	  if (type1 == GOLEM_TYPE_INT128 || type2 == GOLEM_TYPE_INT128)
+	    return GOLEM_TYPE_INT128;
+	  else if (type1 == GOLEM_TYPE_LONG || type2 == GOLEM_TYPE_LONG)
+	    return GOLEM_TYPE_LONG;
+	  else if (type1 == GOLEM_TYPE_INT || type2 == GOLEM_TYPE_INT)
+	    return GOLEM_TYPE_INT;
+	  else if (type1 == GOLEM_TYPE_SHORT || type2 == GOLEM_TYPE_SHORT)
+	    return GOLEM_TYPE_SHORT;
+	  else
+	    return GOLEM_TYPE_SBYTE;
+      	}
+      else if (
+	  (_golem_metadata_is_float(type1) && _golem_metadata_is_int(type2))||
+	  (_golem_metadata_is_int(type1) && _golem_metadata_is_float(type2)))
+      	{
+      	  //Float and Integer operation
+	  if (type1 == GOLEM_TYPE_QUAD || type2 == GOLEM_TYPE_QUAD)
+	     return GOLEM_TYPE_QUAD;
+	  else if (type1 == GOLEM_TYPE_DOUBLE || type2 == GOLEM_TYPE_DOUBLE)
+	     return GOLEM_TYPE_DOUBLE;
+	  else
+	     return GOLEM_TYPE_FLOAT;
+      	}
+      else
+	{
+	  //TODO: Throw exception invalid operation types
+	  return NULL;
+	}
+    }
+
 }
 
 static GolemMetadata *
@@ -332,9 +391,20 @@ golem_expression_operation_value_type(GolemExpressionOperation * exp,
 
 static void
 golem_expression_operation_cast(GolemExpressionOperation * exp,
-				GolemMetadata * type)
+				GolemMetadata * type,
+				GolemVMBody * body,
+				GolemScopeBuilder * scope_builder,
+				GError ** error)
 {
-
+  GolemMetadata * exp_type = golem_expression_operation_value_type(exp,
+								   scope_builder,
+								   error);
+  if (type == GOLEM_TYPE_QUAD && _golem_metadata_is_int(exp_type))
+    golem_vm_body_write_op(body,GOLEM_OP_I128TF128);
+  else if (type == GOLEM_TYPE_DOUBLE && _golem_metadata_is_int(exp_type))
+    golem_vm_body_write_op(body,GOLEM_OP_I64TF64);
+  else if (type == GOLEM_TYPE_FLOAT && _golem_metadata_is_int(exp_type))
+    golem_vm_body_write_op(body,GOLEM_OP_I32TF32);
 }
 
 static gboolean
@@ -351,14 +421,14 @@ golem_expression_operation_write_op(GolemExpressionOperation * exp,
 						    error);
   if(done)
     {
-      golem_expression_operation_cast(exp->exp1,type);
+      golem_expression_operation_cast(exp->exp1,type,body,scope_builder,error);
       done = golem_expression_operation_compile(exp->exp2,
 						body,
 						scope_builder,
 						error);
       if(done)
       	{
-	  golem_expression_operation_cast(exp->exp2,type);
+	  golem_expression_operation_cast(exp->exp2,type,body,scope_builder,error);
       	  golem_vm_body_write_op(body,code);
       	}
     }
