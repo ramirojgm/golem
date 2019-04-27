@@ -83,9 +83,9 @@ golem_simple_expression_parse(GolemParser * parser,
   /* search class */
   /*if(golem_statement_check(GOLEM_NOT_CLASS,parser))
     klass = GOLEM_NOT_CLASS;
-  else if(golem_statement_check(GOLEM_NEGATIVE_CLASS,parser))
-    klass = GOLEM_NEGATIVE_CLASS;
-  else */if(golem_statement_check(GOLEM_CONST_CLASS,parser))
+  else */if(golem_statement_check(GOLEM_NEG_CLASS,parser))
+    klass = GOLEM_NEG_CLASS;
+  else if(golem_statement_check(GOLEM_CONST_CLASS,parser))
     klass = GOLEM_CONST_CLASS;
   /*else if(golem_statement_check(GOLEM_GSVAR_CLASS,parser))
     klass = GOLEM_GSVAR_CLASS;
@@ -276,7 +276,8 @@ _golem_metadata_is_int32(GolemMetadata * metadata)
 	metadata == GOLEM_TYPE_UINT||
 	metadata == GOLEM_TYPE_USHORT||
 	metadata == GOLEM_TYPE_BYTE||
-	metadata == GOLEM_TYPE_UCHAR);
+	metadata == GOLEM_TYPE_UCHAR)||
+	metadata == GOLEM_TYPE_BOOL;
 }
 
 static gboolean
@@ -641,6 +642,24 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
     break;
   case GOLEM_OPERATOR_LESI:
     OP_CMP(LI)
+    break;
+  case GOLEM_OPERATOR_DST:
+    OP_CMP(I)
+    switch (type)
+    {
+      case GOLEM_PRIMITIVE_TYPE_INT128:
+      case GOLEM_PRIMITIVE_TYPE_UINT128:
+      case GOLEM_PRIMITIVE_TYPE_FLOAT128:
+      	golem_vm_body_write_op(body,GOLEM_OP_NT128);
+      	break;
+      case GOLEM_PRIMITIVE_TYPE_INT64:
+      case GOLEM_PRIMITIVE_TYPE_UINT64:
+      case GOLEM_PRIMITIVE_TYPE_FLOAT64:
+	golem_vm_body_write_op(body,GOLEM_OP_NT64);
+	break;
+      default:
+	golem_vm_body_write_op(body,GOLEM_OP_NT32);
+    }
     break;
   default:
     break;

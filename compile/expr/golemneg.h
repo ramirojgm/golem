@@ -15,20 +15,20 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMNEGATIVE_H_
-#define GOLEMNEGATIVE_H_
+#ifndef GOLEMNEG_H_
+#define GOLEMNEG_H_
 
-#define GOLEM_NEGATIVE_CLASS	(golem_negative_get_class())
-#define GOLEM_NEGATIVE(p)	((GolemNegative*)p)
+#define GOLEM_NEG_CLASS (golem_neg_get_class())
+#define GOLEM_NEG(p)	((GolemNeg*)p)
 
-typedef struct _GolemNegative	GolemNegative;
+typedef struct _GolemNeg	GolemNeg;
 
-struct _GolemNegative {
+struct _GolemNeg {
   GolemStatement parent;
   GolemStatement * value;
 };
 
-GolemStatementClass * golem_negative_get_class(void);
+GolemStatementClass * golem_neg_get_class(void);
 
 
 #endif /* GOLEMNEGATIVE_H_ */

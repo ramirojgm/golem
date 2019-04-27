@@ -54,10 +54,11 @@
 #include "compile/golemblock.h"
 #include "compile/golemreturn.h"
 #include "compile/expr/golemconst.h"
+#include "compile/expr/golemneg.h"
 
 /*#include "compile/golemcall.h"
 #include "compile/golemnot.h"
-#include "compile/golemnegative.h"
+
 #include "compile/golemgsvar.h"
 
 

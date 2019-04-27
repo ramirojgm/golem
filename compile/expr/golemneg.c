@@ -16,27 +16,27 @@
  */
 
 
-#include "../golem.h"
+#include "../../golem.h"
 
-GOLEM_DEFINE_STATEMENT(GolemNegative,golem_negative)
+GOLEM_DEFINE_STATEMENT(GolemNeg,golem_neg)
 
 static void
-golem_negative_init(GolemNegative * negative)
+golem_neg_init(GolemNeg * negative)
 {
   negative->value = NULL;
 }
 
-static GType
-golem_negative_value_type(GolemNegative * negative,
-			   GolemScopeBuilder *scope_builder,
-			   GError ** error)
+static GolemMetadata *
+golem_neg_value_type(GolemNeg * negative,
+		     GolemScopeBuilder *scope_builder,
+		     GError ** error)
 {
     return golem_statement_value_type(negative->value,scope_builder,error);
 }
 
 
 static gboolean
-golem_negative_compile(GolemNegative * negative,
+golem_neg_compile(GolemNeg * negative,
 		  GolemVMBody * body,
 		  GolemScopeBuilder * scope_builder,
 		  GError ** error)
@@ -47,29 +47,43 @@ golem_negative_compile(GolemNegative * negative,
 				  error);
   if(done)
     {
-      GType type_code = golem_statement_value_type(negative->value,
+      GolemMetadata * metadata = golem_statement_value_type(negative->value,
       						       scope_builder,
       						       error);
+      //TODO: check is primitive
+
+      GolemPrimitiveType type_code = golem_primitive_get_primitive_type(
+	  GOLEM_PRIMITIVE(metadata));
+
       switch(type_code)
       {
-	case GOLEM_OID_CHAR:
-	case GOLEM_OID_UCHAR:
-	case GOLEM_OID_BOOL:
-	case GOLEM_OID_INT16:
-	case GOLEM_OID_UINT16:
-	case GOLEM_OID_INT32:
-	case GOLEM_OID_UINT32:
+	case GOLEM_PRIMITIVE_TYPE_BOOL:
+	case GOLEM_PRIMITIVE_TYPE_CHAR:
+	case GOLEM_PRIMITIVE_TYPE_UCHAR:
+	case GOLEM_PRIMITIVE_TYPE_INT8:
+	case GOLEM_PRIMITIVE_TYPE_UINT8:
+	case GOLEM_PRIMITIVE_TYPE_INT16:
+	case GOLEM_PRIMITIVE_TYPE_UINT16:
+	case GOLEM_PRIMITIVE_TYPE_INT32:
+	case GOLEM_PRIMITIVE_TYPE_UINT32:
 	  golem_vm_body_write_op(body,GOLEM_OP_NI32);
 	  break;
-	case GOLEM_OID_INT64:
-	case GOLEM_OID_UINT64:
+	case GOLEM_PRIMITIVE_TYPE_INT64:
+	case GOLEM_PRIMITIVE_TYPE_UINT64:
 	  golem_vm_body_write_op(body,GOLEM_OP_NI64);
 	  break;
-	case GOLEM_OID_FLOAT:
+	case GOLEM_PRIMITIVE_TYPE_INT128:
+	case GOLEM_PRIMITIVE_TYPE_UINT128:
+	  golem_vm_body_write_op(body,GOLEM_OP_NI128);
+	  break;
+	case GOLEM_PRIMITIVE_TYPE_FLOAT32:
 	  golem_vm_body_write_op(body,GOLEM_OP_NF32);
 	  break;
-	case GOLEM_OID_DOUBLE:
-	  golem_vm_body_write_op(body,GOLEM_OP_ND64);
+	case GOLEM_PRIMITIVE_TYPE_FLOAT64:
+	  golem_vm_body_write_op(body,GOLEM_OP_NF64);
+	  break;
+	case GOLEM_PRIMITIVE_TYPE_FLOAT128:
+	  golem_vm_body_write_op(body,GOLEM_OP_NF128);
 	  break;
 	default:
 	  done = FALSE;
@@ -81,7 +95,7 @@ golem_negative_compile(GolemNegative * negative,
 
 
 static gboolean
-golem_negative_parse(GolemNegative * negative,
+golem_neg_parse(GolemNeg * negative,
 		GolemParser * parser,
 		GolemExpressionLimit limit,
 		GError ** error)
@@ -98,14 +112,14 @@ golem_negative_parse(GolemNegative * negative,
 }
 
 static void
-golem_negative_dispose(GolemNegative * negative)
+golem_neg_dispose(GolemNeg * negative)
 {
   if(negative->value)
     golem_statement_free(negative->value);
 }
 
 static gboolean
-golem_negative_check(GolemParser * parser)
+golem_neg_check(GolemParser * parser)
 {
   return golem_parser_is_next_word(parser,"-");
 }
