@@ -83,7 +83,8 @@ golem_simple_expression_parse(GolemParser * parser,
   /* search class */
   /*if(golem_statement_check(GOLEM_NOT_CLASS,parser))
     klass = GOLEM_NOT_CLASS;
-  else */if(golem_statement_check(GOLEM_NEG_CLASS,parser))
+  else */
+  if(golem_statement_check(GOLEM_NEG_CLASS,parser))
     klass = GOLEM_NEG_CLASS;
   else if(golem_statement_check(GOLEM_CONST_CLASS,parser))
     klass = GOLEM_CONST_CLASS;

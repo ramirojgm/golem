@@ -162,11 +162,25 @@ golem_const_parse(GolemConst * cnst,
       if(golem_parser_check(parser,"."))
 	{
 	  const gchar * decimal_str = golem_parser_next_word(parser,TRUE);
-	  guint64 decimals = 0;
-	  sscanf(decimal_str,"%lu",&decimals);
+	  gdouble decimals = 0;
+	  guint8 pos = 1;
+	  for (const gchar * c = decimal_str; *c; c++)
+	    {
+	      if (isdigit(*c))
+		{
+		  gchar cx[2] = {*c,0};
+		  decimals += (atof(cx) / pow(10,pos));
+		  pos ++;
+		}
+	      else
+		{
+		  break;
+		}
+	    }
+
 	  gfloat128_t float128 = uint128;
 	  if (decimals)
-	    float128 = uint128 +  (decimals / pow(10.0,(int) log10(decimals) + 1));
+	    float128 = ((gfloat128_t)uint128) +  decimals;
 
 	  if(g_str_has_suffix(decimal_str,"f"))
 	    {

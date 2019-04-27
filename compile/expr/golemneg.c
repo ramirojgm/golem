@@ -87,6 +87,7 @@ golem_neg_compile(GolemNeg * negative,
 	  break;
 	default:
 	  done = FALSE;
+	  g_print("Type unsupported");
 	  //TODO: throw type unsupported
       }
     }

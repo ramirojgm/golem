@@ -63,7 +63,8 @@ main(gint argc,gchar ** argv)
   for(;;)
     {
       g_print(">");
-      scanf("%s",buff);
+      scanf("%[^\n]",buff);
+      getchar();
       fflush(stdin);
       if (g_strcmp0(buff,"quit") == 0)
 	break;
