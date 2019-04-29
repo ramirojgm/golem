@@ -49,6 +49,8 @@ golem_extend_expression_parse(GolemParser * parser,
   /* search class */
   /*if(golem_statement_check(GOLEM_CALL_CLASS,parser))
     klass = GOLEM_CALL_CLASS;*/
+  if (golem_statement_check(GOLEM_ACCESSOR_CLASS,parser))
+      klass = GOLEM_ACCESSOR_CLASS;
 
   /* initialize and parse */
   if(klass)
@@ -57,8 +59,8 @@ golem_extend_expression_parse(GolemParser * parser,
       statement->klass = klass;
       statement->source = g_strdup(golem_parser_get_source_name(parser));
       statement->line = golem_parser_get_line(parser);
-      ((GolemStatementExt*)statement)->base = base;
       klass->init(statement);
+      ((GolemStatementExt*)statement)->base = base;
       if(!klass->parse(statement,parser,limit,error))
       {
 	golem_statement_free(statement);
@@ -693,6 +695,13 @@ golem_expression_parse(GolemExpression * exp,
 		  golem_statement_free(single->exp);
 		  golem_expression_single_free(single);
 		  //TODO: Expected ")"
+		}
+	      else
+		{
+		  single->exp = golem_extend_expression_parse(parser,
+							      single->exp,
+							      limit,
+							      error);
 		}
 	    }
 	  else

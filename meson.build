@@ -42,6 +42,8 @@ golem_exec = executable ('golem',[
               'compile/expr/golemcontext.c',
               'compile/expr/golemnot.h',
               'compile/expr/golemnot.c',
+              'compile/expr/golemaccessor.h',
+              'compile/expr/golemaccessor.c',
               
               'golem.h',
               'golem.c'

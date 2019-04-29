@@ -16,7 +16,7 @@
  */
 
 
-#include "../../golem.h"
+#include <golem.h>
 
 GOLEM_DEFINE_STATEMENT(GolemNeg,golem_neg)
 

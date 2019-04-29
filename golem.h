@@ -46,6 +46,7 @@
 #include "compile/expr/golemneg.h"
 #include "compile/expr/golemcontext.h"
 #include "compile/expr/golemnot.h"
+#include "compile/expr/golemaccessor.h"
 
 /*#include "compile/golemcall.h"
 

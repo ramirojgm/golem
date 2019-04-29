@@ -16,7 +16,7 @@
  */
 
 
-#include "../../golem.h"
+#include <golem.h>
 
 GOLEM_DEFINE_STATEMENT(GolemContext,golem_context)
 

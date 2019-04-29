@@ -22,24 +22,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef _Bool				      gbool_t;
-typedef signed char		    gchar_t;
-typedef unsigned char	    guchar_t;
-typedef int8_t				    gint8_t;
-typedef uint8_t				    guint8_t;
-typedef int16_t				    gint16_t;
-typedef uint16_t			    guint16_t;
-typedef int32_t				    gint32_t;
-typedef uint32_t			    guint32_t;
-typedef int64_t				    gint64_t;
-typedef uint64_t			    guint64_t;
-typedef __int128_t		    gint128_t;
-typedef __uint128_t	      guint128_t;
-typedef float				      gfloat32_t;
-typedef double				    gfloat64_t;
-typedef long double			  gfloat128_t;
-typedef void *				    gpointer_t;
-typedef char *			      gstring_t;
+typedef int32_t		      	gbool_t;
+typedef signed char		gchar_t;
+typedef unsigned char	    	guchar_t;
+typedef int8_t			gint8_t;
+typedef uint8_t			guint8_t;
+typedef int16_t			gint16_t;
+typedef uint16_t		guint16_t;
+typedef int32_t			gint32_t;
+typedef uint32_t		guint32_t;
+typedef int64_t			gint64_t;
+typedef uint64_t		guint64_t;
+typedef __int128_t		gint128_t;
+typedef __uint128_t	      	guint128_t;
+typedef float			gfloat32_t;
+typedef double			gfloat64_t;
+typedef long double		gfloat128_t;
+typedef void *			gpointer_t;
+typedef char *			gstring_t;
 
 typedef struct {
 	guint32_t v32;
