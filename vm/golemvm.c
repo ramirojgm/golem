@@ -872,6 +872,7 @@ _golem_vm_op_agt  (GolemVMOp * op,
 {
   golem_vm_stack_vpush(stack,&(stack->v_arg[stack->n_arg]));
   stack->n_arg ++;
+  golem_vm_stack_next(stack);
 }
 
 static inline void
@@ -1043,7 +1044,7 @@ static inline void
 _golem_vm_op_true (GolemVMOp * op,
                    GolemVMStack * stack)
 {
-  GOLEM_BOOL(golem_vm_stack_v0(stack)) = TRUE;
+  GOLEM_INT32(golem_vm_stack_v0(stack)) = TRUE;
   golem_vm_stack_push(stack,1);
   golem_vm_stack_next(stack);
 }
@@ -1053,6 +1054,15 @@ _golem_vm_op_zero (GolemVMOp * op,
                    GolemVMStack * stack)
 {
   GOLEM_INT32(golem_vm_stack_v0(stack)) = 0;
+  golem_vm_stack_push(stack,1);
+  golem_vm_stack_next(stack);
+}
+
+static inline void
+_golem_vm_op_null (GolemVMOp * op,
+                   GolemVMStack * stack)
+{
+  GOLEM_POINTER(golem_vm_stack_v0(stack)) = NULL;
   golem_vm_stack_push(stack,1);
   golem_vm_stack_next(stack);
 }
@@ -1175,7 +1185,8 @@ GolemVMOpFunc _golem_vm_op_[GOLEM_OP_N] = {
 
   /* CONSTANTS OP */
   _golem_vm_op_true,	//TRUE
-  _golem_vm_op_zero	//ZERO
+  _golem_vm_op_zero,	//0
+  _golem_vm_op_null	//NULL
 };
 
 

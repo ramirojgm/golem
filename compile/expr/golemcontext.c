@@ -16,45 +16,45 @@
  */
 
 
-#include "../golem.h"
+#include "../../golem.h"
 
-GOLEM_DEFINE_STATEMENT(GolemGSVar,golem_gsvar)
+GOLEM_DEFINE_STATEMENT(GolemContext,golem_context)
 
 static void
-golem_gsvar_init(GolemGSVar * gsvar)
+golem_context_init(GolemContext * ctx)
 {
-  gsvar->variable_name = NULL;
-  gsvar->value = NULL;
+  ctx->variable_name = NULL;
+  ctx->value = NULL;
 }
 
-static GType
-golem_gsvar_value_type(GolemGSVar * gsvar,
+static GolemMetadata *
+golem_context_value_type(GolemContext * ctx,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-  GType type = golem_scope_builder_type(scope_builder,gsvar->variable_name);
-  if(type == G_TYPE_INVALID)
+  GolemMetadata * type = golem_scope_builder_type(scope_builder,ctx->variable_name);
+  if(type == NULL)
     {
       g_propagate_error(error,
-			g_error_new(GOLEM_ERROR,
-				    GOLEM_COMPILE_ERROR_NOT_DEFINED,
+			g_error_new(g_quark_from_static_string("golem"),
+				    0,
 				    "the variable \"%s\" not exists",
-				    gsvar->variable_name));
+				    ctx->variable_name));
     }
   return type;
 }
 
 
 static gboolean
-golem_gsvar_compile(GolemGSVar * gsvar,
+golem_context_compile(GolemContext * ctx,
 		  GolemVMBody * body,
 		  GolemScopeBuilder * scope_builder,
 		  GError ** error)
 {
   gboolean done = TRUE;
-  if(gsvar->value)
+  if(ctx->value)
     {
-      done = golem_statement_compile(gsvar->value,
+      done = golem_statement_compile(ctx->value,
 				    body,
 				    scope_builder,
 				    error);
@@ -63,14 +63,14 @@ golem_gsvar_compile(GolemGSVar * gsvar,
 	  golem_vm_body_write_op(body,GOLEM_OP_DUP);
 	  done = golem_scope_builder_set(
 		  scope_builder,
-		  gsvar->variable_name,
+		  ctx->variable_name,
 		  error);
 	}
     }
   else
     {
       done = golem_scope_builder_get(scope_builder,
-				     gsvar->variable_name,
+				     ctx->variable_name,
 				     error);
     }
   return done;
@@ -78,31 +78,31 @@ golem_gsvar_compile(GolemGSVar * gsvar,
 
 
 static gboolean
-golem_gsvar_parse(GolemGSVar * gsvar,
+golem_context_parse(GolemContext * ctx,
 		GolemParser * parser,
 		GolemExpressionLimit limit,
 		GError ** error)
 {
   gboolean done = TRUE;
-  gsvar->variable_name = g_strdup(golem_parser_next_word(parser,TRUE));
+  ctx->variable_name = g_strdup(golem_parser_next_word(parser,TRUE));
   if(golem_parser_check(parser,"="))
     {
-      gsvar->value = golem_expression_parse_new(parser,limit,error);
-      done = gsvar->value != NULL;
+      ctx->value = golem_expression_parse_new(parser,limit,error);
+      done = ctx->value != NULL;
     }
   return done;
 }
 
 static void
-golem_gsvar_dispose(GolemGSVar * gsvar)
+golem_context_dispose(GolemContext * ctx)
 {
-  g_free(gsvar->variable_name);
-  if(gsvar->value)
-    golem_statement_free(gsvar->value);
+  g_free(ctx->variable_name);
+  if(ctx->value)
+    golem_statement_free(ctx->value);
 }
 
 static gboolean
-golem_gsvar_check(GolemParser * parser)
+golem_context_check(GolemParser * parser)
 {
   return golem_parser_check_is_named(parser);
 }

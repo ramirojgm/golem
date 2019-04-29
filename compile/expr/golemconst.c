@@ -56,9 +56,26 @@ golem_const_compile(GolemConst * cnst,
     }
   else if (GOLEM_METADATA(cnst->primitive) == GOLEM_TYPE_POINTER)
     {
-      data_index = golem_vm_body_write_data(body,
-					    GOLEM_POINTER(&(cnst->data)),
-					    cnst->size);
+      if (GOLEM_POINTER(&(cnst->data)) == NULL)
+	{
+	  //NULL
+	  golem_vm_body_write_op(body,GOLEM_OP_NULL);
+	  return TRUE;
+	}
+      else
+	{
+	  data_index = golem_vm_body_write_data(body,
+						GOLEM_POINTER(&(cnst->data)),
+						cnst->size);
+	}
+    }
+  else if (GOLEM_METADATA(cnst->primitive) == GOLEM_TYPE_BOOL)
+    {
+      if (GOLEM_BOOL(&cnst->data))
+	golem_vm_body_write_op(body,GOLEM_OP_TRUE);
+      else
+      	golem_vm_body_write_op(body,GOLEM_OP_ZERO);
+      return TRUE;
     }
   else
     {
@@ -155,6 +172,21 @@ golem_const_parse(GolemConst * cnst,
   else if (g_str_has_prefix(const_str,"0b"))
     {
 
+    }
+  else if (g_strcmp0(const_str,"true") == 0)
+    {
+      GOLEM_BOOL(&(cnst->data)) = TRUE;
+      cnst->primitive = GOLEM_PRIMITIVE(GOLEM_TYPE_BOOL);
+    }
+  else if (g_strcmp0(const_str,"false") == 0)
+    {
+      GOLEM_BOOL(&(cnst->data)) = FALSE;
+      cnst->primitive = GOLEM_PRIMITIVE(GOLEM_TYPE_BOOL);
+    }
+  else if (g_strcmp0(const_str,"null") == 0)
+    {
+      GOLEM_POINTER(&(cnst->data)) = NULL;
+      cnst->primitive = GOLEM_PRIMITIVE(GOLEM_TYPE_POINTER);
     }
   else
     {
@@ -277,5 +309,8 @@ golem_const_dispose(GolemConst * cnst)
 static gboolean
 golem_const_check(GolemParser * parser)
 {
-  return golem_parser_check_is_const(parser);
+  return  golem_parser_is_next_word(parser,"null") ||
+	  golem_parser_is_next_word(parser,"true") ||
+	  golem_parser_is_next_word(parser,"false") ||
+	  golem_parser_check_is_const(parser);
 }

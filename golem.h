@@ -30,17 +30,6 @@
 #include "metadata/golemattribute.h"
 #include "metadata/golemtype.h"
 #include "metadata/golemprimitive.h"
-/*#include "metadata/golemmodulemanager.h"
-#include "metadata/golemtype.h"
-#include "metadata/golemmodule.h"
-#include "metadata/golemmember.h"
-#include "metadata/golemfield.h"
-#include "metadata/golemstruct.h"
-#include "metadata/golemproperty.h"
-#include "metadata/golemfunction.h"
-//#include "metadata/golemclass.h"
-#include "metadata/goleminterface.h"
-*/
 /* Runtime */
 //#include "runtime/golemcallable.h"
 
@@ -55,12 +44,10 @@
 #include "compile/golemreturn.h"
 #include "compile/expr/golemconst.h"
 #include "compile/expr/golemneg.h"
+#include "compile/expr/golemcontext.h"
+#include "compile/expr/golemnot.h"
 
 /*#include "compile/golemcall.h"
-#include "compile/golemnot.h"
-
-#include "compile/golemgsvar.h"
-
 
 
 #include "compile/golemvar.h"

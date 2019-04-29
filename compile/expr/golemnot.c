@@ -16,7 +16,7 @@
  */
 
 
-#include "../golem.h"
+#include "../../golem.h"
 
 GOLEM_DEFINE_STATEMENT(GolemNot,golem_not)
 
@@ -26,12 +26,12 @@ golem_not_init(GolemNot * not)
   not->value = NULL;
 }
 
-static GType
+static GolemMetadata *
 golem_not_value_type(GolemNot * not,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-    return G_TYPE_BOOLEAN;
+    return golem_statement_value_type(not->value,scope_builder,error);
 }
 
 
@@ -41,12 +41,52 @@ golem_not_compile(GolemNot * not,
 		  GolemScopeBuilder * scope_builder,
 		  GError ** error)
 {
-  gboolean done = golem_statement_compile(not->value,
-				  body,
-				  scope_builder,
-				  error);
-  if(done)
-      golem_vm_body_write_op(body,GOLEM_OP_NT32); //FIXME: variant at type
+
+  GolemMetadata * metadata = golem_statement_value_type(not->value,
+							scope_builder,
+							error);
+  gboolean done = FALSE;
+
+  if (GOLEM_IS_PRIMITIVE(metadata))
+    {
+      done = golem_statement_compile(not->value,
+      				  body,
+      				  scope_builder,
+      				  error);
+      GolemPrimitiveType type = golem_primitive_get_primitive_type(
+          GOLEM_PRIMITIVE(metadata));
+
+      if(done)
+        {
+          switch (type)
+          {
+	  case GOLEM_PRIMITIVE_TYPE_BOOL:
+	  case GOLEM_PRIMITIVE_TYPE_CHAR:
+	  case GOLEM_PRIMITIVE_TYPE_UCHAR:
+	  case GOLEM_PRIMITIVE_TYPE_INT8:
+	  case GOLEM_PRIMITIVE_TYPE_UINT8:
+	  case GOLEM_PRIMITIVE_TYPE_INT16:
+	  case GOLEM_PRIMITIVE_TYPE_UINT16:
+	  case GOLEM_PRIMITIVE_TYPE_INT32:
+	  case GOLEM_PRIMITIVE_TYPE_UINT32:
+	  case GOLEM_PRIMITIVE_TYPE_FLOAT32:
+	    golem_vm_body_write_op(body,GOLEM_OP_NT32);
+	    break;
+	  case GOLEM_PRIMITIVE_TYPE_INT64:
+	  case GOLEM_PRIMITIVE_TYPE_UINT64:
+	  case GOLEM_PRIMITIVE_TYPE_FLOAT64:
+	    golem_vm_body_write_op(body,GOLEM_OP_NT64);
+	    break;
+	  default:
+	    golem_vm_body_write_op(body,GOLEM_OP_NT128);
+	    break;
+          }
+        }
+    }
+  else
+    {
+      //TODO: Throw not primitive support operator NOT
+    }
 
   return done;
 }

@@ -127,6 +127,9 @@ golem_scope_builder_argument(GolemScopeBuilder * scope,
 	  golem_scope_builder_set(scope,name,error);
 	}
     }
+
+ /* if (!done)
+    g_print("Can't define %s cuz %s\n",name,(*error)->message);*/
   return done;
 }
 

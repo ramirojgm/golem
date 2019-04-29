@@ -19,12 +19,15 @@
 
 #include "golem.h"
 #include "stdio.h"
+#include "math.h"
 
 
 GolemValue
-test_exp(const gchar * test,GError ** error)
+test_exp(const gchar * test,gdouble pi,GError ** error)
 {
+  GolemValue arguments[1] = {};
   GolemValue ret;
+
   GolemVMBody * body = NULL;
   GolemParser * p = golem_parser_new("test");
   gchar * test_script = g_strdup_printf("{ return %s; }",test);
@@ -33,8 +36,14 @@ test_exp(const gchar * test,GError ** error)
   if(block)
     {
       GolemScopeBuilder * scope_builder = golem_scope_builder_new();
+
       body = golem_vm_body_new();
       golem_scope_builder_enter(scope_builder,body,error);
+
+      golem_scope_builder_argument(scope_builder,
+				   GOLEM_TYPE_DOUBLE,
+				   "pi",
+				   error);
       golem_statement_compile(block,
 			    body,
 			    scope_builder,
@@ -47,7 +56,9 @@ test_exp(const gchar * test,GError ** error)
     }
   g_object_unref(p);
   g_free(test_script);
-  golem_vm_body_run(body,NULL,0,NULL,&ret,NULL);
+
+  GOLEM_FLOAT64(&arguments[0]) = pi;
+  golem_vm_body_run(body,NULL,1,arguments,&ret,NULL);
   return ret;
 }
 
@@ -68,10 +79,10 @@ main(gint argc,gchar ** argv)
       fflush(stdin);
       if (g_strcmp0(buff,"quit") == 0)
 	break;
-      ret = test_exp(buff,&error);
+      ret = test_exp(buff,M_PI, &error);
       if (error)
 	{
-	  g_print("Error: %s",error->message);
+	  g_print("Error: %s\n",error->message);
 	  g_clear_error(&error);
 	}
       else

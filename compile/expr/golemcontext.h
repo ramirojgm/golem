@@ -15,20 +15,20 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMGSVAR_H_
-#define GOLEMGSVAR_H_
+#ifndef GOLEM_CONTEXT_H_
+#define GOLEM_CONTEXT_H_
 
-#define GOLEM_GSVAR_CLASS	(golem_gsvar_get_class())
-#define GOLEM_GSVAR(p)		((GolemGSVar*)p)
+#define GOLEM_CONTEXT_CLASS	(golem_context_get_class())
+#define GOLEM_CONTEXT(p)	((GolemContext*)p)
 
-typedef struct _GolemGSVar	GolemGSVar;
+typedef struct _GolemContext	GolemContext;
 
-struct _GolemGSVar {
+struct _GolemContext {
   GolemStatement parent;
   gchar * variable_name;
   GolemStatement * value;
 };
 
-GolemStatementClass * golem_gsvar_get_class(void);
+GolemStatementClass * golem_context_get_class(void);
 
 #endif /* GOLEMGSVAR_H_ */
