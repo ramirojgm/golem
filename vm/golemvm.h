@@ -19,6 +19,8 @@
 #define GOLEM_VM_H_
 
 #include <glib.h>
+#include <glib-object.h>
+#include <gobject/gvaluecollector.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -223,6 +225,9 @@ typedef enum
   GOLEM_OP_BL, 		//BITS TO LEFT
   GOLEM_OP_BR, 		//BITS TO RIGHT
 
+  /* TRY */
+  GOLEM_OP_TRY,		//TRY
+
   /* CONVERT */
   GOLEM_OP_I32TF32, 	//CONVERT I32 TO F32
   GOLEM_OP_I64TF64, 	//CONVERT I64 TO F64
@@ -231,6 +236,10 @@ typedef enum
   GOLEM_OP_TRUE,	//TRUE
   GOLEM_OP_ZERO,	//0
   GOLEM_OP_NULL,	//NULL
+
+  /* FUNCTIONS */
+  GOLEM_OP_STRDUP,	//STRDUP FUNCTION
+
 
   GOLEM_OP_N
 } GolemVMOpCode;
@@ -307,10 +316,37 @@ typedef struct
   GolemVMScope* scope;
 } GolemVMStack;
 
+typedef struct _GolemVMCallable GolemVMCallable;
+
+struct _GolemVMCallable
+{
+  GCClosure parent;
+  volatile guint32 refcount;
+  gbool_t (*call)(GolemVMCallable * callable,
+		  GolemValue * argv,
+		  guint16_t argc,
+		  GolemValue * ret,
+		  GError ** error);
+
+  void (*dispose)(GolemVMCallable * callable);
+};
+
+
 G_BEGIN_DECLS
 
 GLIB_AVAILABLE_IN_ALL
+gbool_t			golem_vm_callable_call(GolemVMCallable * callable,
+					       GolemValue * 	argv,
+					       guint16_t 	argc,
+					       GolemValue *	ret,
+					       GError **	error);
 
+GolemVMCallable *	golem_vm_callable_ref(GolemVMCallable * callable);
+
+GolemVMCallable *	golem_vm_callable_unref(GolemVMCallable * callable);
+
+
+GLIB_AVAILABLE_IN_ALL
 GolemVMScope* 	golem_vm_scope_new(void);
 
 GLIB_AVAILABLE_IN_ALL
@@ -418,11 +454,11 @@ void		golem_vm_body_write_ops(GolemVMBody * body,
 
 GLIB_AVAILABLE_IN_ALL
 gboolean	golem_vm_body_run(GolemVMBody * body,
-				                    GolemVMScope * scope,
-				                    guint16_t 	argc,
-				                    GolemValue *  argv,
-				                    GolemValue *  ret,
-				                    GError ** error);
+				  GolemVMScope * scope,
+				  guint16_t 	argc,
+				  GolemValue *  argv,
+				  GolemValue *  ret,
+				  GError ** error);
 
 GLIB_AVAILABLE_IN_ALL
 GolemVMBody *	golem_vm_body_copy(GolemVMBody * body);

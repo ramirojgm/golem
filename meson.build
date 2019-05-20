@@ -8,6 +8,8 @@ gio_deps = dependency('gio-2.0')
 golem_exec = executable ('golem',[
               'golemenums.h',
               'golemenums.c',
+              'golemerror.h',
+              'golemerror.c',
               
               'vm/golemvm.h',
               'vm/golemvm.c',
@@ -18,8 +20,13 @@ golem_exec = executable ('golem',[
               'metadata/golemprimitive.c',
               'metadata/golemattribute.h',
               'metadata/golemattribute.c',
+              'metadata/golemfunction.h',
+              'metadata/golemfunction.c',
               'metadata/golemtype.h',
               'metadata/golemtype.c',
+              
+              'metadata/function/golemfunctionwrap.h',
+              'metadata/function/golemfunctionwrap.c'
               
               'compile/golemparser.h',
               'compile/golemparser.c',

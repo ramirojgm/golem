@@ -144,6 +144,13 @@ golem_primitive_get_property(GObject * obj,
     }
 }
 
+static GolemMetadata *
+golem_primitive_get_attribute(GolemMetadata * metadata,
+			      const gchar * attr_name)
+{
+  g_print("Attribute:%s\n",attr_name);
+  return NULL;
+}
 
 static void
 golem_primitive_class_init(GolemPrimitiveClass * klass)
@@ -169,6 +176,7 @@ golem_primitive_class_init(GolemPrimitiveClass * klass)
   G_OBJECT_CLASS(klass)->get_property = golem_primitive_get_property;
 
   GOLEM_METADATA_CLASS(klass)->get_sizeof = golem_primitive_get_sizeof;
+  GOLEM_METADATA_CLASS(klass)->get_attribute = golem_primitive_get_attribute;
 
   g_object_class_install_properties(G_OBJECT_CLASS(klass),
 				    GOLEM_PRIMITIVE_N_PROP,

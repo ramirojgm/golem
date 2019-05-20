@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 #include "golemenums.h"
+#include "golemerror.h"
 #include "vm/golemvm.h"
 
 /* Metadata */
@@ -30,6 +31,8 @@
 #include "metadata/golemattribute.h"
 #include "metadata/golemtype.h"
 #include "metadata/golemprimitive.h"
+#include "metadata/golemfunction.h"
+#include "metadata/function/golemfunctionwrap.h"
 /* Runtime */
 //#include "runtime/golemcallable.h"
 

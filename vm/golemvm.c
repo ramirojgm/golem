@@ -1017,6 +1017,13 @@ _golem_vm_op_br (GolemVMOp * op,
 }
 
 static inline void
+_golem_vm_op_try(GolemVMOp * op,
+		 GolemVMStack * stack)
+{
+
+}
+
+static inline void
 _golem_vm_op_i32tf32 (GolemVMOp * op,
                  GolemVMStack * stack)
 {
@@ -1063,6 +1070,16 @@ _golem_vm_op_null (GolemVMOp * op,
                    GolemVMStack * stack)
 {
   GOLEM_POINTER(golem_vm_stack_v0(stack)) = NULL;
+  golem_vm_stack_push(stack,1);
+  golem_vm_stack_next(stack);
+}
+
+static inline void
+_golem_vm_op_strdup (GolemVMOp * op,
+		     GolemVMStack * stack)
+{
+  golem_vm_stack_v1c(stack,STRING) =
+      g_strdup(golem_vm_stack_v1c(stack,STRING));
   golem_vm_stack_push(stack,1);
   golem_vm_stack_next(stack);
 }
@@ -1179,6 +1196,9 @@ GolemVMOpFunc _golem_vm_op_[GOLEM_OP_N] = {
   _golem_vm_op_bl, 	//BITS TO LEFT
   _golem_vm_op_br, 	//BITS TO RIGHT
 
+  /* TRY */
+  _golem_vm_op_try, 	//TRY
+
   _golem_vm_op_i32tf32, 	//CONVERT I32 TO F32
   _golem_vm_op_i64tf64, 	//CONVERT I64 TO F64
   _golem_vm_op_i128tf128, 	//CONVERT I128 TO F128
@@ -1186,7 +1206,10 @@ GolemVMOpFunc _golem_vm_op_[GOLEM_OP_N] = {
   /* CONSTANTS OP */
   _golem_vm_op_true,	//TRUE
   _golem_vm_op_zero,	//0
-  _golem_vm_op_null	//NULL
+  _golem_vm_op_null,	//NULL
+
+  /* FUNCTIONS */
+  _golem_vm_op_strdup	//STRDUP FUNCTION
 };
 
 

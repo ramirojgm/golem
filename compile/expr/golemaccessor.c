@@ -23,6 +23,7 @@ static void
 golem_accessor_init(GolemAccessor * acc)
 {
   acc->attribute_name = NULL;
+  acc->value = NULL;
   acc->parent.base = NULL;
 }
 
@@ -68,7 +69,48 @@ golem_accessor_compile(GolemAccessor * acc,
 		       GError ** error)
 {
   gboolean done = TRUE;
-  golem_vm_body_write_op(body,GOLEM_OP_ZERO);
+  GolemMetadata * member = golem_accessor_value_type(acc,scope_builder,error);
+
+  if (member)
+    {
+      if ((done = golem_statement_compile(acc->parent.base,
+     					      body,
+     					      scope_builder,
+     					      error)))
+	{
+	  if (GOLEM_IS_ATTRIBUTE(member))
+	    {
+	      GolemAttribute * attr = GOLEM_ATTRIBUTE(member);
+	      if (acc->value)
+		{
+		  if ((done = golem_statement_compile(acc->value,
+						      body,
+						      scope_builder,
+						      error)))
+		    {
+		      golem_vm_body_write_op(body,GOLEM_OP_DUP);
+		      golem_vm_body_write_ops(body,
+					      GOLEM_OP_PSET,
+					      0,
+					      golem_attribute_get_offset(attr),
+					      golem_attribute_get_length(attr));
+		    }
+		}
+	      else
+		{
+		  golem_vm_body_write_ops(body,
+					  GOLEM_OP_PGET,
+					  0,
+					  golem_attribute_get_offset(attr),
+					  golem_attribute_get_length(attr));
+		}
+	    }
+	}
+    }
+  else
+    {
+      golem_vm_body_write_op(body,GOLEM_OP_ZERO);
+    }
   return done;
 }
 

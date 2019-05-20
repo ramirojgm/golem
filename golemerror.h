@@ -15,20 +15,17 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOLEMACCESSOR_H_
-#define GOLEMACCESSOR_H_
+#ifndef GOLEMERROR_H_
+#define GOLEMERROR_H_
 
-#define GOLEM_ACCESSOR_CLASS	(golem_accessor_get_class())
-#define GOLEM_ACCESSOR(p)	((GolemAccessor*)p)
+#define GOLEM_ERROR	(golem_error_get_quark())
 
-typedef struct _GolemAccessor	GolemAccessor;
-
-struct _GolemAccessor {
-  GolemStatementExt parent;
-  gchar * attribute_name;
-  GolemStatement * value;
+enum {
+  GOLEM_ERROR_UNKNOW,
+  GOLEM_ERROR_NOT_IMPLEMENTED,
+  GOLEM_ERROR_NULL_POINTER
 };
 
-GolemStatementClass * golem_accessor_get_class(void);
+const GQuark	golem_error_get_quark(void);
 
-#endif /* GOLEMACCESSOR_H_ */
+#endif /* GOLEMERROR_H_ */

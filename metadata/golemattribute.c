@@ -161,7 +161,9 @@ void
 golem_attribute_get (GolemAttribute * attr,
                      gpointer instance,
                      GolemValue * dest)
-{}
+{
+
+}
 
 void
 golem_attribute_set (GolemAttribute * attr,

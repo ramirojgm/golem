@@ -49,3 +49,21 @@ golem_primitive_type_get_type(void)
     }
   return primitive_type_gtype;
 }
+
+GType
+golem_transfer_mode_get_type(void)
+{
+  static GType transfer_mode_gtype = G_TYPE_NONE;
+  if (transfer_mode_gtype == G_TYPE_NONE)
+    {
+      static GEnumValue values[] = {
+	  { GOLEM_TRANSFER_NONE,"None","none" },
+	  { GOLEM_TRANSFER_WRAP,"Wrap","wrap" },
+	  { GOLEM_TRANSFER_FULL,"Full","full" },
+	  { 0 ,NULL,NULL }
+      };
+      transfer_mode_gtype = g_enum_register_static("GolemTransferMode",
+						    values);
+    }
+  return transfer_mode_gtype;
+}

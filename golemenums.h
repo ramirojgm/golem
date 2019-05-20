@@ -19,8 +19,10 @@
 #define GOLEMENUMS_H_
 
 #define GOLEM_TYPE_PRIMITIVE_TYPE    (golem_primitive_type_get_type())
+#define GOLEM_TYPE_TRANSFER_MODE    (golem_transfer_mode_get_type())
 
 typedef enum _GolemPrimitiveType GolemPrimitiveType;
+typedef enum _GolemTransferMode GolemTransferMode;
 
 enum _GolemPrimitiveType
 {
@@ -45,6 +47,15 @@ enum _GolemPrimitiveType
 };
 
 
-GType		   golem_primitive_type_get_type(void);
+enum _GolemTransferMode
+{
+  GOLEM_TRANSFER_NONE,
+  GOLEM_TRANSFER_WRAP,
+  GOLEM_TRANSFER_FULL
+};
+
+GType	golem_primitive_type_get_type(void);
+
+GType	golem_transfer_mode_get_type(void);
 
 #endif /* GOLEMENUMS_H_ */
