@@ -70,7 +70,7 @@ golem_accessor_compile(GolemAccessor * acc,
 {
   gboolean done = TRUE;
   GolemMetadata * member = golem_accessor_value_type(acc,scope_builder,error);
-
+  g_print("Accessor Compile\n");
   if (member)
     {
       if ((done = golem_statement_compile(acc->parent.base,
@@ -104,6 +104,14 @@ golem_accessor_compile(GolemAccessor * acc,
 					  golem_attribute_get_offset(attr),
 					  golem_attribute_get_length(attr));
 		}
+	    }
+	  else if (GOLEM_IS_FUNCTION(member))
+	    {
+	      guint32 ld_index =
+	      golem_vm_body_link(
+		  body,
+		  golem_function_get_link_name(GOLEM_FUNCTION(member)));
+	      golem_vm_body_write_op32(body,GOLEM_OP_LD,ld_index);
 	    }
 	}
     }

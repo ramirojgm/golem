@@ -21,6 +21,22 @@
 #include "stdio.h"
 #include "math.h"
 
+GolemMetadata *
+golem_type_int_to_string();
+
+gboolean ld_function(gpointer data,
+		     const gchar * link_name,
+		     gpointer * symbol,
+		     GError ** error)
+{
+  if (g_strcmp0(link_name,"golem_type_int_to_string") == 0)
+    {
+      *symbol = golem_type_int_to_string();
+      g_print("Linked");
+      return TRUE;
+    }
+  return FALSE;
+}
 
 GolemValue
 test_exp(const gchar * test,gdouble pi,GError ** error)
@@ -58,6 +74,7 @@ test_exp(const gchar * test,gdouble pi,GError ** error)
   g_free(test_script);
 
   GOLEM_FLOAT64(&arguments[0]) = pi;
+  golem_vm_body_link_dynamic(body,ld_function,NULL,NULL);
   golem_vm_body_run(body,NULL,1,arguments,&ret,NULL);
   return ret;
 }

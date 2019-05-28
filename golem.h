@@ -24,6 +24,7 @@
 
 #include "golemenums.h"
 #include "golemerror.h"
+
 #include "vm/golemvm.h"
 
 /* Metadata */
@@ -32,6 +33,7 @@
 #include "metadata/golemtype.h"
 #include "metadata/golemprimitive.h"
 #include "metadata/golemfunction.h"
+#include "metadata/function/golemsymbol.h"
 #include "metadata/function/golemfunctionwrap.h"
 /* Runtime */
 //#include "runtime/golemcallable.h"
@@ -50,11 +52,9 @@
 #include "compile/expr/golemcontext.h"
 #include "compile/expr/golemnot.h"
 #include "compile/expr/golemaccessor.h"
+#include "compile/expr/golemcall.h"
 
-/*#include "compile/golemcall.h"
-
-
-#include "compile/golemvar.h"
+/*#include "compile/golemvar.h"
 #include "compile/golemconditional.h"
 #include "runtime/golemboundfunc.h"
 #include "runtime/golemlambdafunc.h"

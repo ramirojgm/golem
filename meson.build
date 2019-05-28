@@ -24,9 +24,11 @@ golem_exec = executable ('golem',[
               'metadata/golemfunction.c',
               'metadata/golemtype.h',
               'metadata/golemtype.c',
-              
+
+              'metadata/function/golemsymbol.h',
+              'metadata/function/golemsymbol.c',              
               'metadata/function/golemfunctionwrap.h',
-              'metadata/function/golemfunctionwrap.c'
+              'metadata/function/golemfunctionwrap.c',
               
               'compile/golemparser.h',
               'compile/golemparser.c',
@@ -51,6 +53,8 @@ golem_exec = executable ('golem',[
               'compile/expr/golemnot.c',
               'compile/expr/golemaccessor.h',
               'compile/expr/golemaccessor.c',
+              'compile/expr/golemcall.h',
+              'compile/expr/golemcall.c',
               
               'golem.h',
               'golem.c'

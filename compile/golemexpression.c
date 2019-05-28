@@ -47,9 +47,9 @@ golem_extend_expression_parse(GolemParser * parser,
   GolemStatement * statement = NULL;
 
   /* search class */
-  /*if(golem_statement_check(GOLEM_CALL_CLASS,parser))
-    klass = GOLEM_CALL_CLASS;*/
-  if (golem_statement_check(GOLEM_ACCESSOR_CLASS,parser))
+  if(golem_statement_check(GOLEM_CALL_CLASS,parser))
+      klass = GOLEM_CALL_CLASS;
+  else if (golem_statement_check(GOLEM_ACCESSOR_CLASS,parser))
       klass = GOLEM_ACCESSOR_CLASS;
 
   /* initialize and parse */
@@ -62,10 +62,19 @@ golem_extend_expression_parse(GolemParser * parser,
       klass->init(statement);
       ((GolemStatementExt*)statement)->base = base;
       if(!klass->parse(statement,parser,limit,error))
-      {
-	golem_statement_free(statement);
-	statement = NULL;
-      }
+	{
+	  golem_statement_free(statement);
+	  statement = NULL;
+	}
+      else
+	{
+	  GolemStatement * next = golem_extend_expression_parse(parser,
+								statement,
+								limit,
+								error);
+	  if (next != statement)
+	    statement = next;
+	}
     }
   else
     {
@@ -361,6 +370,7 @@ golem_expression_operation_op_type(GolemExpressionOperation * exp,
       else
 	{
 	  //TODO: Throw exception invalid operation types
+	  g_print("Invalid");
 	  return NULL;
 	}
     }
@@ -604,6 +614,7 @@ golem_expression_operation_compile(GolemExpressionOperation * exp,
 
   if (!GOLEM_IS_PRIMITIVE(metadata))
     {
+      g_print("None: %d\n",exp->op);
       //TODO: throw exception non primitive operation
       return FALSE;
     }
@@ -745,7 +756,6 @@ golem_expression_parse(GolemExpression * exp,
       exp->op = golem_expression_operation_new(
 	  g_list_first(operations),
 	  g_list_last(operations));
-      //golem_expression_operation_print(exp->op);
     }
 
   g_list_free_full(operations,g_free);

@@ -31,4 +31,6 @@ struct _GolemAccessor {
 
 GolemStatementClass * golem_accessor_get_class(void);
 
+
+
 #endif /* GOLEMACCESSOR_H_ */

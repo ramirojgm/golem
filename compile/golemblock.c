@@ -30,7 +30,7 @@ golem_block_value_type(GolemBlock * var,
 		     GolemScopeBuilder *scope_builder,
 		     GError ** error)
 {
-  return G_TYPE_NONE;
+  return NULL;
 }
 
 

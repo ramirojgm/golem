@@ -144,11 +144,26 @@ golem_primitive_get_property(GObject * obj,
     }
 }
 
+GolemMetadata *
+golem_type_int_to_string()
+{
+  static GolemMetadata * to_string = NULL;
+  if (to_string == NULL)
+    to_string = golem_symbol_new(GOLEM_TYPE_INT,
+				 "to_string",
+				 GOLEM_TYPE_INT,
+				 GOLEM_TRANSFER_NONE,
+				 "golem_type_int_to_string",
+				 NULL);
+  return to_string;
+}
+
 static GolemMetadata *
 golem_primitive_get_attribute(GolemMetadata * metadata,
 			      const gchar * attr_name)
 {
-  g_print("Attribute:%s\n",attr_name);
+  if (metadata == GOLEM_TYPE_INT && g_strcmp0(attr_name,"to_string") == 0)
+    return golem_type_int_to_string();
   return NULL;
 }
 

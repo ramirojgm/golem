@@ -22,27 +22,31 @@ typedef struct _GolemFunctionPrivate GolemFunctionPrivate;
 
 struct _GolemFunctionPrivate
 {
-  GolemMetadata * 	return_type;
-  GolemTransferMode 	transfer_mode;
-  gchar * 		link_name;
+  GolemMetadata * 	m_return_type;
+  GolemTransferMode 	n_transfer_mode;
+  gchar * 		m_link_name;
+  GolemParamSpec **	m_args;
+  gsize 		n_args;
+
 };
 
 enum {
   GOLEM_FUNCTION_PROP_RETURN_TYPE = 1,
   GOLEM_FUNCTION_PROP_TRANSFER_MODE,
   GOLEM_FUNCTION_PROP_LINK_NAME,
+  GOLEM_FUNCTION_PROP_ARGS,
   GOLEM_FUNCTION_N_PROP,
 };
 
-G_DEFINE_ABSTRACT_TYPE(GolemFunction,golem_function,GOLEM_TYPE_METADATA)
+G_DEFINE_TYPE_WITH_PRIVATE(GolemFunction,golem_function,GOLEM_TYPE_METADATA)
 
 gboolean
 golem_function_call_default (GolemFunction * 	function,
-			      gpointer 		self,
+			      GolemValue *	self,
 			      guint32 		argc,
-			      GolemValue * 		argv,
-			      GolemValue * 		ret,
-			      GError ** 		error)
+			      GolemValue * 	argv,
+			      GolemValue * 	ret,
+			      GError ** 	error)
 {
   g_set_error(error,
 	      GOLEM_ERROR,
@@ -66,15 +70,21 @@ golem_function_set_property(GObject * obj,
   switch (property_id)
   {
     case GOLEM_FUNCTION_PROP_RETURN_TYPE:
-      g_clear_object(&priv->return_type);
-      priv->return_type = g_value_dup_object(src);
+      g_clear_object(&priv->m_return_type);
+      priv->m_return_type = g_value_dup_object(src);
       break;
     case GOLEM_FUNCTION_PROP_TRANSFER_MODE:
-      priv->transfer_mode = g_value_get_enum(src);
+      priv->n_transfer_mode = g_value_get_enum(src);
       break;
     case GOLEM_FUNCTION_PROP_LINK_NAME:
-      g_clear_pointer(&priv->link_name,g_free);
-      priv->link_name = g_value_dup_string(src);
+      g_clear_pointer(&priv->m_link_name,g_free);
+      priv->m_link_name = g_value_dup_string(src);
+      break;
+    case GOLEM_FUNCTION_PROP_ARGS:
+      priv->m_args = (GolemParamSpec **)(g_value_get_pointer(src));
+      priv->n_args = 0;
+      if (priv->m_args)
+	  priv->n_args = g_strv_length((gchar**)priv->m_args);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(obj,property_id,pspec);
@@ -96,13 +106,16 @@ golem_function_get_property(GObject * obj,
   switch (property_id)
   {
     case GOLEM_FUNCTION_PROP_RETURN_TYPE:
-      g_value_set_object(dest,priv->return_type);
+      g_value_set_object(dest,priv->m_return_type);
       break;
     case GOLEM_FUNCTION_PROP_TRANSFER_MODE:
-      g_value_set_enum(dest,priv->transfer_mode);
+      g_value_set_enum(dest,priv->n_transfer_mode);
       break;
     case GOLEM_FUNCTION_PROP_LINK_NAME:
-      g_value_set_string(dest,priv->link_name);
+      g_value_set_string(dest,priv->m_link_name);
+      break;
+    case GOLEM_FUNCTION_PROP_ARGS:
+      g_value_set_pointer(dest,priv->m_args);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID(obj,property_id,pspec);
@@ -116,9 +129,9 @@ golem_function_init(GolemFunction * self)
   GolemFunctionPrivate *
   priv = golem_function_get_instance_private(self);
 
-  priv->link_name = NULL;
-  priv->return_type = NULL;
-  priv->transfer_mode = GOLEM_TRANSFER_NONE;
+  priv->m_link_name = NULL;
+  priv->m_return_type = NULL;
+  priv->n_transfer_mode = GOLEM_TRANSFER_NONE;
 }
 
 static void
@@ -126,9 +139,6 @@ golem_function_class_init(GolemFunctionClass * klass)
 {
   static GParamSpec * properties[GOLEM_FUNCTION_N_PROP] = {0,};
 
-  klass->get_argument_count = NULL;
-  klass->get_argument_type = NULL;
-  klass->get_argument_name = NULL;
   klass->call =  golem_function_call_default;
 
   properties[GOLEM_FUNCTION_PROP_RETURN_TYPE] =
@@ -153,6 +163,12 @@ golem_function_class_init(GolemFunctionClass * klass)
 			GOLEM_TRANSFER_NONE,
 			G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
 
+  properties[GOLEM_FUNCTION_PROP_ARGS] =
+      g_param_spec_pointer("args",
+			    "Args",
+			    "Arguments",
+			    G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE);
+
 
   G_OBJECT_CLASS(klass)->set_property = golem_function_set_property;
   G_OBJECT_CLASS(klass)->get_property = golem_function_get_property;
@@ -171,7 +187,7 @@ golem_function_get_return_type(GolemFunction * function)
   GolemFunctionPrivate *
   priv = golem_function_get_instance_private(function);
 
-  return priv->return_type;
+  return priv->m_return_type;
 }
 
 GolemTransferMode
@@ -182,7 +198,7 @@ golem_function_get_transfer_mode(GolemFunction * function)
   GolemFunctionPrivate *
   priv = golem_function_get_instance_private(function);
 
-  return priv->transfer_mode;
+  return priv->n_transfer_mode;
 }
 
 const gchar *
@@ -193,55 +209,27 @@ golem_function_get_link_name(GolemFunction * function)
   GolemFunctionPrivate *
   priv = golem_function_get_instance_private(function);
 
-  return priv->link_name;
+  return priv->m_link_name;
 }
 
-guint
-golem_function_get_argument_count(GolemFunction * function)
+const GolemParamSpec **
+golem_function_get_args(GolemFunction * function,
+			gsize * args_count)
 {
   g_assert_nonnull(function);
+  GolemFunctionPrivate *
+  priv = golem_function_get_instance_private(function);
 
-  GolemFunctionClass * klass = GOLEM_FUNCTION_GET_CLASS(function);
-  g_assert_nonnull(klass->get_argument_count);
+  if (args_count)
+    *args_count = priv->n_args;
 
-  return klass->get_argument_count(function);
-}
-
-GolemMetadata *
-golem_function_get_argument_type(GolemFunction * function,
-				 guint index)
-{
-  g_assert_nonnull(function);
-
-  GolemFunctionClass * klass = GOLEM_FUNCTION_GET_CLASS(function);
-  g_assert_nonnull(klass->get_argument_type);
-
-  return klass->get_argument_type(function,index);
-}
-
-const gchar *
-golem_function_get_argument_name(GolemFunction * function,
-				 guint index)
-{
-  g_assert_nonnull(function);
-
-  GolemFunctionClass * klass = GOLEM_FUNCTION_GET_CLASS(function);
-  g_assert_nonnull(klass->get_argument_name);
-
-  return klass->get_argument_name(function,index);
-}
-
-GolemFunctionArgumentSpec *
-golem_function_get_argument_spec(GolemFunction * function,
-				 guint index)
-{
-
+  return (const GolemParamSpec**)priv->m_args;
 }
 
 
 gboolean
 golem_function_call(GolemFunction * function,
-		      gpointer 		self,
+		      GolemValue * 	self,
 		      guint32 		argc,
 		      GolemValue * 	argv,
 		      GolemValue *	ret,

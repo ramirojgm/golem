@@ -21,9 +21,9 @@
 #define GOLEM_TYPE_FUNCTION	(golem_function_get_type())
 G_DECLARE_DERIVABLE_TYPE(GolemFunction,golem_function,GOLEM,FUNCTION,GolemMetadata)
 
-typedef struct _GolemFunctionArgumentSpec GolemFunctionArgumentSpec;
+typedef struct _GolemParamSpec GolemParamSpec;
 
-struct _GolemFunctionArgumentSpec
+struct _GolemParamSpec
 {
   GolemMetadata * 	type;
   gchar * 		name;
@@ -33,12 +33,8 @@ struct _GolemFunctionClass
 {
   GolemMetadataClass parent_class;
 
-  guint		  (*get_argument_count)(GolemFunction * function);
-  GolemMetadata * (*get_argument_type)(GolemFunction * function,guint index);
-  const gchar *	  (*get_argument_name)(GolemFunction * function,guint index);
-
   gboolean	  (*call)(GolemFunction * function,
-			  gpointer 	self,
+			  GolemValue * 	self,
 			  guint32 	argc,
 			  GolemValue * 	argv,
 			  GolemValue * 	ret,
@@ -54,20 +50,12 @@ GolemTransferMode golem_function_get_transfer_mode(GolemFunction * function);
 
 const gchar *	  golem_function_get_link_name(GolemFunction * function);
 
-guint		  golem_function_get_argument_count(GolemFunction * function);
-
-GolemFunctionArgumentSpec *
-		  golem_function_get_argument_spec(GolemFunction * function,
-						   guint index);
-
-GolemMetadata *	  golem_function_get_argument_type(GolemFunction * function,
-						   guint index);
-
-const gchar *	  golem_function_get_argument_name(GolemFunction * function,
-						   guint index);
+const GolemParamSpec **
+		  golem_function_get_args(GolemFunction * function,
+					  gsize * args_count);
 
 gboolean	  golem_function_call(GolemFunction * function,
-				      gpointer 		self,
+				      GolemValue *	self,
 				      guint32 		argc,
 				      GolemValue * 	argv,
 				      GolemValue *	ret,

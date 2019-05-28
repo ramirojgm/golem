@@ -15,7 +15,7 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "golemvm.h"
+#include "golem.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +24,11 @@
 typedef void (*GolemVMOpFunc) (GolemVMOp * op,
                                GolemVMStack * stack);
 
+struct _GolemVMLink
+{
+  gstring_t 	  m_link_name;
+  GolemFunction * m_function;
+};
 
 typedef struct
 {
@@ -846,7 +851,7 @@ _golem_vm_op_ld  (GolemVMOp * op,
                   GolemVMStack * stack)
 {
   GOLEM_POINTER(golem_vm_stack_v0(stack))
-  = stack->body->m_symbols[op->data.v16];
+  = stack->body->m_links[op->data.v32]->m_function;
   golem_vm_stack_push(stack,1);
   golem_vm_stack_next(stack);
 }
@@ -863,7 +868,11 @@ static inline void
 _golem_vm_op_apt  (GolemVMOp * op,
                   GolemVMStack * stack)
 {
-  //TODO: Implement
+  stack->m_stack_va[stack->n_stack_va] = stack->m_stack[stack->n_stack - 1];
+  stack->n_stack_va ++;
+  golem_vm_stack_pop(stack,1);
+  g_print("Push\n");
+  golem_vm_stack_next(stack);
 }
 
 static inline void
@@ -877,9 +886,28 @@ _golem_vm_op_agt  (GolemVMOp * op,
 
 static inline void
 _golem_vm_op_cal  (GolemVMOp * op,
-                  GolemVMStack * stack)
+                   GolemVMStack * stack)
 {
-  //TODO: Implement
+  GolemFunction * fnt = (GolemFunction *)(golem_vm_stack_v2c(stack,POINTER));
+  GolemValue * self = golem_vm_stack_v1(stack);
+  GolemValue ret = 0;
+  GError * error = NULL;
+  GolemValue * args =
+      stack->m_stack_va +
+      ((stack->n_stack_va - op->data.v16) * sizeof(GolemValue *));
+
+  stack->n_stack_va -= op->data.v16;
+  golem_vm_stack_pop(stack,2);
+
+  if (golem_function_call(fnt,self,op->data.v16,args,&ret,&error))
+    {
+      golem_vm_stack_vpush(stack,&ret);
+    }
+  else
+    {
+      stack->error = error;
+      stack->n_op = stack->body->n_op;
+    }
 }
 
 static inline void
@@ -1235,6 +1263,25 @@ golem_vm_body_get_length(GolemVMBody * body)
   return body->n_op;
 }
 
+
+gboolean
+golem_vm_body_link_dynamic(GolemVMBody * body,
+			   GolemVMSymbolFunc func,
+			   gpointer data,
+			   GError ** error)
+{
+  gboolean done = FALSE;
+  for (guint i = 0; i < body->n_links; i++)
+    {
+      gpointer symbol = NULL;
+      if ((done = func(data,body->m_links[i]->m_link_name,&symbol,error)))
+	body->m_links[i]->m_function = GOLEM_FUNCTION(symbol);
+      else
+	break;
+    }
+  return done;
+}
+
 guint16_t
 golem_vm_body_write_value (GolemVMBody * body,
 			               GolemValue * data)
@@ -1468,10 +1515,15 @@ golem_vm_body_copy(GolemVMBody * body)
       }
     }
 
-  copy_body->m_symbols = g_memdup(
-    body->m_symbols,
-    sizeof(gpointer_t) * body->n_symbols);
-  copy_body->n_symbols = body->n_symbols;
+  copy_body->m_links = g_new0(GolemVMLink*,body->n_links);
+  copy_body->n_links = body->n_links;
+
+  for (guint32 i = 0; i < body->n_links; i++)
+    {
+      copy_body->m_links[i] = g_new0(GolemVMLink,1);
+      copy_body->m_links[i]->m_link_name = g_strdup(body->m_links[i]->m_link_name);
+      copy_body->m_links[i]->m_function = body->m_links[i]->m_function;
+    }
 
   copy_body->m_op = g_memdup(
     body->m_op,
@@ -1479,6 +1531,36 @@ golem_vm_body_copy(GolemVMBody * body)
   copy_body->n_op = body->n_op;
 
   return copy_body;
+}
+
+guint32_t
+golem_vm_body_link(GolemVMBody * body,
+		   const gchar * link_name)
+{
+  GolemVMLink * link = NULL;
+  guint32_t index = 0;
+  for (guint32_t i = 0; i < body->n_links; i++)
+    {
+      if (g_strcmp0(body->m_links[i]->m_link_name,link_name) == 0)
+	{
+	  link = body->m_links[i];
+	  index = i;
+	  break;
+	}
+    }
+
+  if (!link)
+    {
+      index = body->n_links;
+      link = g_new0(GolemVMLink,1);
+      link->m_link_name = g_strdup(link_name);
+      body->n_links ++;
+      body->m_links = g_realloc(body->m_links,
+				sizeof(GolemVMLink*) * (body->n_links));
+      body->m_links[index] = link;
+    }
+
+  return index;
 }
 
 void
@@ -1489,8 +1571,15 @@ golem_vm_body_free(GolemVMBody * body)
       if (body->m_data[i].byte_array)
           g_free(GOLEM_POINTER(&(body->m_data[i].data)));
     }
+
+  for (guint32_t i = 0; i < body->n_links; i++)
+    {
+      g_free(body->m_links[i]->m_link_name);
+      g_free(body->m_links[i]);
+    }
+
   g_free(body->m_data);
-  g_free(body->m_symbols);
+  g_free(body->m_links);
   g_free(body->m_op);
   g_free(body);
 }
