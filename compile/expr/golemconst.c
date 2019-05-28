@@ -20,6 +20,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 GOLEM_DEFINE_STATEMENT(GolemConst,golem_const)
