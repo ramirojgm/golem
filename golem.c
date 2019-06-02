@@ -48,7 +48,7 @@ golem_int_func(gint value)
 
 G_END_DECLS
 
-GolemValue
+void
 test_exp(const gchar * test,gdouble pi,GError ** error)
 {
   GolemValue arguments[2] = {};
@@ -56,9 +56,12 @@ test_exp(const gchar * test,gdouble pi,GError ** error)
 
   GolemVMBody * body = NULL;
   GolemParser * p = golem_parser_new("test");
-  gchar * test_script = g_strdup_printf("{ return %s; }",test);
+  gchar * test_script = g_strdup_printf("return %s;",test);
   golem_parser_parse(p,test_script,-1);
   GolemStatement * block = golem_statement_parse(p,error);
+
+  GolemMetadata * metadata = NULL;
+
   if(block)
     {
       GolemScopeBuilder * scope_builder = golem_scope_builder_new();
@@ -76,6 +79,10 @@ test_exp(const gchar * test,gdouble pi,GError ** error)
       				   "a",
       				   error);
 
+      metadata = golem_statement_value_type(((GolemReturn*)block)->m_expression,
+      				 scope_builder,
+      				 NULL);
+
       golem_statement_compile(block,
 			    body,
 			    scope_builder,
@@ -84,23 +91,51 @@ test_exp(const gchar * test,gdouble pi,GError ** error)
       golem_scope_builder_exit(scope_builder,error);
 
       g_object_unref(scope_builder);
+
       golem_statement_free(block);
     }
+
   g_object_unref(p);
   g_free(test_script);
 
-  GOLEM_FLOAT64(&arguments[0]) = pi;
-  GOLEM_INT32(&arguments[1]) = 25;
-
-  golem_vm_body_link_dynamic(body,ld_function,NULL,NULL);
-
- /* for (guint opi = 0; opi < body->n_op; opi ++)
+  if(body)
     {
-      g_print("-%d\n",body->m_op[opi].op.code);
-    }*/
+      GOLEM_FLOAT64(&arguments[0]) = pi;
+      GOLEM_INT32(&arguments[1]) = 42;
 
-  golem_vm_body_run(body,NULL,2,arguments,&ret,NULL);
-  return ret;
+      golem_vm_body_link_dynamic(body,ld_function,NULL,NULL);
+      golem_vm_body_run(body,NULL,2,arguments,&ret,NULL);
+
+      if (GOLEM_IS_PRIMITIVE(metadata))
+	{
+	  GolemPrimitiveType type =
+	      golem_primitive_get_primitive_type(GOLEM_PRIMITIVE(metadata));
+	  switch(type)
+	  {
+	    case GOLEM_PRIMITIVE_TYPE_BOOL:
+	      g_print("< %s\n",GOLEM_INT32(&ret) ? "true": "false" );
+	      break;
+	    case GOLEM_PRIMITIVE_TYPE_CHAR:
+	    case GOLEM_PRIMITIVE_TYPE_UCHAR:
+	      g_print("< '%c'\n",GOLEM_CHAR(&ret));
+	      break;
+	    case GOLEM_PRIMITIVE_TYPE_FLOAT32:
+	      g_print("< %gf\n",GOLEM_FLOAT32(&ret));
+	      break;
+	    case GOLEM_PRIMITIVE_TYPE_FLOAT64:
+	      g_print("< %g\n",GOLEM_FLOAT64(&ret));
+	      break;
+	    case GOLEM_PRIMITIVE_TYPE_POINTER:
+	      g_print("< %p\n",GOLEM_POINTER(&ret));
+	      break;
+	    case GOLEM_PRIMITIVE_TYPE_STRING:
+	      g_print("< \"%s\"\n",GOLEM_STRING(&ret));
+	      break;
+	    default:
+	      g_print("< %d\n",GOLEM_INT32(&ret));
+	   }
+	}
+    }
 }
 
 gint
@@ -108,7 +143,6 @@ main(gint argc,gchar ** argv)
 {
   gchar buff[128] = {0,};
   GError * error = NULL;
-  GolemValue ret = 0;
 
   g_print("Write 'quit' to finish\n");
 
@@ -120,17 +154,11 @@ main(gint argc,gchar ** argv)
       fflush(stdin);
       if (g_strcmp0(buff,"quit") == 0)
 	break;
-      ret = test_exp(buff,M_PI, &error);
+      test_exp(buff,M_PI, &error);
       if (error)
 	{
 	  g_print("Error: %s\n",error->message);
 	  g_clear_error(&error);
-	}
-      else
-	{
-	  g_print("I32: %d\nF64: %g\n",
-		  GOLEM_INT32(&ret),
-		  GOLEM_FLOAT64(&ret));
 	}
     }
   return 0;
