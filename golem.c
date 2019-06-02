@@ -22,26 +22,36 @@
 #include "math.h"
 
 GolemMetadata *
-golem_type_int_to_string();
+golem_type_int_func();
 
 gboolean ld_function(gpointer data,
 		     const gchar * link_name,
 		     gpointer * symbol,
 		     GError ** error)
 {
-  if (g_strcmp0(link_name,"golem_type_int_to_string") == 0)
+  if (g_strcmp0(link_name,"golem_int_func") == 0)
     {
-      *symbol = golem_type_int_to_string();
-      g_print("Linked");
+      *symbol = golem_type_int_func();
       return TRUE;
     }
   return FALSE;
 }
 
+G_BEGIN_DECLS
+
+G_MODULE_EXPORT gint
+golem_int_func(gint value)
+{
+  return value * 100;
+}
+
+
+G_END_DECLS
+
 GolemValue
 test_exp(const gchar * test,gdouble pi,GError ** error)
 {
-  GolemValue arguments[1] = {};
+  GolemValue arguments[2] = {};
   GolemValue ret;
 
   GolemVMBody * body = NULL;
@@ -60,6 +70,12 @@ test_exp(const gchar * test,gdouble pi,GError ** error)
 				   GOLEM_TYPE_DOUBLE,
 				   "pi",
 				   error);
+
+      golem_scope_builder_argument(scope_builder,
+      				   GOLEM_TYPE_INT,
+      				   "a",
+      				   error);
+
       golem_statement_compile(block,
 			    body,
 			    scope_builder,
@@ -74,8 +90,16 @@ test_exp(const gchar * test,gdouble pi,GError ** error)
   g_free(test_script);
 
   GOLEM_FLOAT64(&arguments[0]) = pi;
+  GOLEM_INT32(&arguments[1]) = 25;
+
   golem_vm_body_link_dynamic(body,ld_function,NULL,NULL);
-  golem_vm_body_run(body,NULL,1,arguments,&ret,NULL);
+
+ /* for (guint opi = 0; opi < body->n_op; opi ++)
+    {
+      g_print("-%d\n",body->m_op[opi].op.code);
+    }*/
+
+  golem_vm_body_run(body,NULL,2,arguments,&ret,NULL);
   return ret;
 }
 

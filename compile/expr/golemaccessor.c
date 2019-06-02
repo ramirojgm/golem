@@ -70,7 +70,6 @@ golem_accessor_compile(GolemAccessor * acc,
 {
   gboolean done = TRUE;
   GolemMetadata * member = golem_accessor_value_type(acc,scope_builder,error);
-  g_print("Accessor Compile\n");
   if (member)
     {
       if ((done = golem_statement_compile(acc->parent.base,

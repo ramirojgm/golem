@@ -3,6 +3,8 @@ project('golem','c')
 glib_deps = dependency('glib-2.0')
 gobject_deps = dependency('gobject-2.0')
 gio_deps = dependency('gio-2.0')
+gmodule_deps = dependency('gmodule-2.0')
+libffi_deps = dependency('libffi')
 
 
 golem_exec = executable ('golem',[
@@ -62,7 +64,9 @@ golem_exec = executable ('golem',[
             dependencies: [
             	glib_deps,
             	gobject_deps,
-            	gio_deps
+            	gio_deps,
+            	gmodule_deps,
+            	libffi_deps
 	       ],
 	       link_args: '-lm',
             install: true)

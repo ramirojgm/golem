@@ -871,7 +871,6 @@ _golem_vm_op_apt  (GolemVMOp * op,
   stack->m_stack_va[stack->n_stack_va] = stack->m_stack[stack->n_stack - 1];
   stack->n_stack_va ++;
   golem_vm_stack_pop(stack,1);
-  g_print("Push\n");
   golem_vm_stack_next(stack);
 }
 
@@ -888,8 +887,9 @@ static inline void
 _golem_vm_op_cal  (GolemVMOp * op,
                    GolemVMStack * stack)
 {
-  GolemFunction * fnt = (GolemFunction *)(golem_vm_stack_v2c(stack,POINTER));
-  GolemValue * self = golem_vm_stack_v1(stack);
+  GolemFunction * fnt = (GolemFunction *)(golem_vm_stack_v1c(stack,POINTER));
+  GolemValue * self = golem_vm_stack_v2(stack);
+
   GolemValue ret = 0;
   GError * error = NULL;
   GolemValue * args =
@@ -902,12 +902,14 @@ _golem_vm_op_cal  (GolemVMOp * op,
   if (golem_function_call(fnt,self,op->data.v16,args,&ret,&error))
     {
       golem_vm_stack_vpush(stack,&ret);
+      golem_vm_stack_next(stack);
     }
   else
     {
       stack->error = error;
       stack->n_op = stack->body->n_op;
     }
+
 }
 
 static inline void
@@ -1465,6 +1467,7 @@ golem_vm_body_run(GolemVMBody * body,
     stack.scope = golem_vm_scope_copy(scope);
 
   stack.n_stack = 0;
+  stack.n_stack_va = 0;
   stack.body = body;
   stack.n_op = 0;
   stack.v_arg = argv;

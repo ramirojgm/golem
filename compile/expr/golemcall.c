@@ -48,7 +48,6 @@ golem_call_compile(GolemCall * call,
 		  GolemScopeBuilder * scope_builder,
 		  GError ** error)
 {
-  g_print("Yep\n");
   gboolean done = TRUE;
   for (GList * iter = g_list_first(call->arguments);iter; iter = iter->next)
     {
@@ -68,20 +67,11 @@ golem_call_compile(GolemCall * call,
 					     scope_builder,
 					     error);
 	      if (done)
-		{
-		  GolemStatementExt * self =
-		      (GolemStatementExt*)(call->parent.base);
-		  done = golem_statement_compile(self->base,
-						  body,
-						  scope_builder,
-						  error);
-		  if (done)
-		    {
-		      golem_vm_body_write_op16(body,
-					       GOLEM_OP_CAL,
-					       g_list_length(call->arguments));
-		    }
-		}
+		  {
+		    golem_vm_body_write_op16(body,
+					     GOLEM_OP_CAL,
+					     g_list_length(call->arguments));
+		  }
 	    }
 	  else
 	    {

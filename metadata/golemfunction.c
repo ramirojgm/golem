@@ -48,6 +48,7 @@ golem_function_call_default (GolemFunction * 	function,
 			      GolemValue * 	ret,
 			      GError ** 	error)
 {
+  GOLEM_INT32(ret) = 0;
   g_set_error(error,
 	      GOLEM_ERROR,
 	      GOLEM_ERROR_NOT_IMPLEMENTED,
